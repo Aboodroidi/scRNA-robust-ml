@@ -1,0 +1,13 @@
+input=data/processed/pbmc68k_labeled.h5ad
+label_col=cell_type
+hidden=256
+dropout=0.3
+l1=1e-05
+lr=0.001
+weight_decay=0.0
+batch_size=256
+epochs=20
+test_size=0.2
+seed=42
+max_cells=0
+early_stop_patience=5

@@ -1,0 +1,14 @@
+B cells
+CD8 T
+Cluster 0
+Cluster 12
+Cluster 13
+Cluster 15
+Cluster 16
+Cluster 19
+Cluster 6
+Cluster 8
+Cluster 9
+Mono
+NK
+Platelet
