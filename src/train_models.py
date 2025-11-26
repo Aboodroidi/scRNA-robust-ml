@@ -29,17 +29,45 @@ FIGURES_DIR = os.path.join(OUTPUT_DIR, "figures")
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 
+# subsampling / feature selection settings
+MAX_CELLS = 20000        # cap number of cells for faster training
+N_TOP_GENES = 2000       # number of highly variable genes to keep
+
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 os.makedirs(FIGURES_DIR, exist_ok=True)
 
 
-def load_data(data_path: str):
-    """Load h5ad file and return (X, y, label_names)."""
+def load_data(
+    data_path: str,
+    max_cells: int = MAX_CELLS,
+    n_top_genes: int = N_TOP_GENES,
+):
+    """
+    Load h5ad file, optionally subsample cells and select highly variable genes.
+    Returns (X, y, label_names).
+    """
     adata = sc.read_h5ad(data_path)
+
+    # 1) Optionally subsample cells for faster baselines
+    if max_cells is not None and adata.n_obs > max_cells:
+        rng = np.random.RandomState(RANDOM_STATE)
+        idx = rng.choice(adata.n_obs, size=max_cells, replace=False)
+        adata = adata[idx].copy()
+
+    # 2) Select highly variable genes to reduce dimensionality
+    sc.pp.highly_variable_genes(
+        adata,
+        n_top_genes=n_top_genes,
+        flavor="seurat",   # uses standard Seurat flavor (no scikit-misc needed)
+    )
+    adata = adata[:, adata.var["highly_variable"]].copy()
+
+    # 3) Extract X and labels
     X = adata.X
     cell_type_cat = adata.obs["cell_type"].astype("category")
     y = cell_type_cat.cat.codes
     label_names = list(cell_type_cat.cat.categories)
+
     return X, y, label_names
 
 
@@ -81,15 +109,14 @@ def train_xgboost(X_train, y_train, X_test, y_test, num_classes: int, output_dir
     xgb_model = XGBClassifier(
         objective="multi:softprob",
         num_class=num_classes,
-        max_depth=6,
+        max_depth=4,         # shallower trees: faster & less overfit
         learning_rate=0.1,
-        n_estimators=200,
+        n_estimators=100,    # fewer trees than before for speed
         subsample=0.8,
         colsample_bytree=0.8,
         random_state=RANDOM_STATE,
-        n_jobs=1,           # single-threaded for macOS
-        tree_method="hist", # CPU-friendly & stable
-        # predictor parameter removed (was ignored and caused a warning)
+        n_jobs=1,            # single-threaded for macOS
+        tree_method="hist",  # CPU-friendly & stable
     )
     xgb_model.fit(X_train, y_train)
 

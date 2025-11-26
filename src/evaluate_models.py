@@ -23,12 +23,38 @@ FIGURES_DIR = os.path.join(OUTPUT_DIR, "figures")
 RANDOM_STATE = 42
 TEST_SIZE = 0.2
 
+# same subsampling / feature-selection settings as train_models.py
+MAX_CELLS = 20000
+N_TOP_GENES = 2000
+
 os.makedirs(FIGURES_DIR, exist_ok=True)
 
 
-def load_data_and_split():
-    """Load data and reproduce the same train-test split + scaling."""
+def load_data_and_split(
+    max_cells: int = MAX_CELLS,
+    n_top_genes: int = N_TOP_GENES,
+):
+    """
+    Load data, apply the same subsampling + HVG selection as in train_models.py,
+    then reproduce the train-test split + scaling.
+    """
     adata = sc.read_h5ad(DATA_PATH)
+
+    # 1) Subsample cells (same logic as train_models.load_data)
+    if max_cells is not None and adata.n_obs > max_cells:
+        rng = np.random.RandomState(RANDOM_STATE)
+        idx = rng.choice(adata.n_obs, size=max_cells, replace=False)
+        adata = adata[idx].copy()
+
+    # 2) Highly variable genes (same as training)
+    sc.pp.highly_variable_genes(
+        adata,
+        n_top_genes=n_top_genes,
+        flavor="seurat",   # same flavor as in train_models.py
+    )
+    adata = adata[:, adata.var["highly_variable"]].copy()
+
+    # 3) Extract X, y, labels
     X = adata.X
     cell_type_cat = adata.obs["cell_type"].astype("category")
     y = cell_type_cat.cat.codes
@@ -42,7 +68,7 @@ def load_data_and_split():
         random_state=RANDOM_STATE,
     )
 
-    # Either load the saved scaler or re-fit; both are equivalent if config matches
+    # Use the same scaler if available
     scaler_path = os.path.join(OUTPUT_DIR, "scaler.pkl")
     if os.path.exists(scaler_path):
         scaler = joblib.load(scaler_path)
