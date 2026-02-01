@@ -50,13 +50,19 @@ def main():
         for ctype, genes in PBMC_MARKERS.items():
             score_per_type[ctype] = len(tops.intersection({g.upper() for g in genes}))
         best = max(score_per_type, key=score_per_type.get)
-        cluster_labels[cl] = best if score_per_type[best] > 0 else f"Cluster {cl}"
+        cluster_labels[cl] = best if score_per_type[best] > 0 else f"CL {cl}"
 
     # 4) attach labels and save coloured UMAP
     adata.obs["cell_type"] = adata.obs["leiden"].map(cluster_labels).astype("category")
     adata.write(OUT_PATH)
 
-    sc.pl.umap(adata, color=["cell_type"], legend_loc="on data", show=False)
+    sc.pl.umap(
+    adata,
+    color=["cell_type"],
+    legend_loc="on data",
+    legend_fontsize=7,   # 👈 smaller text (try 6 if still crowded)
+    show=False
+    )
     plt.savefig(f"{PLOT_DIR}/pbmc68k_umap_by_celltype.png", dpi=200, bbox_inches="tight")
 
     # also save a confusion-style table: cluster -> assigned label counts
