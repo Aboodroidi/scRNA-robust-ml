@@ -1,0 +1,26 @@
+{
+  "variant": "dropout_0p3",
+  "best_epoch": 19,
+  "best_val_macro_f1": 0.9144063051169384,
+  "final_test_macro_f1": 0.910508877804412,
+  "final_test_accuracy": 0.9378238341968912,
+  "final_test_loss": 0.16501678420593816,
+  "training_time_sec": 12.490140914916992,
+  "config": {
+    "pca_key": "X_pca",
+    "pca_dim": 50,
+    "test_size": 0.2,
+    "val_size": 0.1,
+    "epochs": 20,
+    "batch_size": 256,
+    "lr": 0.001,
+    "weight_decay": 0.0,
+    "hidden_dim": 256,
+    "dropout": 0.3,
+    "activation": "relu",
+    "use_batchnorm": false,
+    "l1_lambda": 0.0,
+    "seed": 42,
+    "device": "cpu"
+  }
+}
