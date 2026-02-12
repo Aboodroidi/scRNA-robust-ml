@@ -1,0 +1,13 @@
+{
+  "temperature_T": 0.7046449780464172,
+  "calibration_nll_before": 0.08886290341615677,
+  "calibration_nll_after": 0.08119533956050873,
+  "fit_time_seconds": 0.24795317649841309,
+  "test_accuracy_before": 0.9406699262935123,
+  "test_accuracy_after": 0.9406699262935123,
+  "test_ece_before": 0.009062483342365691,
+  "test_ece_after": 0.02563583754731088,
+  "bins": 10,
+  "cal_frac": 0.2,
+  "seed": 42
+}
