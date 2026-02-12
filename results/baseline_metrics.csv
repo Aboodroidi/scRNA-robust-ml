@@ -1,3 +1,3 @@
 Model,Accuracy,Macro-F1
-Logistic Regression,0.88325,0.8388534810839922
-XGBoost,0.8955,0.8555616719308983
+Logistic Regression,0.8827,0.8394
+XGBoost,0.9157,0.875
