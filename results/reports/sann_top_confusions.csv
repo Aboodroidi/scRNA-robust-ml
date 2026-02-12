@@ -1,0 +1,6 @@
+true_label,pred_label,count,pct_of_true_class,true_class_size
+CL 0,CD8 T,75,2.165,3465
+CD8 T,CL 0,53,2.735,1938
+CL 6,CL 0,40,6.689,598
+CL 0,CL 6,37,1.068,3465
+CD8 T,NK,37,1.909,1938
