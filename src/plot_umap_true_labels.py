@@ -1,5 +1,4 @@
 import os
-import json
 import argparse
 
 import numpy as np
@@ -9,11 +8,9 @@ import matplotlib as mpl
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Plot UMAP coloured by SANN predicted labels (test cells only).")
+    p = argparse.ArgumentParser(description="Plot UMAP coloured by TRUE labels using SAME palette + layout as SANN plot.")
     p.add_argument("--adata", type=str, default="data/processed/pbmc68k_labeled.h5ad")
-    p.add_argument("--splits", type=str, default="results/ablations/fixed_splits.json")
-    p.add_argument("--pred", type=str, default="results/sann_test_pred.npy")
-    p.add_argument("--out", type=str, default="results/figures/umap_pred_sann.png")
+    p.add_argument("--out", type=str, default="results/figures/umap_true_labels.png")
     p.add_argument("--umap_key", type=str, default="X_umap")
     p.add_argument("--label_key", type=str, default="cell_type")
 
@@ -28,21 +25,29 @@ def parse_args():
                    help="Matplotlib categorical cmap (e.g. tab20, tab20b, tab20c).")
 
     # legend appearance
-    p.add_argument("--legend_marker_size", type=float, default=70.0)
+    p.add_argument("--legend_marker_size", type=float, default=70.0)  # bigger swatches
     p.add_argument("--legend_markerscale", type=float, default=2.6)
     return p.parse_args()
 
 
 def build_palette(class_names, cmap_name="tab20"):
+    """
+    Deterministic mapping: class_name -> RGBA color.
+    Uses modern matplotlib colormaps API (no deprecation warning).
+    """
     cmap = mpl.colormaps.get_cmap(cmap_name).resampled(len(class_names))
     return {c: cmap(i) for i, c in enumerate(class_names)}
 
 
 def set_legend_marker_style(legend, marker_size=70.0):
+    """
+    Matplotlib-version-safe way to edit legend marker size/alpha.
+    """
     handles = getattr(legend, "legendHandles", None)
     if handles is None:
         handles = getattr(legend, "legend_handles", None)
     if handles is None:
+        # fallback
         try:
             handles = legend.legend_handles
         except Exception:
@@ -54,6 +59,7 @@ def set_legend_marker_style(legend, marker_size=70.0):
         except Exception:
             pass
         try:
+            # PathCollection from scatter
             h.set_sizes([marker_size])
         except Exception:
             pass
@@ -63,66 +69,32 @@ def main():
     args = parse_args()
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
 
-    # 1) Load AnnData
     adata = sc.read_h5ad(args.adata)
 
     if args.umap_key not in adata.obsm:
         raise ValueError(f"UMAP not found: adata.obsm['{args.umap_key}'] missing.")
+    if args.label_key not in adata.obs:
+        raise ValueError(f"Label column missing: adata.obs['{args.label_key}'] not found.")
 
     umap = adata.obsm[args.umap_key]
     if umap.shape[1] < 2:
         raise ValueError(f"UMAP embedding must have at least 2 dims. Found shape: {umap.shape}")
 
-    if args.label_key not in adata.obs:
-        raise ValueError(f"Label column missing: adata.obs['{args.label_key}'] not found.")
-
-    # lock category order from dataset (must match training)
-    class_names = list(adata.obs[args.label_key].astype("category").cat.categories)
-    num_classes = len(class_names)
-    color_map = build_palette(class_names, args.palette)
-
-    # 2) Load split indices
-    with open(args.splits, "r") as f:
-        splits = json.load(f)
-    if "test_idx" not in splits:
-        raise ValueError(f"Split file must contain 'test_idx'. Found keys: {list(splits.keys())}")
-    test_idx = np.array(splits["test_idx"], dtype=int)
-
-    # 3) Load SANN predictions (class indices)
-    y_pred = np.load(args.pred).astype(int)
-
-    # 4) Checks
-    print(f"[Sanity] adata.n_obs: {adata.n_obs}")
-    print(f"[Sanity] UMAP key: {args.umap_key} | shape: {umap.shape}")
-    print(f"[Sanity] #classes: {num_classes}")
-    print(f"[Sanity] class names: {class_names}")
-    print(f"[Sanity] test_idx length: {len(test_idx)}")
-    print(f"[Sanity] sann_test_pred length: {len(y_pred)}")
-
-    if len(test_idx) != len(y_pred):
-        raise ValueError(f"Mismatch: len(test_idx)={len(test_idx)} but len(pred)={len(y_pred)}")
-
-    if y_pred.min() < 0 or y_pred.max() >= num_classes:
-        raise ValueError(
-            f"Pred values out of range. min={y_pred.min()}, max={y_pred.max()}, expected [0, {num_classes-1}]"
-        )
-
-    # 5) Create full-length predicted label column (NA for train cells)
-    full_pred = np.array(["NA"] * adata.n_obs, dtype=object)
-    pred_labels_test = np.array([class_names[i] for i in y_pred], dtype=object)
-    full_pred[test_idx] = pred_labels_test
-    adata.obs["sann_pred"] = full_pred
-
-    n_coloured = np.sum(adata.obs["sann_pred"].values != "NA")
-    print(f"[Sanity] #coloured points (should equal test_idx): {n_coloured}")
-
-    # 6) Plot UMAP
     x = umap[:, 0]
     y = umap[:, 1]
 
+    # lock category order
+    y_cat = adata.obs[args.label_key].astype("category")
+    class_names = list(y_cat.cat.categories)
+    color_map = build_palette(class_names, args.palette)
+
+    print(f"[Sanity] adata.n_obs: {adata.n_obs}")
+    print(f"[Sanity] #classes: {len(class_names)}")
+    print(f"[Sanity] class names: {class_names}")
+
     fig, ax = plt.subplots(figsize=(8.5, 7.5))
 
-    # background: FORCE GREY
+    # background GREY
     ax.scatter(
         x, y,
         s=args.point_size,
@@ -131,9 +103,10 @@ def main():
         c="lightgrey",
     )
 
-    # overlay only test cells by predicted label (consistent colors)
+    # overlay TRUE labels with fixed colors
+    y_true = y_cat.astype(str).values
     for cname in class_names:
-        mask = (adata.obs["sann_pred"].values == cname)
+        mask = (y_true == cname)
         if np.any(mask):
             ax.scatter(
                 x[mask], y[mask],
@@ -146,14 +119,14 @@ def main():
 
     ax.set_xlabel("UMAP1")
     ax.set_ylabel("UMAP2")
-    ax.set_title("SANN Predicted Labels")
+    ax.set_title("True Labels")
     ax.grid(False)
 
     legend = ax.legend(
         loc="center left",
         bbox_to_anchor=(1.02, 0.5),
         frameon=False,
-        title="Predicted",
+        title="True",
         markerscale=args.legend_markerscale,
         scatterpoints=1,
         fontsize=11,
