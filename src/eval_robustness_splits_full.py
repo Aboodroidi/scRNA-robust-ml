@@ -3,6 +3,7 @@ import os
 import json
 import time
 import argparse
+import xgboost as xgb
 
 # ----------------------------
 # Mac-friendly single-thread setup
@@ -116,36 +117,48 @@ def train_eval_lr(X_train, y_train, X_test, y_test, seed: int):
 
 
 def train_eval_xgb(X_train, y_train, X_test, y_test, num_classes: int, seed: int):
-    # Big model + early stopping using callback (works across xgboost versions)
-    model = XGBClassifier(
-        objective="multi:softprob",
-        num_class=num_classes,
-        max_depth=6,
-        learning_rate=0.03,
-        n_estimators=5000,        # large, rely on early stopping
-        subsample=0.9,
-        colsample_bytree=0.9,
-        reg_lambda=1.0,
-        random_state=seed,
-        n_jobs=1,
-        tree_method="hist",
-        eval_metric="mlogloss",
+    """
+    Version-proof XGBoost training with early stopping using xgboost.train().
+    Works even when XGBClassifier.fit() doesn't support early_stopping_rounds/callbacks.
+    """
+    t0 = time.time()
+
+    dtrain = xgb.DMatrix(X_train, label=y_train)
+    dvalid = xgb.DMatrix(X_test, label=y_test)
+
+    params = {
+        "objective": "multi:softprob",
+        "num_class": int(num_classes),
+        "eta": 0.03,
+        "max_depth": 6,
+        "subsample": 0.9,
+        "colsample_bytree": 0.9,
+        "lambda": 1.0,
+        "eval_metric": "mlogloss",
+        "seed": int(seed),
+        "nthread": 1,
+        "tree_method": "hist",
+    }
+
+    booster = xgb.train(
+        params=params,
+        dtrain=dtrain,
+        num_boost_round=5000,
+        evals=[(dvalid, "valid")],
+        early_stopping_rounds=50,
+        verbose_eval=False,
     )
 
-    t0 = time.time()
-    model.fit(
-        X_train, y_train,
-        eval_set=[(X_test, y_test)],
-        verbose=False,
-        callbacks=[xgb.callback.EarlyStopping(rounds=50, save_best=True)]
-    )
-    pred = model.predict(X_test)
+    probs = booster.predict(dvalid)  # (N, C)
+    pred = np.argmax(probs, axis=1)
+
     acc = accuracy_score(y_test, pred)
     mf1 = f1_score(y_test, pred, average="macro")
-    t1 = time.time()
 
-    best_iter = getattr(model, "best_iteration", None)
+    t1 = time.time()
+    best_iter = getattr(booster, "best_iteration", None)
     note = f"best_iter={best_iter}" if best_iter is not None else "best_iter=NA"
+
     return acc, mf1, (t1 - t0), note
 
 
