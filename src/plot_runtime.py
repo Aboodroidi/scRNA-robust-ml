@@ -8,12 +8,28 @@ import matplotlib.pyplot as plt
 
 def parse_args():
     p = argparse.ArgumentParser(description="Plot training runtime per model (points + mean±std).")
-    p.add_argument("--csv", type=str, default="results/reports/robustness_splits.csv",
-                   help="Long CSV with columns: model, train_time_seconds (and optionally split_id/seed).")
-    p.add_argument("--out_fig", type=str, default="results/figures/runtime_time_per_model.png")
-    p.add_argument("--out_summary", type=str, default="results/reports/runtime_summary.csv")
-    p.add_argument("--dpi", type=int, default=300)
 
+    # UPDATED DEFAULTS (new full-training robustness file)
+    p.add_argument(
+        "--csv",
+        type=str,
+        default="results/full_train/reports/robustness_splits_full.csv",
+        help="Long CSV with columns: model, train_time_seconds (and optionally split_id/seed).",
+    )
+    p.add_argument(
+        "--out_fig",
+        type=str,
+        default="results/figures/runtime_time_per_model_full.png",
+        help="Output figure path.",
+    )
+    p.add_argument(
+        "--out_summary",
+        type=str,
+        default="results/full_train/reports/runtime_summary_full.csv",
+        help="Output summary CSV path.",
+    )
+
+    p.add_argument("--dpi", type=int, default=300)
     p.add_argument("--unit", type=str, default="seconds", choices=["seconds", "minutes"],
                    help="Plot in seconds or minutes.")
     p.add_argument("--jitter", type=float, default=0.06, help="Horizontal jitter for points.")
@@ -22,18 +38,22 @@ def parse_args():
 
 def standardise_model_name(x: str) -> str:
     x = str(x).strip()
-    x_upper = x.upper()
-    if x_upper in ["LOGISTIC REGRESSION", "LOGREG", "LR"]:
+    u = x.upper()
+    if u in {"LOGISTIC REGRESSION", "LOGREG", "LR"}:
         return "LR"
-    if x_upper in ["XGBOOST", "XGB"]:
+    if u in {"XGBOOST", "XGB"}:
         return "XGB"
-    if x_upper in ["SANN"]:
+    if u in {"SANN"}:
         return "SANN"
-    return x_upper
+    return u
 
 
 def main():
     args = parse_args()
+
+    if not os.path.exists(args.csv):
+        raise FileNotFoundError(f"CSV not found: {args.csv}")
+
     os.makedirs(os.path.dirname(args.out_fig), exist_ok=True)
     os.makedirs(os.path.dirname(args.out_summary), exist_ok=True)
 
@@ -45,25 +65,26 @@ def main():
     if missing:
         raise ValueError(f"Missing required columns {missing}. Found columns: {list(df.columns)}")
 
-    # clean + standardise names
+    # clean + standardise
     df = df.copy()
     df["model"] = df["model"].apply(standardise_model_name)
     df["train_time_seconds"] = pd.to_numeric(df["train_time_seconds"], errors="coerce")
     df = df.dropna(subset=["train_time_seconds"])
     df = df[df["train_time_seconds"] > 0]
 
-    # keep only expected models in desired order (if present)
+    # keep only expected models
     order = ["LR", "XGB", "SANN"]
     models = [m for m in order if m in set(df["model"])]
     if not models:
-        raise ValueError("No recognised models found after standardisation (expected LR/XGB/SANN).")
+        raise ValueError(f"No recognised models found. Found: {sorted(df['model'].unique())}")
 
-    # convert unit if needed
+    # unit conversion
     scale = 60.0 if args.unit == "minutes" else 1.0
     df["time_unit"] = df["train_time_seconds"] / scale
     y_label = "Training time (minutes)" if args.unit == "minutes" else "Training time (seconds)"
+    unit_short = "min" if args.unit == "minutes" else "s"
 
-    # summary stats
+    # summary
     summary = (
         df.groupby("model")["time_unit"]
           .agg(["mean", "std", "count", "min", "max"])
@@ -76,10 +97,9 @@ def main():
     for _, r in summary.iterrows():
         m = r["model"]
         mean = r["mean"]
-        std = r["std"] if not np.isnan(r["std"]) else 0.0
+        std = 0.0 if np.isnan(r["std"]) else r["std"]
         n = int(r["count"])
-        unit = "min" if args.unit == "minutes" else "s"
-        print(f"  {m}: {mean:.2f} ± {std:.2f} {unit} (n={n})")
+        print(f"  {m}: {mean:.2f} ± {std:.2f} {unit_short} (n={n}) | min={r['min']:.2f}, max={r['max']:.2f}")
     print(f"[Saved] {args.out_summary}")
 
     # plot
@@ -92,21 +112,23 @@ def main():
     # mean ± std error bars
     ax.errorbar(x, means, yerr=stds, fmt="o", capsize=6, elinewidth=1.5, markersize=7)
 
-    # jittered raw points
+    # raw points with jitter
     rng = np.random.RandomState(42)
     for i, m in enumerate(models, start=1):
         vals = df.loc[df["model"] == m, "time_unit"].values
         xj = rng.normal(loc=i, scale=args.jitter, size=len(vals))
         ax.scatter(xj, vals, s=28, alpha=0.85, linewidths=0)
 
-        # annotate mean ± std
-        std_val = stds[i-1]
-        offset = (std_val if std_val > 0 else (0.02 * means[i-1] if means[i-1] > 0 else 0.2))
-        unit_txt = "min" if args.unit == "minutes" else "s"
+        std_val = stds[i - 1]
+        offset = std_val if std_val > 0 else (0.02 * means[i - 1] if means[i - 1] > 0 else 0.2)
+
         ax.text(
-            i, means[i-1] + offset + 0.02 * means[i-1],
-            f"{means[i-1]:.2f} ± {stds[i-1]:.2f} {unit_txt}",
-            ha="center", va="bottom", fontsize=10
+            i,
+            means[i - 1] + offset + 0.02 * means[i - 1],
+            f"{means[i - 1]:.2f} ± {stds[i - 1]:.2f} {unit_short}",
+            ha="center",
+            va="bottom",
+            fontsize=10
         )
 
     ax.set_xticks(x)
