@@ -3,5 +3,9 @@
   "train_size": 43161,
   "val_size": 4796,
   "test_size": 13703,
-  "val_frac": 0.1
+  "val_frac": 0.1,
+  "pca_dim": 50,
+  "sann_expression_features": 2000,
+  "sann_total_input_dim": 4000,
+  "l1_lambda": 1e-06
 }

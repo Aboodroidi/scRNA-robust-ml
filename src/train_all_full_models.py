@@ -1,19 +1,21 @@
 # src/train_all_full_models.py
 import os
-import json
-import time
-import argparse
-import numpy as np
-import pandas as pd
-import scanpy as sc
 
-# mac-friendly: keep threads low
+# mac-friendly: set BEFORE importing numpy / scanpy / sklearn / xgboost / torch
 os.environ["OMP_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 os.environ["MPLBACKEND"] = "Agg"
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+import json
+import time
+import argparse
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import scipy.sparse as sp
 
 import joblib
 
@@ -33,12 +35,16 @@ from torch.utils.data import DataLoader, TensorDataset
 # SANN MODEL
 # ----------------------------
 class SANN(nn.Module):
+    """
+    Sparse-Aware Neural Network:
+    input = [expression features, binary sparsity mask]
+    """
     def __init__(self, input_dim, num_classes, hidden_dim=256, dropout=0.1, use_batchnorm=True):
         super().__init__()
         layers = [nn.Linear(input_dim, hidden_dim)]
         if use_batchnorm:
             layers.append(nn.BatchNorm1d(hidden_dim))
-        layers += [nn.ReLU()]
+        layers.append(nn.ReLU())
         if dropout and dropout > 0:
             layers.append(nn.Dropout(dropout))
         layers.append(nn.Linear(hidden_dim, num_classes))
@@ -51,21 +57,66 @@ class SANN(nn.Module):
 # ----------------------------
 # Utilities
 # ----------------------------
-def load_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50):
-    adata = sc.read_h5ad(data_path)
+def to_dense_float32(x):
+    """Convert sparse/dense matrix to dense float32 numpy array."""
+    if sp.issparse(x):
+        return x.toarray().astype(np.float32)
+    return np.asarray(x, dtype=np.float32)
 
+
+def load_labels(adata, label_key="cell_type"):
     if label_key not in adata.obs:
         raise ValueError(f"Expected adata.obs['{label_key}']")
-
-    if pca_key not in adata.obsm:
-        raise ValueError(f"Expected adata.obsm['{pca_key}'] (PCA features)")
 
     y_cat = adata.obs[label_key].astype("category")
     y = y_cat.cat.codes.to_numpy()
     class_names = list(y_cat.cat.categories)
+    return y, class_names
 
-    X = np.asarray(adata.obsm[pca_key][:, :pca_dim], dtype=np.float32)
-    return X, y, class_names
+
+def load_pca_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50):
+    """
+    Load PCA representation for LR and XGBoost baselines.
+    """
+    adata = sc.read_h5ad(data_path)
+
+    if pca_key not in adata.obsm:
+        raise ValueError(f"Expected adata.obsm['{pca_key}'] (PCA features)")
+
+    y, class_names = load_labels(adata, label_key=label_key)
+    X_pca = np.asarray(adata.obsm[pca_key][:, :pca_dim], dtype=np.float32)
+
+    return X_pca, y, class_names
+
+
+def load_sann_data(data_path, label_key="cell_type", hvg_key="highly_variable", max_hvgs=None):
+    """
+    Load expression matrix for SANN.
+    Uses adata.X and, if present, subsets to highly variable genes.
+    Then constructs a binary sparsity mask and concatenates:
+        X_sann = [expression_values, binary_mask]
+    """
+    adata = sc.read_h5ad(data_path)
+
+    y, class_names = load_labels(adata, label_key=label_key)
+
+    if hvg_key in adata.var.columns:
+        hvg_mask = adata.var[hvg_key].to_numpy().astype(bool)
+        if hvg_mask.sum() == 0:
+            raise ValueError(f"adata.var['{hvg_key}'] exists but contains no True values.")
+        adata_expr = adata[:, hvg_mask].copy()
+    else:
+        adata_expr = adata
+
+    X_expr = to_dense_float32(adata_expr.X)
+
+    if max_hvgs is not None and X_expr.shape[1] > max_hvgs:
+        X_expr = X_expr[:, :max_hvgs]
+
+    X_mask = (X_expr != 0).astype(np.float32)
+    X_sann = np.concatenate([X_expr, X_mask], axis=1).astype(np.float32)
+
+    return X_sann, y, class_names, X_expr.shape[1]
 
 
 def load_fixed_split(split_path):
@@ -121,11 +172,18 @@ def fit_temperature_on_validation(logits_val: np.ndarray, y_val: np.ndarray, dev
     return max(temperature, 1e-3)
 
 
+def l1_penalty(model: nn.Module) -> torch.Tensor:
+    penalty = torch.tensor(0.0, device=next(model.parameters()).device)
+    for param in model.parameters():
+        penalty = penalty + param.abs().sum()
+    return penalty
+
+
 # ----------------------------
-# Logistic Regression (FASTER)
+# Logistic Regression
 # ----------------------------
 def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
-    print("\nTraining Logistic Regression (tuning C on validation, faster setup)...")
+    print("\nTraining Logistic Regression (PCA features, tuning C on validation)...")
     t0 = time.time()
 
     scaler = StandardScaler()
@@ -137,7 +195,6 @@ def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
     best_C = None
     best_model = None
 
-    # smaller grid + faster solver for dense PCA features
     c_grid = [0.1, 1.0, 5.0]
 
     for C in c_grid:
@@ -179,7 +236,7 @@ def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
         "Accuracy": float(accuracy_score(y_test, pred_test)),
         "Macro-F1": float(f1_score(y_test, pred_test, average="macro")),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"best_C={best_C}; solver=lbfgs; grid={c_grid}",
+        "Notes": f"input=PCA; best_C={best_C}; solver=lbfgs; grid={c_grid}",
     }
 
 
@@ -187,7 +244,7 @@ def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
 # XGBoost
 # ----------------------------
 def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir):
-    print("\nTraining XGBoost (early stopping on validation)...")
+    print("\nTraining XGBoost (PCA features, early stopping on validation)...")
     t0 = time.time()
 
     dtrain = xgb.DMatrix(X_train, label=y_train)
@@ -237,15 +294,25 @@ def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, 
         "Accuracy": float(acc),
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"best_iter={int(booster.best_iteration)}",
+        "Notes": f"input=PCA; best_iter={int(booster.best_iteration)}",
     }
 
 
 # ----------------------------
 # SANN
 # ----------------------------
-def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir):
-    print("\nTraining SANN (early stopping on validation)...")
+def train_full_sann(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    X_test,
+    y_test,
+    num_classes,
+    outdir,
+    l1_lambda=1e-6,
+):
+    print("\nTraining SANN (HVG expression + binary sparsity mask, early stopping on validation)...")
     t0 = time.time()
 
     device = "cpu"
@@ -287,7 +354,11 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
 
             optimizer.zero_grad()
             logits = model(xb)
-            loss = criterion(logits, yb)
+
+            ce_loss = criterion(logits, yb)
+            reg_l1 = l1_penalty(model) * l1_lambda
+            loss = ce_loss + reg_l1
+
             loss.backward()
             optimizer.step()
 
@@ -309,7 +380,9 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
                 yb = yb.to(device)
 
                 logits = model(xb)
-                loss = criterion(logits, yb)
+                ce_loss = criterion(logits, yb)
+                reg_l1 = l1_penalty(model) * l1_lambda
+                loss = ce_loss + reg_l1
 
                 bs = xb.size(0)
                 val_loss_sum += float(loss.item()) * bs
@@ -334,7 +407,10 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
             "val_macro_f1": float(val_f1),
         })
 
-        print(f"  Epoch {epoch:03d} | train_loss={train_loss:.4f} | val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f}")
+        print(
+            f"  Epoch {epoch:03d} | train_loss={train_loss:.4f} | "
+            f"val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f}"
+        )
 
         if val_f1 > best_val_f1:
             best_val_f1 = val_f1
@@ -396,7 +472,10 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
         "Accuracy": float(acc),
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"hidden=256 dropout=0.1 bn=True relu temp={temperature:.4f}",
+        "Notes": (
+            f"input=HVG+mask; hidden=256; dropout=0.1; bn=True; relu=True; "
+            f"l1_lambda={l1_lambda}; temp={temperature:.4f}"
+        ),
     }
 
 
@@ -409,27 +488,70 @@ def main():
     parser.add_argument("--splits", default="results/ablations/fixed_splits.json")
     parser.add_argument("--outdir", default="results/full_train")
     parser.add_argument("--val_frac", type=float, default=0.1)
+    parser.add_argument("--pca_dim", type=int, default=50)
+    parser.add_argument("--max_hvgs", type=int, default=None)
+    parser.add_argument("--l1_lambda", type=float, default=1e-6)
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    X, y, class_names = load_data(args.data)
+    # Baseline inputs: PCA
+    X_pca, y_pca, class_names_pca = load_pca_data(
+        args.data,
+        label_key="cell_type",
+        pca_key="X_pca",
+        pca_dim=args.pca_dim,
+    )
+
+    # SANN inputs: HVG expression + binary mask
+    X_sann, y_sann, class_names_sann, n_expr_features = load_sann_data(
+        args.data,
+        label_key="cell_type",
+        hvg_key="highly_variable",
+        max_hvgs=args.max_hvgs,
+    )
+
+    # Sanity check: labels/class ordering must match
+    if not np.array_equal(y_pca, y_sann):
+        raise ValueError("Label arrays for PCA and SANN pathways do not match.")
+    if class_names_pca != class_names_sann:
+        raise ValueError("Class names for PCA and SANN pathways do not match.")
+
+    y = y_pca
+    class_names = class_names_pca
+
     train_idx_full, test_idx = load_fixed_split(args.splits)
 
-    X_train_full = X[train_idx_full]
+    # Full train/test split for PCA baselines
+    X_train_full_pca = X_pca[train_idx_full]
     y_train_full = y[train_idx_full]
-    X_test = X[test_idx]
+    X_test_pca = X_pca[test_idx]
     y_test = y[test_idx]
 
+    # Full train/test split for SANN
+    X_train_full_sann = X_sann[train_idx_full]
+    X_test_sann = X_sann[test_idx]
+
+    # Shared train/val split using same labels
     tr_rel, val_rel = make_train_val_split(y_train_full, val_frac=args.val_frac, seed=42)
-    X_train = X_train_full[tr_rel]
+
+    # PCA splits
+    X_train_pca = X_train_full_pca[tr_rel]
+    X_val_pca = X_train_full_pca[val_rel]
+
+    # SANN splits
+    X_train_sann = X_train_full_sann[tr_rel]
+    X_val_sann = X_train_full_sann[val_rel]
+
+    # Labels
     y_train = y_train_full[tr_rel]
-    X_val = X_train_full[val_rel]
     y_val = y_train_full[val_rel]
 
     num_classes = len(class_names)
 
-    print(f"[Sanity] X={X.shape} | y={len(y)} | classes={num_classes}")
+    print(f"[Sanity] Total samples = {len(y)} | classes = {num_classes}")
+    print(f"[Sanity] PCA shape = {X_pca.shape}")
+    print(f"[Sanity] SANN shape = {X_sann.shape} (expression={n_expr_features}, mask={n_expr_features})")
     print(f"[Sanity] Train_full={len(train_idx_full)} | Train={len(tr_rel)} | Val={len(val_rel)} | Test={len(test_idx)}")
     print(f"[Sanity] class names: {class_names}")
 
@@ -440,17 +562,39 @@ def main():
             "val_size": int(len(val_rel)),
             "test_size": int(len(test_idx)),
             "val_frac": float(args.val_frac),
+            "pca_dim": int(args.pca_dim),
+            "sann_expression_features": int(n_expr_features),
+            "sann_total_input_dim": int(X_sann.shape[1]),
+            "l1_lambda": float(args.l1_lambda),
         }, f, indent=2)
 
     metrics_path = os.path.join(args.outdir, "baseline_metrics_full.csv")
 
-    lr_row = train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, args.outdir)
+    lr_row = train_full_lr(
+        X_train_pca, y_train,
+        X_val_pca, y_val,
+        X_test_pca, y_test,
+        args.outdir
+    )
     save_metrics_row(metrics_path, lr_row)
 
-    xgb_row = train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, args.outdir)
+    xgb_row = train_full_xgb(
+        X_train_pca, y_train,
+        X_val_pca, y_val,
+        X_test_pca, y_test,
+        num_classes,
+        args.outdir
+    )
     save_metrics_row(metrics_path, xgb_row)
 
-    sann_row = train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, args.outdir)
+    sann_row = train_full_sann(
+        X_train_sann, y_train,
+        X_val_sann, y_val,
+        X_test_sann, y_test,
+        num_classes,
+        args.outdir,
+        l1_lambda=args.l1_lambda,
+    )
     save_metrics_row(metrics_path, sann_row)
 
     print("\n✅ ALL FULL MODELS TRAINED CORRECTLY.")
