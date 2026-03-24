@@ -37,17 +37,26 @@ from torch.utils.data import DataLoader, TensorDataset
 class SANN(nn.Module):
     """
     Sparse-Aware Neural Network:
-    input = [expression features, binary sparsity mask]
+    input = [scaled expression features, binary sparsity mask]
     """
-    def __init__(self, input_dim, num_classes, hidden_dim=256, dropout=0.1, use_batchnorm=True):
+    def __init__(self, input_dim, num_classes, hidden1=1024, hidden2=512, dropout=0.05, use_batchnorm=True):
         super().__init__()
-        layers = [nn.Linear(input_dim, hidden_dim)]
+
+        layers = [nn.Linear(input_dim, hidden1)]
         if use_batchnorm:
-            layers.append(nn.BatchNorm1d(hidden_dim))
+            layers.append(nn.BatchNorm1d(hidden1))
         layers.append(nn.ReLU())
-        if dropout and dropout > 0:
+        if dropout > 0:
             layers.append(nn.Dropout(dropout))
-        layers.append(nn.Linear(hidden_dim, num_classes))
+
+        layers.append(nn.Linear(hidden1, hidden2))
+        if use_batchnorm:
+            layers.append(nn.BatchNorm1d(hidden2))
+        layers.append(nn.ReLU())
+        if dropout > 0:
+            layers.append(nn.Dropout(dropout))
+
+        layers.append(nn.Linear(hidden2, num_classes))
         self.net = nn.Sequential(*layers)
 
     def forward(self, x):
@@ -58,7 +67,6 @@ class SANN(nn.Module):
 # Utilities
 # ----------------------------
 def to_dense_float32(x):
-    """Convert sparse/dense matrix to dense float32 numpy array."""
     if sp.issparse(x):
         return x.toarray().astype(np.float32)
     return np.asarray(x, dtype=np.float32)
@@ -75,9 +83,6 @@ def load_labels(adata, label_key="cell_type"):
 
 
 def load_pca_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50):
-    """
-    Load PCA representation for LR and XGBoost baselines.
-    """
     adata = sc.read_h5ad(data_path)
 
     if pca_key not in adata.obsm:
@@ -89,15 +94,11 @@ def load_pca_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50)
     return X_pca, y, class_names
 
 
-def load_sann_data(data_path, label_key="cell_type", hvg_key="highly_variable", max_hvgs=None):
+def load_sann_expression(data_path, label_key="cell_type", hvg_key="highly_variable", max_hvgs=None):
     """
-    Load expression matrix for SANN.
-    Uses adata.X and, if present, subsets to highly variable genes.
-    Then constructs a binary sparsity mask and concatenates:
-        X_sann = [expression_values, binary_mask]
+    Load HVG expression matrix for SANN.
     """
     adata = sc.read_h5ad(data_path)
-
     y, class_names = load_labels(adata, label_key=label_key)
 
     if hvg_key in adata.var.columns:
@@ -113,10 +114,31 @@ def load_sann_data(data_path, label_key="cell_type", hvg_key="highly_variable", 
     if max_hvgs is not None and X_expr.shape[1] > max_hvgs:
         X_expr = X_expr[:, :max_hvgs]
 
-    X_mask = (X_expr != 0).astype(np.float32)
-    X_sann = np.concatenate([X_expr, X_mask], axis=1).astype(np.float32)
+    return X_expr, y, class_names
 
-    return X_sann, y, class_names, X_expr.shape[1]
+
+def standardize_expression_train_val_test(X_train, X_val, X_test, eps=1e-6):
+    """
+    Standardize expression features using TRAIN statistics only.
+    """
+    mean = X_train.mean(axis=0, keepdims=True)
+    std = X_train.std(axis=0, keepdims=True)
+    std = np.where(std < eps, 1.0, std)
+
+    X_train_s = ((X_train - mean) / std).astype(np.float32)
+    X_val_s = ((X_val - mean) / std).astype(np.float32)
+    X_test_s = ((X_test - mean) / std).astype(np.float32)
+
+    return X_train_s, X_val_s, X_test_s, mean.astype(np.float32), std.astype(np.float32)
+
+
+def build_sann_input(X_expr):
+    """
+    Build SANN input as:
+    [scaled expression, binary mask]
+    """
+    X_mask = (X_expr != 0).astype(np.float32)
+    return np.concatenate([X_expr.astype(np.float32), X_mask], axis=1).astype(np.float32)
 
 
 def load_fixed_split(split_path):
@@ -143,33 +165,6 @@ def save_metrics_row(path, row_dict):
     else:
         df = row
     df.to_csv(path, index=False)
-
-
-def temperature_scale_probs_from_logits(logits: np.ndarray, temperature: float) -> np.ndarray:
-    z = logits / temperature
-    z = z - z.max(axis=1, keepdims=True)
-    e = np.exp(z)
-    return e / e.sum(axis=1, keepdims=True)
-
-
-def fit_temperature_on_validation(logits_val: np.ndarray, y_val: np.ndarray, device="cpu"):
-    logits_t = torch.tensor(logits_val, dtype=torch.float32, device=device)
-    y_t = torch.tensor(y_val, dtype=torch.long, device=device)
-
-    log_temp = torch.nn.Parameter(torch.zeros(1, device=device))
-    optimizer = torch.optim.LBFGS([log_temp], lr=0.1, max_iter=50)
-    criterion = nn.CrossEntropyLoss()
-
-    def closure():
-        optimizer.zero_grad()
-        temp = torch.exp(log_temp)
-        loss = criterion(logits_t / temp, y_t)
-        loss.backward()
-        return loss
-
-    optimizer.step(closure)
-    temperature = float(torch.exp(log_temp).detach().cpu().item())
-    return max(temperature, 1e-3)
 
 
 def l1_penalty(model: nn.Module) -> torch.Tensor:
@@ -310,9 +305,9 @@ def train_full_sann(
     y_test,
     num_classes,
     outdir,
-    l1_lambda=1e-6,
+    l1_lambda=5e-8,
 ):
-    print("\nTraining SANN (HVG expression + binary sparsity mask, early stopping on validation)...")
+    print("\nTraining SANN (scaled HVG expression + binary mask, no temp scaling)...")
     t0 = time.time()
 
     device = "cpu"
@@ -320,13 +315,21 @@ def train_full_sann(
     model = SANN(
         input_dim=X_train.shape[1],
         num_classes=num_classes,
-        hidden_dim=256,
-        dropout=0.1,
+        hidden1=1024,
+        hidden2=512,
+        dropout=0.05,
         use_batchnorm=True,
     ).to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
+    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4, weight_decay=0.0)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode="max",
+        factor=0.5,
+        patience=6,
+        min_lr=1e-5,
+    )
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.03)
 
     X_train_t = torch.tensor(X_train, dtype=torch.float32)
     y_train_t = torch.tensor(y_train, dtype=torch.long)
@@ -339,11 +342,11 @@ def train_full_sann(
 
     best_val_f1 = -1.0
     best_state = None
-    patience = 15
+    patience = 22
     patience_counter = 0
     history = []
 
-    for epoch in range(1, 101):
+    for epoch in range(1, 121):
         model.train()
         train_loss_sum = 0.0
         train_n = 0
@@ -399,17 +402,21 @@ def train_full_sann(
         val_acc = accuracy_score(val_true, val_pred)
         val_f1 = f1_score(val_true, val_pred, average="macro")
 
+        scheduler.step(val_f1)
+        current_lr = optimizer.param_groups[0]["lr"]
+
         history.append({
             "epoch": epoch,
             "train_loss": float(train_loss),
             "val_loss": float(val_loss),
             "val_acc": float(val_acc),
             "val_macro_f1": float(val_f1),
+            "lr": float(current_lr),
         })
 
         print(
             f"  Epoch {epoch:03d} | train_loss={train_loss:.4f} | "
-            f"val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f}"
+            f"val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f} | lr={current_lr:.6f}"
         )
 
         if val_f1 > best_val_f1:
@@ -430,42 +437,21 @@ def train_full_sann(
 
     model.eval()
     with torch.no_grad():
-        val_logits = model(X_val_t.to(device)).cpu().numpy()
         test_logits = model(X_test_t.to(device)).cpu().numpy()
 
-    val_probs_raw = torch.softmax(torch.tensor(val_logits), dim=1).numpy()
-    test_probs_raw = torch.softmax(torch.tensor(test_logits), dim=1).numpy()
-    test_pred_raw = test_probs_raw.argmax(axis=1)
+    test_probs = torch.softmax(torch.tensor(test_logits), dim=1).numpy()
+    test_pred = test_probs.argmax(axis=1)
 
-    acc = accuracy_score(y_test, test_pred_raw)
-    f1 = f1_score(y_test, test_pred_raw, average="macro")
+    acc = accuracy_score(y_test, test_pred)
+    f1 = f1_score(y_test, test_pred, average="macro")
     print(f"SANN raw | Test Acc={acc:.4f} | Test Macro-F1={f1:.4f}")
-
-    temperature = fit_temperature_on_validation(val_logits, y_val, device=device)
-    print(f"SANN temperature = {temperature:.4f}")
-
-    test_probs_cal = temperature_scale_probs_from_logits(test_logits, temperature)
-    test_pred_cal = test_probs_cal.argmax(axis=1)
-
-    acc_cal = accuracy_score(y_test, test_pred_cal)
-    f1_cal = f1_score(y_test, test_pred_cal, average="macro")
-    print(f"SANN calibrated | Test Acc={acc_cal:.4f} | Test Macro-F1={f1_cal:.4f}")
 
     torch.save(model.state_dict(), os.path.join(outdir, "sann_model.pt"))
     pd.DataFrame(history).to_csv(os.path.join(outdir, "sann_history.csv"), index=False)
 
-    np.save(os.path.join(outdir, "sann_test_probs.npy"), test_probs_raw)
-    np.save(os.path.join(outdir, "sann_test_pred.npy"), test_pred_raw)
+    np.save(os.path.join(outdir, "sann_test_probs.npy"), test_probs)
+    np.save(os.path.join(outdir, "sann_test_pred.npy"), test_pred)
     np.save(os.path.join(outdir, "sann_test_true.npy"), y_test)
-
-    np.save(os.path.join(outdir, "sann_test_probs_calibrated.npy"), test_probs_cal)
-    np.save(os.path.join(outdir, "sann_test_pred_calibrated.npy"), test_pred_cal)
-
-    np.save(os.path.join(outdir, "sann_val_probs.npy"), val_probs_raw)
-    np.save(os.path.join(outdir, "sann_val_true.npy"), y_val)
-
-    with open(os.path.join(outdir, "sann_temperature.json"), "w") as f:
-        json.dump({"temperature": float(temperature)}, f, indent=2)
 
     return {
         "Model": "SANN",
@@ -473,8 +459,9 @@ def train_full_sann(
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
         "Notes": (
-            f"input=HVG+mask; hidden=256; dropout=0.1; bn=True; relu=True; "
-            f"l1_lambda={l1_lambda}; temp={temperature:.4f}"
+            f"input=scaled_HVG+mask; hidden1=1024; hidden2=512; dropout=0.05; "
+            f"bn=True; relu=True; lr=8e-4; weight_decay=0.0; l1_lambda={l1_lambda}; "
+            f"temp_scaling=off"
         ),
     }
 
@@ -486,11 +473,11 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data/processed/pbmc68k_labeled.h5ad")
     parser.add_argument("--splits", default="results/ablations/fixed_splits.json")
-    parser.add_argument("--outdir", default="results/full_train")
+    parser.add_argument("--outdir", default="results/full_train_scaled_deep")
     parser.add_argument("--val_frac", type=float, default=0.1)
     parser.add_argument("--pca_dim", type=int, default=50)
     parser.add_argument("--max_hvgs", type=int, default=None)
-    parser.add_argument("--l1_lambda", type=float, default=1e-6)
+    parser.add_argument("--l1_lambda", type=float, default=5e-8)
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
@@ -503,15 +490,14 @@ def main():
         pca_dim=args.pca_dim,
     )
 
-    # SANN inputs: HVG expression + binary mask
-    X_sann, y_sann, class_names_sann, n_expr_features = load_sann_data(
+    # Raw expression for SANN
+    X_expr, y_sann, class_names_sann = load_sann_expression(
         args.data,
         label_key="cell_type",
         hvg_key="highly_variable",
         max_hvgs=args.max_hvgs,
     )
 
-    # Sanity check: labels/class ordering must match
     if not np.array_equal(y_pca, y_sann):
         raise ValueError("Label arrays for PCA and SANN pathways do not match.")
     if class_names_pca != class_names_sann:
@@ -522,36 +508,43 @@ def main():
 
     train_idx_full, test_idx = load_fixed_split(args.splits)
 
-    # Full train/test split for PCA baselines
-    X_train_full_pca = X_pca[train_idx_full]
+    # Labels
     y_train_full = y[train_idx_full]
-    X_test_pca = X_pca[test_idx]
     y_test = y[test_idx]
 
-    # Full train/test split for SANN
-    X_train_full_sann = X_sann[train_idx_full]
-    X_test_sann = X_sann[test_idx]
-
-    # Shared train/val split using same labels
     tr_rel, val_rel = make_train_val_split(y_train_full, val_frac=args.val_frac, seed=42)
-
-    # PCA splits
-    X_train_pca = X_train_full_pca[tr_rel]
-    X_val_pca = X_train_full_pca[val_rel]
-
-    # SANN splits
-    X_train_sann = X_train_full_sann[tr_rel]
-    X_val_sann = X_train_full_sann[val_rel]
-
-    # Labels
     y_train = y_train_full[tr_rel]
     y_val = y_train_full[val_rel]
 
+    # PCA splits for baselines
+    X_train_full_pca = X_pca[train_idx_full]
+    X_test_pca = X_pca[test_idx]
+    X_train_pca = X_train_full_pca[tr_rel]
+    X_val_pca = X_train_full_pca[val_rel]
+
+    # Expression splits for SANN
+    X_train_full_expr = X_expr[train_idx_full]
+    X_test_expr = X_expr[test_idx]
+    X_train_expr = X_train_full_expr[tr_rel]
+    X_val_expr = X_train_full_expr[val_rel]
+
+    # Scale expression using training stats only
+    X_train_expr_s, X_val_expr_s, X_test_expr_s, expr_mean, expr_std = standardize_expression_train_val_test(
+        X_train_expr, X_val_expr, X_test_expr
+    )
+
+    # Build final SANN inputs = [scaled expression, binary mask from raw expression]
+    X_train_sann = build_sann_input(X_train_expr_s)
+    X_val_sann = build_sann_input(X_val_expr_s)
+    X_test_sann = build_sann_input(X_test_expr_s)
+
     num_classes = len(class_names)
+    n_expr_features = X_train_expr.shape[1]
 
     print(f"[Sanity] Total samples = {len(y)} | classes = {num_classes}")
     print(f"[Sanity] PCA shape = {X_pca.shape}")
-    print(f"[Sanity] SANN shape = {X_sann.shape} (expression={n_expr_features}, mask={n_expr_features})")
+    print(f"[Sanity] Expression shape = {X_expr.shape}")
+    print(f"[Sanity] SANN shape = {X_train_sann.shape} (expression={n_expr_features}, mask={n_expr_features})")
     print(f"[Sanity] Train_full={len(train_idx_full)} | Train={len(tr_rel)} | Val={len(val_rel)} | Test={len(test_idx)}")
     print(f"[Sanity] class names: {class_names}")
 
@@ -564,9 +557,13 @@ def main():
             "val_frac": float(args.val_frac),
             "pca_dim": int(args.pca_dim),
             "sann_expression_features": int(n_expr_features),
-            "sann_total_input_dim": int(X_sann.shape[1]),
+            "sann_total_input_dim": int(X_train_sann.shape[1]),
             "l1_lambda": float(args.l1_lambda),
+            "temperature_scaling_used": False,
         }, f, indent=2)
+
+    np.save(os.path.join(args.outdir, "sann_expr_mean.npy"), expr_mean)
+    np.save(os.path.join(args.outdir, "sann_expr_std.npy"), expr_std)
 
     metrics_path = os.path.join(args.outdir, "baseline_metrics_full.csv")
 
