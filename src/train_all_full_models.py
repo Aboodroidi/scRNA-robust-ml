@@ -82,21 +82,9 @@ def load_labels(adata, label_key="cell_type"):
     return y, class_names
 
 
-def load_pca_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50):
-    adata = sc.read_h5ad(data_path)
-
-    if pca_key not in adata.obsm:
-        raise ValueError(f"Expected adata.obsm['{pca_key}'] (PCA features)")
-
-    y, class_names = load_labels(adata, label_key=label_key)
-    X_pca = np.asarray(adata.obsm[pca_key][:, :pca_dim], dtype=np.float32)
-
-    return X_pca, y, class_names
-
-
-def load_sann_expression(data_path, label_key="cell_type", hvg_key="highly_variable", max_hvgs=None):
+def load_expression_data(data_path, label_key="cell_type", hvg_key="highly_variable", max_hvgs=None):
     """
-    Load HVG expression matrix for SANN.
+    Load HVG expression matrix for LR, XGB, and SANN.
     """
     adata = sc.read_h5ad(data_path)
     y, class_names = load_labels(adata, label_key=label_key)
@@ -132,13 +120,13 @@ def standardize_expression_train_val_test(X_train, X_val, X_test, eps=1e-6):
     return X_train_s, X_val_s, X_test_s, mean.astype(np.float32), std.astype(np.float32)
 
 
-def build_sann_input(X_expr):
+def build_sann_input(X_expr_scaled, X_expr_raw):
     """
     Build SANN input as:
-    [scaled expression, binary mask]
+    [scaled expression, binary mask from raw expression]
     """
-    X_mask = (X_expr != 0).astype(np.float32)
-    return np.concatenate([X_expr.astype(np.float32), X_mask], axis=1).astype(np.float32)
+    X_mask = (X_expr_raw != 0).astype(np.float32)
+    return np.concatenate([X_expr_scaled.astype(np.float32), X_mask], axis=1).astype(np.float32)
 
 
 def load_fixed_split(split_path):
@@ -178,7 +166,7 @@ def l1_penalty(model: nn.Module) -> torch.Tensor:
 # Logistic Regression
 # ----------------------------
 def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
-    print("\nTraining Logistic Regression (PCA features, tuning C on validation)...")
+    print("\nTraining Logistic Regression (HVG expression, tuning C on validation)...")
     t0 = time.time()
 
     scaler = StandardScaler()
@@ -231,7 +219,7 @@ def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
         "Accuracy": float(accuracy_score(y_test, pred_test)),
         "Macro-F1": float(f1_score(y_test, pred_test, average="macro")),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"input=PCA; best_C={best_C}; solver=lbfgs; grid={c_grid}",
+        "Notes": f"input=HVG_expression; best_C={best_C}; solver=lbfgs; grid={c_grid}",
     }
 
 
@@ -239,7 +227,7 @@ def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
 # XGBoost
 # ----------------------------
 def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir):
-    print("\nTraining XGBoost (PCA features, early stopping on validation)...")
+    print("\nTraining XGBoost (HVG expression features, early stopping on validation)...")
     t0 = time.time()
 
     dtrain = xgb.DMatrix(X_train, label=y_train)
@@ -289,7 +277,7 @@ def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, 
         "Accuracy": float(acc),
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"input=PCA; best_iter={int(booster.best_iteration)}",
+        "Notes": f"input=HVG_expression; best_iter={int(booster.best_iteration)}",
     }
 
 
@@ -473,38 +461,24 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data/processed/pbmc68k_labeled.h5ad")
     parser.add_argument("--splits", default="results/ablations/fixed_splits.json")
-    parser.add_argument("--outdir", default="results/full_train_scaled_deep")
+    parser.add_argument("--outdir", default="results/full_train_all_hvg")
     parser.add_argument("--val_frac", type=float, default=0.1)
-    parser.add_argument("--pca_dim", type=int, default=50)
     parser.add_argument("--max_hvgs", type=int, default=None)
     parser.add_argument("--l1_lambda", type=float, default=5e-8)
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    # Baseline inputs: PCA
-    X_pca, y_pca, class_names_pca = load_pca_data(
-        args.data,
-        label_key="cell_type",
-        pca_key="X_pca",
-        pca_dim=args.pca_dim,
-    )
-
-    # Raw expression for SANN
-    X_expr, y_sann, class_names_sann = load_sann_expression(
+    # Shared HVG pathway for all models
+    X_expr, y_expr, class_names_expr = load_expression_data(
         args.data,
         label_key="cell_type",
         hvg_key="highly_variable",
         max_hvgs=args.max_hvgs,
     )
 
-    if not np.array_equal(y_pca, y_sann):
-        raise ValueError("Label arrays for PCA and SANN pathways do not match.")
-    if class_names_pca != class_names_sann:
-        raise ValueError("Class names for PCA and SANN pathways do not match.")
-
-    y = y_pca
-    class_names = class_names_pca
+    y = y_expr
+    class_names = class_names_expr
 
     train_idx_full, test_idx = load_fixed_split(args.splits)
 
@@ -516,34 +490,28 @@ def main():
     y_train = y_train_full[tr_rel]
     y_val = y_train_full[val_rel]
 
-    # PCA splits for baselines
-    X_train_full_pca = X_pca[train_idx_full]
-    X_test_pca = X_pca[test_idx]
-    X_train_pca = X_train_full_pca[tr_rel]
-    X_val_pca = X_train_full_pca[val_rel]
-
-    # Expression splits for SANN
+    # Shared HVG expression splits
     X_train_full_expr = X_expr[train_idx_full]
     X_test_expr = X_expr[test_idx]
     X_train_expr = X_train_full_expr[tr_rel]
     X_val_expr = X_train_full_expr[val_rel]
 
-    # Scale expression using training stats only
+    # Scale expression only for SANN
     X_train_expr_s, X_val_expr_s, X_test_expr_s, expr_mean, expr_std = standardize_expression_train_val_test(
         X_train_expr, X_val_expr, X_test_expr
     )
 
-    # Build final SANN inputs = [scaled expression, binary mask from raw expression]
-    X_train_sann = build_sann_input(X_train_expr_s)
-    X_val_sann = build_sann_input(X_val_expr_s)
-    X_test_sann = build_sann_input(X_test_expr_s)
+    # SANN final input = [scaled expression, binary mask from raw expression]
+    X_train_sann = build_sann_input(X_train_expr_s, X_train_expr)
+    X_val_sann = build_sann_input(X_val_expr_s, X_val_expr)
+    X_test_sann = build_sann_input(X_test_expr_s, X_test_expr)
 
     num_classes = len(class_names)
     n_expr_features = X_train_expr.shape[1]
 
     print(f"[Sanity] Total samples = {len(y)} | classes = {num_classes}")
-    print(f"[Sanity] PCA shape = {X_pca.shape}")
     print(f"[Sanity] Expression shape = {X_expr.shape}")
+    print(f"[Sanity] LR/XGB input shape = {X_train_expr.shape}")
     print(f"[Sanity] SANN shape = {X_train_sann.shape} (expression={n_expr_features}, mask={n_expr_features})")
     print(f"[Sanity] Train_full={len(train_idx_full)} | Train={len(tr_rel)} | Val={len(val_rel)} | Test={len(test_idx)}")
     print(f"[Sanity] class names: {class_names}")
@@ -555,8 +523,7 @@ def main():
             "val_size": int(len(val_rel)),
             "test_size": int(len(test_idx)),
             "val_frac": float(args.val_frac),
-            "pca_dim": int(args.pca_dim),
-            "sann_expression_features": int(n_expr_features),
+            "expression_features": int(n_expr_features),
             "sann_total_input_dim": int(X_train_sann.shape[1]),
             "l1_lambda": float(args.l1_lambda),
             "temperature_scaling_used": False,
@@ -568,17 +535,17 @@ def main():
     metrics_path = os.path.join(args.outdir, "baseline_metrics_full.csv")
 
     lr_row = train_full_lr(
-        X_train_pca, y_train,
-        X_val_pca, y_val,
-        X_test_pca, y_test,
+        X_train_expr, y_train,
+        X_val_expr, y_val,
+        X_test_expr, y_test,
         args.outdir
     )
     save_metrics_row(metrics_path, lr_row)
 
     xgb_row = train_full_xgb(
-        X_train_pca, y_train,
-        X_val_pca, y_val,
-        X_test_pca, y_test,
+        X_train_expr, y_train,
+        X_val_expr, y_val,
+        X_test_expr, y_test,
         num_classes,
         args.outdir
     )
