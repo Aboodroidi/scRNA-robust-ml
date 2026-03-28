@@ -27,6 +27,8 @@ def extract_metric(df: pd.DataFrame, metric: str):
     vals = []
     for model in MODELS:
         row = df[df["Model"] == model]
+        if row.empty:
+            raise ValueError(f"Model '{model}' not found in CSV.")
         vals.append(float(row[metric].iloc[0]))
     return vals
 
@@ -39,39 +41,38 @@ hvg_acc = extract_metric(hvg_df, "Accuracy")
 
 
 # =========================
-# LABEL FUNCTION (FIXED LENGTH)
+# LABEL FUNCTION
 # =========================
-def add_label(ax, theta, r, text, color, style="up"):
+def add_label(ax, theta, r, text, color, side="right"):
     """
-    Fixed-length outward label lines
+    Fixed-length horizontal labels:
+    - PCA (blue) goes to the right
+    - HVG (orange) goes to the left
     """
 
-    line_length = 0.02  # fixed size
-    angle_offset = np.deg2rad(50)  # 100° separation total
+    PIXEL_LENGTH = 22
 
-    if style == "up":
-        theta_text = theta + angle_offset
-    else:
-        theta_text = theta - angle_offset
-
-    r_text = min(r + line_length, 1.0)
-
-    if np.cos(theta) >= 0:
+    if side == "right":
+        dx = PIXEL_LENGTH
         ha = "left"
     else:
+        dx = -PIXEL_LENGTH
         ha = "right"
+
+    dy = 0
 
     ax.annotate(
         text,
         xy=(theta, r),
-        xytext=(theta_text, r_text),
+        xytext=(dx, dy),
+        textcoords="offset points",
         ha=ha,
         va="center",
         fontsize=9,
         arrowprops=dict(
             arrowstyle="-",
             color=color,
-            linewidth=1.2,
+            linewidth=1.4,
         ),
     )
 
@@ -89,13 +90,15 @@ def plot_radar(pca_vals, hvg_vals, title, filename):
 
     fig, ax = plt.subplots(figsize=(6.8, 6.8), subplot_kw=dict(polar=True))
 
-    # start at 9 o'clock
+    # Start at 9 o'clock and go clockwise
     ax.set_theta_offset(np.pi)
     ax.set_theta_direction(-1)
 
+    # Axis labels
     ax.set_xticks(angles)
     ax.set_xticklabels(MODELS, fontsize=11)
 
+    # Radial scale
     ax.set_ylim(0.8, 1.0)
     ax.set_yticks([0.85, 0.90, 0.95, 1.00])
     ax.set_yticklabels(["0.85", "0.90", "0.95", "1.00"], fontsize=9)
@@ -104,7 +107,7 @@ def plot_radar(pca_vals, hvg_vals, title, filename):
     pca_color = "tab:blue"
     hvg_color = "tab:orange"
 
-    # PCA (clean solid)
+    # PCA
     ax.plot(
         angles_closed,
         pca_closed,
@@ -116,7 +119,7 @@ def plot_radar(pca_vals, hvg_vals, title, filename):
     )
     ax.fill(angles_closed, pca_closed, color=pca_color, alpha=0.10)
 
-    # HVG (same style, no dashed)
+    # HVG
     ax.plot(
         angles_closed,
         hvg_closed,
@@ -128,10 +131,10 @@ def plot_radar(pca_vals, hvg_vals, title, filename):
     )
     ax.fill(angles_closed, hvg_closed, color=hvg_color, alpha=0.06)
 
-    # labels
+    # Labels
     for theta, pca_r, hvg_r in zip(angles, pca_vals, hvg_vals):
-        add_label(ax, theta, pca_r, f"{pca_r:.3f}", pca_color, "up")
-        add_label(ax, theta, hvg_r, f"{hvg_r:.3f}", hvg_color, "down")
+        add_label(ax, theta, pca_r, f"{pca_r:.3f}", pca_color, side="right")
+        add_label(ax, theta, hvg_r, f"{hvg_r:.3f}", hvg_color, side="left")
 
     plt.title(title, size=13, pad=20)
     plt.legend(loc="upper right", bbox_to_anchor=(1.20, 1.10))
