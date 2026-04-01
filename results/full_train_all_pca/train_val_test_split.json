@@ -1,0 +1,9 @@
+{
+  "train_full_size": 47957,
+  "train_size": 43161,
+  "val_size": 4796,
+  "test_size": 13703,
+  "val_frac": 0.1,
+  "pca_dim": 50,
+  "temperature_scaling_used": false
+}

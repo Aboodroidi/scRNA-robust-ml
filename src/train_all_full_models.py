@@ -1,25 +1,28 @@
 # src/train_all_full_models.py
 import os
+
+# mac-friendly: set BEFORE importing numpy / scanpy / sklearn / xgboost / torch
+os.environ["OMP_NUM_THREADS"] = "1"
+os.environ["MKL_NUM_THREADS"] = "1"
+os.environ["OPENBLAS_NUM_THREADS"] = "1"
+os.environ["NUMEXPR_NUM_THREADS"] = "1"
+os.environ["MPLBACKEND"] = "Agg"
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 import json
 import time
 import argparse
 import numpy as np
 import pandas as pd
 import scanpy as sc
-
-# mac-friendly: keep threads low
-os.environ["OMP_NUM_THREADS"] = "1"
-os.environ["MKL_NUM_THREADS"] = "1"
-os.environ["OPENBLAS_NUM_THREADS"] = "1"
-os.environ["NUMEXPR_NUM_THREADS"] = "1"
-os.environ["MPLBACKEND"] = "Agg"
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"  # helps when torch/sklearn/OpenMP clash
+import scipy.sparse as sp
 
 import joblib
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import accuracy_score, f1_score
+from sklearn.model_selection import StratifiedShuffleSplit
 
 import xgboost as xgb
 
@@ -32,15 +35,28 @@ from torch.utils.data import DataLoader, TensorDataset
 # SANN MODEL
 # ----------------------------
 class SANN(nn.Module):
-    def __init__(self, input_dim, num_classes, hidden_dim=256, dropout=0.1, use_batchnorm=True):
+    """
+    Sparse-Aware Neural Network:
+    input = [scaled expression features, binary sparsity mask]
+    """
+    def __init__(self, input_dim, num_classes, hidden1=1024, hidden2=512, dropout=0.05, use_batchnorm=True):
         super().__init__()
-        layers = [nn.Linear(input_dim, hidden_dim)]
+
+        layers = [nn.Linear(input_dim, hidden1)]
         if use_batchnorm:
-            layers.append(nn.BatchNorm1d(hidden_dim))
-        layers += [nn.ReLU()]
-        if dropout and dropout > 0:
+            layers.append(nn.BatchNorm1d(hidden1))
+        layers.append(nn.ReLU())
+        if dropout > 0:
             layers.append(nn.Dropout(dropout))
-        layers.append(nn.Linear(hidden_dim, num_classes))
+
+        layers.append(nn.Linear(hidden1, hidden2))
+        if use_batchnorm:
+            layers.append(nn.BatchNorm1d(hidden2))
+        layers.append(nn.ReLU())
+        if dropout > 0:
+            layers.append(nn.Dropout(dropout))
+
+        layers.append(nn.Linear(hidden2, num_classes))
         self.net = nn.Sequential(*layers)
 
     def forward(self, x):
@@ -50,21 +66,67 @@ class SANN(nn.Module):
 # ----------------------------
 # Utilities
 # ----------------------------
-def load_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50):
-    adata = sc.read_h5ad(data_path)
+def to_dense_float32(x):
+    if sp.issparse(x):
+        return x.toarray().astype(np.float32)
+    return np.asarray(x, dtype=np.float32)
 
+
+def load_labels(adata, label_key="cell_type"):
     if label_key not in adata.obs:
         raise ValueError(f"Expected adata.obs['{label_key}']")
-
-    if pca_key not in adata.obsm:
-        raise ValueError(f"Expected adata.obsm['{pca_key}'] (PCA features)")
 
     y_cat = adata.obs[label_key].astype("category")
     y = y_cat.cat.codes.to_numpy()
     class_names = list(y_cat.cat.categories)
+    return y, class_names
 
-    X = np.asarray(adata.obsm[pca_key][:, :pca_dim], dtype=np.float32)
-    return X, y, class_names
+
+def load_expression_data(data_path, label_key="cell_type", hvg_key="highly_variable", max_hvgs=None):
+    """
+    Load HVG expression matrix for LR, XGB, and SANN.
+    """
+    adata = sc.read_h5ad(data_path)
+    y, class_names = load_labels(adata, label_key=label_key)
+
+    if hvg_key in adata.var.columns:
+        hvg_mask = adata.var[hvg_key].to_numpy().astype(bool)
+        if hvg_mask.sum() == 0:
+            raise ValueError(f"adata.var['{hvg_key}'] exists but contains no True values.")
+        adata_expr = adata[:, hvg_mask].copy()
+    else:
+        adata_expr = adata
+
+    X_expr = to_dense_float32(adata_expr.X)
+
+    if max_hvgs is not None and X_expr.shape[1] > max_hvgs:
+        X_expr = X_expr[:, :max_hvgs]
+
+    return X_expr, y, class_names
+
+
+def standardize_expression_train_val_test(X_train, X_val, X_test, eps=1e-6):
+    """
+    Standardize expression features using TRAIN statistics only.
+    """
+    mean = X_train.mean(axis=0, keepdims=True)
+    std = X_train.std(axis=0, keepdims=True)
+    std = np.where(std < eps, 1.0, std)
+
+    X_train_s = ((X_train - mean) / std).astype(np.float32)
+    X_val_s = ((X_val - mean) / std).astype(np.float32)
+    X_test_s = ((X_test - mean) / std).astype(np.float32)
+
+    return X_train_s, X_val_s, X_test_s, mean.astype(np.float32), std.astype(np.float32)
+
+
+def build_sann_input(X_expr_scaled, X_expr_raw):
+    """
+    Build SANN input as:
+    [scaled expression, binary mask from raw expression]
+    """
+    X_mask = (X_expr_raw != 0).astype(np.float32)
+    return np.concatenate([X_expr_scaled.astype(np.float32), X_mask], axis=1).astype(np.float32)
 
 
 def load_fixed_split(split_path):
@@ -73,6 +135,12 @@ def load_fixed_split(split_path):
     if "train_idx" not in d or "test_idx" not in d:
         raise ValueError(f"Split file must contain train_idx and test_idx. Found keys: {list(d.keys())}")
     return np.array(d["train_idx"], dtype=int), np.array(d["test_idx"], dtype=int)
+
+
+def make_train_val_split(y_train_full, val_frac=0.1, seed=42):
+    sss = StratifiedShuffleSplit(n_splits=1, test_size=val_frac, random_state=seed)
+    tr_rel, val_rel = next(sss.split(np.zeros(len(y_train_full)), y_train_full))
+    return np.array(tr_rel, dtype=int), np.array(val_rel, dtype=int)
 
 
 def save_metrics_row(path, row_dict):
@@ -87,73 +155,84 @@ def save_metrics_row(path, row_dict):
     df.to_csv(path, index=False)
 
 
+def l1_penalty(model: nn.Module) -> torch.Tensor:
+    penalty = torch.tensor(0.0, device=next(model.parameters()).device)
+    for param in model.parameters():
+        penalty = penalty + param.abs().sum()
+    return penalty
+
+
 # ----------------------------
-# Logistic Regression (FULL)
+# Logistic Regression
 # ----------------------------
-def train_full_lr(X_train, y_train, X_test, y_test, outdir):
-    print("\nTraining Logistic Regression (tuning C)...")
+def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
+    print("\nTraining Logistic Regression (HVG expression, tuning C on validation)...")
     t0 = time.time()
 
     scaler = StandardScaler()
     X_train_s = scaler.fit_transform(X_train)
+    X_val_s = scaler.transform(X_val)
     X_test_s = scaler.transform(X_test)
 
     best_f1 = -1.0
     best_C = None
     best_model = None
 
-    for C in [0.1, 0.5, 1, 2, 5]:
+    c_grid = [0.1, 1.0, 5.0]
+
+    for C in c_grid:
         model = LogisticRegression(
             C=C,
-            max_iter=20000,     # higher to reduce convergence warnings
+            max_iter=3000,
             tol=1e-4,
-            solver="saga",
+            solver="lbfgs",
             n_jobs=1,
             random_state=42,
         )
         model.fit(X_train_s, y_train)
-        pred = model.predict(X_test_s)
-        acc = accuracy_score(y_test, pred)
-        f1 = f1_score(y_test, pred, average="macro")
-        print(f"  C={C:<4} | Acc={acc:.4f} | Macro-F1={f1:.4f}")
 
-        if f1 > best_f1:
-            best_f1 = f1
+        val_pred = model.predict(X_val_s)
+        val_acc = accuracy_score(y_val, val_pred)
+        val_f1 = f1_score(y_val, val_pred, average="macro")
+        print(f"  C={C:<4} | Val Acc={val_acc:.4f} | Val Macro-F1={val_f1:.4f}")
+
+        if val_f1 > best_f1:
+            best_f1 = val_f1
             best_C = C
             best_model = model
 
     train_time = time.time() - t0
-    print(f"Best LR: C={best_C} | Macro-F1={best_f1:.4f} | time={train_time:.1f}s")
+    print(f"Best LR: C={best_C} | Val Macro-F1={best_f1:.4f} | time={train_time:.1f}s")
 
-    # save
     joblib.dump(best_model, os.path.join(outdir, "lr_model.pkl"))
     joblib.dump(scaler, os.path.join(outdir, "lr_scaler.pkl"))
 
-    # probs/preds for later calibration
-    probs = best_model.predict_proba(X_test_s)
-    pred = probs.argmax(axis=1)
-    np.save(os.path.join(outdir, "lr_test_probs.npy"), probs)
-    np.save(os.path.join(outdir, "lr_test_pred.npy"), pred)
+    probs_test = best_model.predict_proba(X_test_s)
+    pred_test = probs_test.argmax(axis=1)
+
+    np.save(os.path.join(outdir, "lr_test_probs.npy"), probs_test)
+    np.save(os.path.join(outdir, "lr_test_pred.npy"), pred_test)
     np.save(os.path.join(outdir, "lr_test_true.npy"), y_test)
 
     return {
         "Model": "LR",
-        "Accuracy": float(accuracy_score(y_test, pred)),
-        "Macro-F1": float(f1_score(y_test, pred, average="macro")),
+        "Accuracy": float(accuracy_score(y_test, pred_test)),
+        "Macro-F1": float(f1_score(y_test, pred_test, average="macro")),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"best_C={best_C}",
+        "Notes": f"input=HVG_expression; best_C={best_C}; solver=lbfgs; grid={c_grid}",
     }
 
 
 # ----------------------------
-# XGBoost (FULL + EARLY STOP) using xgb.train() for old API compatibility
+# XGBoost
 # ----------------------------
-def train_full_xgb(X_train, y_train, X_test, y_test, num_classes, outdir):
-    print("\nTraining XGBoost (large model + early stopping, compatible API)...")
+def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir):
+    print("\nTraining XGBoost (HVG expression features, early stopping on validation)...")
     t0 = time.time()
 
     dtrain = xgb.DMatrix(X_train, label=y_train)
-    dvalid = xgb.DMatrix(X_test, label=y_test)
+    dval = xgb.DMatrix(X_val, label=y_val)
+    dtest = xgb.DMatrix(X_test, label=y_test)
 
     params = {
         "objective": "multi:softprob",
@@ -168,12 +247,11 @@ def train_full_xgb(X_train, y_train, X_test, y_test, num_classes, outdir):
         "nthread": 1,
     }
 
-    # train with early stopping via callbacks (works across versions)
     booster = xgb.train(
         params=params,
         dtrain=dtrain,
         num_boost_round=2000,
-        evals=[(dvalid, "valid")],
+        evals=[(dval, "valid")],
         verbose_eval=50,
         callbacks=[xgb.callback.EarlyStopping(rounds=50, save_best=True)],
     )
@@ -181,20 +259,17 @@ def train_full_xgb(X_train, y_train, X_test, y_test, num_classes, outdir):
     train_time = time.time() - t0
     print(f"XGB best_iteration={booster.best_iteration} | time={train_time:.1f}s")
 
-    # predict probabilities
-    probs = booster.predict(dvalid)  # shape (N, C)
-    pred = probs.argmax(axis=1)
+    probs_test = booster.predict(dtest)
+    pred_test = probs_test.argmax(axis=1)
 
-    acc = accuracy_score(y_test, pred)
-    f1 = f1_score(y_test, pred, average="macro")
-    print(f"XGB | Acc={acc:.4f} | Macro-F1={f1:.4f}")
+    acc = accuracy_score(y_test, pred_test)
+    f1 = f1_score(y_test, pred_test, average="macro")
+    print(f"XGB | Test Acc={acc:.4f} | Test Macro-F1={f1:.4f}")
 
-    # save booster
     booster.save_model(os.path.join(outdir, "xgb_model.json"))
 
-    # save arrays
-    np.save(os.path.join(outdir, "xgb_test_probs.npy"), probs)
-    np.save(os.path.join(outdir, "xgb_test_pred.npy"), pred)
+    np.save(os.path.join(outdir, "xgb_test_probs.npy"), probs_test)
+    np.save(os.path.join(outdir, "xgb_test_pred.npy"), pred_test)
     np.save(os.path.join(outdir, "xgb_test_true.npy"), y_test)
 
     return {
@@ -202,15 +277,25 @@ def train_full_xgb(X_train, y_train, X_test, y_test, num_classes, outdir):
         "Accuracy": float(acc),
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
-        "Notes": f"best_iter={int(booster.best_iteration)}",
+        "Notes": f"input=HVG_expression; best_iter={int(booster.best_iteration)}",
     }
 
 
 # ----------------------------
-# SANN (FULL + EARLY STOP)
+# SANN
 # ----------------------------
-def train_full_sann(X_train, y_train, X_test, y_test, num_classes, outdir):
-    print("\nTraining SANN (100 epochs + early stopping)...")
+def train_full_sann(
+    X_train,
+    y_train,
+    X_val,
+    y_val,
+    X_test,
+    y_test,
+    num_classes,
+    outdir,
+    l1_lambda=5e-8,
+):
+    print("\nTraining SANN (scaled HVG expression + binary mask, no temp scaling)...")
     t0 = time.time()
 
     device = "cpu"
@@ -218,55 +303,112 @@ def train_full_sann(X_train, y_train, X_test, y_test, num_classes, outdir):
     model = SANN(
         input_dim=X_train.shape[1],
         num_classes=num_classes,
-        hidden_dim=256,
-        dropout=0.1,
+        hidden1=1024,
+        hidden2=512,
+        dropout=0.05,
         use_batchnorm=True,
     ).to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4, weight_decay=0.0)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode="max",
+        factor=0.5,
+        patience=6,
+        min_lr=1e-5,
+    )
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.03)
 
     X_train_t = torch.tensor(X_train, dtype=torch.float32)
     y_train_t = torch.tensor(y_train, dtype=torch.long)
+    X_val_t = torch.tensor(X_val, dtype=torch.float32)
+    y_val_t = torch.tensor(y_val, dtype=torch.long)
     X_test_t = torch.tensor(X_test, dtype=torch.float32)
-    y_test_t = torch.tensor(y_test, dtype=torch.long)
 
     train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=512, shuffle=True)
+    val_loader = DataLoader(TensorDataset(X_val_t, y_val_t), batch_size=512, shuffle=False)
 
-    best_f1 = -1.0
+    best_val_f1 = -1.0
     best_state = None
-    patience = 15
+    patience = 22
     patience_counter = 0
-
     history = []
 
-    for epoch in range(1, 101):
+    for epoch in range(1, 121):
         model.train()
-        train_losses = []
+        train_loss_sum = 0.0
+        train_n = 0
 
         for xb, yb in train_loader:
+            xb = xb.to(device)
+            yb = yb.to(device)
+
             optimizer.zero_grad()
             logits = model(xb)
-            loss = criterion(logits, yb)
+
+            ce_loss = criterion(logits, yb)
+            reg_l1 = l1_penalty(model) * l1_lambda
+            loss = ce_loss + reg_l1
+
             loss.backward()
             optimizer.step()
-            train_losses.append(float(loss.item()))
+
+            bs = xb.size(0)
+            train_loss_sum += float(loss.item()) * bs
+            train_n += bs
+
+        train_loss = train_loss_sum / max(train_n, 1)
 
         model.eval()
+        val_loss_sum = 0.0
+        val_n = 0
+        val_logits_all = []
+        val_true_all = []
+
         with torch.no_grad():
-            logits_test = model(X_test_t)
-            probs = torch.softmax(logits_test, dim=1).cpu().numpy()
-            pred = probs.argmax(axis=1)
-            acc = accuracy_score(y_test, pred)
-            f1 = f1_score(y_test, pred, average="macro")
+            for xb, yb in val_loader:
+                xb = xb.to(device)
+                yb = yb.to(device)
 
-        tr_loss = float(np.mean(train_losses)) if train_losses else np.nan
-        history.append({"epoch": epoch, "train_loss": tr_loss, "test_acc": float(acc), "test_macro_f1": float(f1)})
+                logits = model(xb)
+                ce_loss = criterion(logits, yb)
+                reg_l1 = l1_penalty(model) * l1_lambda
+                loss = ce_loss + reg_l1
 
-        print(f"  Epoch {epoch:03d} | train_loss={tr_loss:.4f} | test_macroF1={f1:.4f}")
+                bs = xb.size(0)
+                val_loss_sum += float(loss.item()) * bs
+                val_n += bs
 
-        if f1 > best_f1:
-            best_f1 = f1
+                val_logits_all.append(logits.cpu().numpy())
+                val_true_all.append(yb.cpu().numpy())
+
+        val_loss = val_loss_sum / max(val_n, 1)
+        val_logits = np.vstack(val_logits_all)
+        val_true = np.concatenate(val_true_all)
+        val_probs = torch.softmax(torch.tensor(val_logits), dim=1).numpy()
+        val_pred = val_probs.argmax(axis=1)
+        val_acc = accuracy_score(val_true, val_pred)
+        val_f1 = f1_score(val_true, val_pred, average="macro")
+
+        scheduler.step(val_f1)
+        current_lr = optimizer.param_groups[0]["lr"]
+
+        history.append({
+            "epoch": epoch,
+            "train_loss": float(train_loss),
+            "val_loss": float(val_loss),
+            "val_acc": float(val_acc),
+            "val_macro_f1": float(val_f1),
+            "lr": float(current_lr),
+        })
+
+        print(
+            f"  Epoch {epoch:03d} | train_loss={train_loss:.4f} | "
+            f"val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f} | lr={current_lr:.6f}"
+        )
+
+        if val_f1 > best_val_f1:
+            best_val_f1 = val_f1
             best_state = {k: v.cpu().clone() for k, v in model.state_dict().items()}
             patience_counter = 0
         else:
@@ -278,28 +420,25 @@ def train_full_sann(X_train, y_train, X_test, y_test, num_classes, outdir):
 
     train_time = time.time() - t0
 
-    # load best state
     if best_state is not None:
         model.load_state_dict(best_state)
 
-    # final inference for saving
     model.eval()
     with torch.no_grad():
-        logits_test = model(X_test_t)
-        probs = torch.softmax(logits_test, dim=1).cpu().numpy()
-        pred = probs.argmax(axis=1)
+        test_logits = model(X_test_t.to(device)).cpu().numpy()
 
-    acc = accuracy_score(y_test, pred)
-    f1 = f1_score(y_test, pred, average="macro")
+    test_probs = torch.softmax(torch.tensor(test_logits), dim=1).numpy()
+    test_pred = test_probs.argmax(axis=1)
 
-    print(f"SANN best_macroF1={best_f1:.4f} | final_test_macroF1={f1:.4f} | time={train_time:.1f}s")
+    acc = accuracy_score(y_test, test_pred)
+    f1 = f1_score(y_test, test_pred, average="macro")
+    print(f"SANN raw | Test Acc={acc:.4f} | Test Macro-F1={f1:.4f}")
 
-    # save
     torch.save(model.state_dict(), os.path.join(outdir, "sann_model.pt"))
     pd.DataFrame(history).to_csv(os.path.join(outdir, "sann_history.csv"), index=False)
 
-    np.save(os.path.join(outdir, "sann_test_probs.npy"), probs)
-    np.save(os.path.join(outdir, "sann_test_pred.npy"), pred)
+    np.save(os.path.join(outdir, "sann_test_probs.npy"), test_probs)
+    np.save(os.path.join(outdir, "sann_test_pred.npy"), test_pred)
     np.save(os.path.join(outdir, "sann_test_true.npy"), y_test)
 
     return {
@@ -307,7 +446,11 @@ def train_full_sann(X_train, y_train, X_test, y_test, num_classes, outdir):
         "Accuracy": float(acc),
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
-        "Notes": "hidden=256 dropout=0.1 bn=True relu",
+        "Notes": (
+            f"input=scaled_HVG+mask; hidden1=1024; hidden2=512; dropout=0.05; "
+            f"bn=True; relu=True; lr=8e-4; weight_decay=0.0; l1_lambda={l1_lambda}; "
+            f"temp_scaling=off"
+        ),
     }
 
 
@@ -318,37 +461,107 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", default="data/processed/pbmc68k_labeled.h5ad")
     parser.add_argument("--splits", default="results/ablations/fixed_splits.json")
-    parser.add_argument("--outdir", default="results/full_train")
+    parser.add_argument("--outdir", default="results/full_train_all_hvg")
+    parser.add_argument("--val_frac", type=float, default=0.1)
+    parser.add_argument("--max_hvgs", type=int, default=None)
+    parser.add_argument("--l1_lambda", type=float, default=5e-8)
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    X, y, class_names = load_data(args.data)
-    train_idx, test_idx = load_fixed_split(args.splits)
+    # Shared HVG pathway for all models
+    X_expr, y_expr, class_names_expr = load_expression_data(
+        args.data,
+        label_key="cell_type",
+        hvg_key="highly_variable",
+        max_hvgs=args.max_hvgs,
+    )
 
-    X_train, X_test = X[train_idx], X[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
+    y = y_expr
+    class_names = class_names_expr
+
+    train_idx_full, test_idx = load_fixed_split(args.splits)
+
+    # Labels
+    y_train_full = y[train_idx_full]
+    y_test = y[test_idx]
+
+    tr_rel, val_rel = make_train_val_split(y_train_full, val_frac=args.val_frac, seed=42)
+    y_train = y_train_full[tr_rel]
+    y_val = y_train_full[val_rel]
+
+    # Shared HVG expression splits
+    X_train_full_expr = X_expr[train_idx_full]
+    X_test_expr = X_expr[test_idx]
+    X_train_expr = X_train_full_expr[tr_rel]
+    X_val_expr = X_train_full_expr[val_rel]
+
+    # Scale expression only for SANN
+    X_train_expr_s, X_val_expr_s, X_test_expr_s, expr_mean, expr_std = standardize_expression_train_val_test(
+        X_train_expr, X_val_expr, X_test_expr
+    )
+
+    # SANN final input = [scaled expression, binary mask from raw expression]
+    X_train_sann = build_sann_input(X_train_expr_s, X_train_expr)
+    X_val_sann = build_sann_input(X_val_expr_s, X_val_expr)
+    X_test_sann = build_sann_input(X_test_expr_s, X_test_expr)
+
     num_classes = len(class_names)
+    n_expr_features = X_train_expr.shape[1]
 
-    print(f"[Sanity] X={X.shape} | y={len(y)} | classes={num_classes}")
-    print(f"[Sanity] Train={len(train_idx)} | Test={len(test_idx)}")
+    print(f"[Sanity] Total samples = {len(y)} | classes = {num_classes}")
+    print(f"[Sanity] Expression shape = {X_expr.shape}")
+    print(f"[Sanity] LR/XGB input shape = {X_train_expr.shape}")
+    print(f"[Sanity] SANN shape = {X_train_sann.shape} (expression={n_expr_features}, mask={n_expr_features})")
+    print(f"[Sanity] Train_full={len(train_idx_full)} | Train={len(tr_rel)} | Val={len(val_rel)} | Test={len(test_idx)}")
     print(f"[Sanity] class names: {class_names}")
+
+    with open(os.path.join(args.outdir, "train_val_test_split.json"), "w") as f:
+        json.dump({
+            "train_full_size": int(len(train_idx_full)),
+            "train_size": int(len(tr_rel)),
+            "val_size": int(len(val_rel)),
+            "test_size": int(len(test_idx)),
+            "val_frac": float(args.val_frac),
+            "expression_features": int(n_expr_features),
+            "sann_total_input_dim": int(X_train_sann.shape[1]),
+            "l1_lambda": float(args.l1_lambda),
+            "temperature_scaling_used": False,
+        }, f, indent=2)
+
+    np.save(os.path.join(args.outdir, "sann_expr_mean.npy"), expr_mean)
+    np.save(os.path.join(args.outdir, "sann_expr_std.npy"), expr_std)
 
     metrics_path = os.path.join(args.outdir, "baseline_metrics_full.csv")
 
-    # 1) LR
-    lr_row = train_full_lr(X_train, y_train, X_test, y_test, args.outdir)
+    lr_row = train_full_lr(
+        X_train_expr, y_train,
+        X_val_expr, y_val,
+        X_test_expr, y_test,
+        args.outdir
+    )
     save_metrics_row(metrics_path, lr_row)
 
-    # 2) XGB (fixed)
-    xgb_row = train_full_xgb(X_train, y_train, X_test, y_test, num_classes, args.outdir)
+    xgb_row = train_full_xgb(
+        X_train_expr, y_train,
+        X_val_expr, y_val,
+        X_test_expr, y_test,
+        num_classes,
+        args.outdir
+    )
     save_metrics_row(metrics_path, xgb_row)
 
-    # 3) SANN
-    sann_row = train_full_sann(X_train, y_train, X_test, y_test, num_classes, args.outdir)
+    sann_row = train_full_sann(
+        X_train_sann, y_train,
+        X_val_sann, y_val,
+        X_test_sann, y_test,
+        num_classes,
+        args.outdir,
+        l1_lambda=args.l1_lambda,
+    )
     save_metrics_row(metrics_path, sann_row)
 
-    print("\n✅ ALL FULL MODELS TRAINED.")
+    print("\n✅ ALL FULL MODELS TRAINED CORRECTLY.")
     print(f"Saved metrics to: {metrics_path}")
     print(f"Saved artifacts under: {args.outdir}/")
 

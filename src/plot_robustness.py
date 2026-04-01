@@ -1,4 +1,3 @@
- # src/plot_robustness.py
 import os
 import argparse
 import numpy as np
@@ -7,13 +6,22 @@ import matplotlib.pyplot as plt
 
 
 def parse_args():
-    p = argparse.ArgumentParser(description="Robustness plot with angled min/max labels.")
-    p.add_argument("--csv", type=str,
-                   default="results/full_train/reports/robustness_splits_full.csv")
-    p.add_argument("--out", type=str,
-                   default="results/figures/robustness_macro_f1_across_splits.png")
+    p = argparse.ArgumentParser(
+        description="Robustness plot comparing PCA vs HVG across repeated splits."
+    )
+
+    p.add_argument("--pca_csv", type=str, default=None)
+    p.add_argument("--hvg_csv", type=str, default=None)
+
+    p.add_argument(
+        "--out",
+        type=str,
+        default="figures/robustness_pca_vs_hvg.png",
+    )
+
     p.add_argument("--dpi", type=int, default=300)
     p.add_argument("--padding", type=float, default=0.01)
+
     return p.parse_args()
 
 
@@ -25,153 +33,182 @@ def normalise_model_name(m: str) -> str:
         return "XGB"
     if u in {"SANN"}:
         return "SANN"
-    return m
+    return u
 
 
-def main():
-    args = parse_args()
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+def find_first_existing(candidates):
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return None
 
-    df = pd.read_csv(args.csv)
+
+def load_split_csv(path: str, rep: str) -> pd.DataFrame:
+    df = pd.read_csv(path)
 
     if "macro_f1" in df.columns:
         f1_col = "macro_f1"
     elif "Macro-F1" in df.columns:
         f1_col = "Macro-F1"
     else:
-        raise ValueError("Macro F1 column not found.")
+        raise ValueError(f"Macro F1 column not found in {path}")
 
     if "model" not in df.columns and "Model" in df.columns:
         df = df.rename(columns={"Model": "model"})
 
+    df = df.copy()
     df["model"] = df["model"].apply(normalise_model_name)
-    df[f1_col] = df[f1_col].astype(float)
+    df["macro_f1"] = pd.to_numeric(df[f1_col], errors="coerce")
+    df = df.dropna(subset=["macro_f1"])
+    df["rep"] = rep
 
-    model_order = ["LR", "XGB", "SANN"]
-    models = [m for m in model_order if m in df["model"].unique()]
+    return df[["model", "macro_f1", "rep"]]
+
+
+def main():
+    args = parse_args()
+
+    pca_csv = find_first_existing([
+        args.pca_csv,
+        "results/full_train_all_pca/reports/robustness_splits_full.csv",
+    ])
+
+    hvg_csv = find_first_existing([
+        args.hvg_csv,
+        "results/full_train_all_hvg/reports/robustness_splits_full.csv",
+    ])
+
+    if pca_csv is None or hvg_csv is None:
+        raise FileNotFoundError("Missing PCA or HVG CSV")
+
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+
+    df = pd.concat([
+        load_split_csv(pca_csv, "PCA"),
+        load_split_csv(hvg_csv, "HVG")
+    ])
+
+    models = ["LR", "XGB", "SANN"]
 
     colors = {
-        "LR": "#1f77b4",
-        "XGB": "#ff7f0e",
-        "SANN": "#2ca02c",
+        "PCA": "#1f77b4",
+        "HVG": "#ff7f0e",
     }
 
     stats = []
-    for m in models:
-        vals = df.loc[df["model"] == m, f1_col].values
-        stats.append({
-            "model": m,
-            "mean": vals.mean(),
-            "min": vals.min(),
-            "max": vals.max(),
-        })
+    for rep in ["PCA", "HVG"]:
+        for m in models:
+            vals = df[(df["model"] == m) & (df["rep"] == rep)]["macro_f1"].values
+            if len(vals) == 0:
+                continue
+            stats.append({
+                "model": m,
+                "rep": rep,
+                "mean": vals.mean(),
+                "min": vals.min(),
+                "max": vals.max(),
+            })
 
     stats = pd.DataFrame(stats)
 
-    y_min = stats["min"].min()
-    y_max = stats["max"].max()
-    lo = max(0.0, y_min - args.padding)
-    hi = min(1.0, y_max + args.padding)
+    lo = max(0.0, stats["min"].min() - args.padding)
+    hi = min(1.0, stats["max"].max() + args.padding)
 
-    fig, ax = plt.subplots(figsize=(9, 6))
-    x_positions = np.arange(len(models)) + 1
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    for i, m in enumerate(models):
-        row = stats.iloc[i]
-        color = colors[m]
-        x = x_positions[i]
+    x_positions = []
+    labels = []
+    x = 1
 
-        # vertical min-max bar
-        ax.vlines(
-            x,
-            row["min"],
-            row["max"],
-            color=color,
-            linewidth=5,
-            alpha=0.25,
-            zorder=1,
-        )
+    label_dx = 0.10
+    offset_y = 0.004
 
-        # mean point
-        ax.scatter(
-            x,
-            row["mean"],
-            color=color,
-            s=110,
-            edgecolor="black",
-            linewidth=0.6,
-            zorder=3,
-        )
+    for m in models:
+        for rep in ["PCA", "HVG"]:
+            xp = x if rep == "PCA" else x + 0.35
 
-        offset_x = 0.18
-        offset_y = 0.004  # vertical separation for angled layout
+            x_positions.append(xp)
+            labels.append(f"{m}\n{rep}")
 
-        # label side logic
-        if m in {"XGB", "SANN"}:
-            text_x = x - offset_x
-            ha = "right"
-        else:
-            text_x = x + offset_x
-            ha = "left"
+            row = stats[(stats["model"] == m) & (stats["rep"] == rep)]
+            if row.empty:
+                continue
 
-        # ----- MAX (angled up /) -----
-        ax.annotate(
-            f"{row['max']:.3f}",
-            xy=(x, row["max"]),
-            xytext=(text_x, row["max"] + offset_y),
-            ha=ha,
-            va="bottom",
-            fontsize=10,
-            arrowprops=dict(
-                arrowstyle="-",
+            row = row.iloc[0]
+            color = colors[rep]
+
+            # min-max bar
+            ax.vlines(xp, row["min"], row["max"], color=color, linewidth=5, alpha=0.25)
+
+            # mean point
+            ax.scatter(xp, row["mean"], color=color, s=110, edgecolor="black")
+
+            # Projection lines
+            ax.vlines(
+                xp,
+                lo,
+                row["mean"],
                 color=color,
-                linewidth=1,
-            ),
-        )
+                linestyle="--",
+                alpha=0.5,
+                linewidth=1.2,
+                zorder=0,
+            )
 
-        # ----- MEAN (horizontal -) -----
-        ax.annotate(
-            rf"$\bf{{{row['mean']:.3f}}}$",
-            xy=(x, row["mean"]),
-            xytext=(text_x, row["mean"]),
-            ha=ha,
-            va="center",
-            fontsize=10,
-            arrowprops=dict(
-                arrowstyle="-",
+            ax.hlines(
+                row["mean"],
+                0.5,
+                xp,
                 color=color,
-                linewidth=1,
-            ),
-        )
+                linestyle="--",
+                alpha=0.5,
+                linewidth=1.2,
+                zorder=0,
+            )
 
-        # ----- MIN (angled down \) -----
-        ax.annotate(
-            f"{row['min']:.3f}",
-            xy=(x, row["min"]),
-            xytext=(text_x, row["min"] - offset_y),
-            ha=ha,
-            va="top",
-            fontsize=10,
-            arrowprops=dict(
-                arrowstyle="-",
-                color=color,
-                linewidth=1,
-            ),
-        )
+            # labels
+            text_x = xp + label_dx
+
+            ax.annotate(f"{row['max']:.3f}", xy=(xp, row["max"]),
+                        xytext=(text_x, row["max"] + offset_y),
+                        ha="left", fontsize=9,
+                        arrowprops=dict(arrowstyle="-", color=color))
+
+            ax.annotate(f"{row['mean']:.3f}", xy=(xp, row["mean"]),
+                        xytext=(text_x, row["mean"]),
+                        ha="left", fontsize=9,
+                        arrowprops=dict(arrowstyle="-", color=color))
+
+            ax.annotate(f"{row['min']:.3f}", xy=(xp, row["min"]),
+                        xytext=(text_x, row["min"] - offset_y),
+                        ha="left", fontsize=9,
+                        arrowprops=dict(arrowstyle="-", color=color))
+
+        x += 1.2
 
     ax.set_xticks(x_positions)
-    ax.set_xticklabels(models)
-    ax.set_title("Robustness Across Repeated Stratified Splits")
-    ax.set_xlabel("Model")
-    ax.set_ylabel("Macro F1")
+    ax.set_xticklabels(labels)
+
+    ax.set_xlim(0.5, max(x_positions) + 0.6)
     ax.set_ylim(lo, hi)
+
+    ax.set_title("Robustness Across Repeated Stratified Splits")
+    ax.set_xlabel("Model and Representation")
+    ax.set_ylabel("Macro-F1")
+
     ax.grid(False)
+
+    handles = [
+        plt.Line2D([0], [0], color=colors["PCA"], lw=3, linestyle="--", alpha=0.5, label="PCA"),
+        plt.Line2D([0], [0], color=colors["HVG"], lw=3, linestyle="--", alpha=0.5, label="HVG"),
+    ]
+    ax.legend(handles=handles)
 
     fig.tight_layout()
     fig.savefig(args.out, dpi=args.dpi, bbox_inches="tight")
     plt.close(fig)
 
-    print(f"[Saved] {args.out}")
+    print(f"[Saved] {os.path.abspath(args.out)}")
 
 
 if __name__ == "__main__":

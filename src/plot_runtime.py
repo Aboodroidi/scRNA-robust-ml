@@ -1,149 +1,131 @@
-# src/plot_runtime.py
 import os
-import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
 
-def parse_args():
-    p = argparse.ArgumentParser(description="Plot training runtime per model (points + mean±std).")
+# =========================
+# PATHS
+# =========================
+PCA_PATH = "results/full_train_all_pca/baseline_metrics_full.csv"
+HVG_PATH = "results/full_train_all_hvg/baseline_metrics_full.csv"
+OUT_FIG = "figures/runtime_pca_vs_hvg_log.png"
 
-    # UPDATED DEFAULTS (new full-training robustness file)
-    p.add_argument(
-        "--csv",
-        type=str,
-        default="results/full_train/reports/robustness_splits_full.csv",
-        help="Long CSV with columns: model, train_time_seconds (and optionally split_id/seed).",
+os.makedirs("figures", exist_ok=True)
+
+
+# =========================
+# LOAD DATA
+# =========================
+pca_df = pd.read_csv(PCA_PATH)
+hvg_df = pd.read_csv(HVG_PATH)
+
+# standardise column names
+pca_df = pca_df.rename(columns={
+    "Model": "model",
+    "TrainTimeSeconds": "time"
+})
+
+hvg_df = hvg_df.rename(columns={
+    "Model": "model",
+    "TrainTimeSeconds": "time"
+})
+
+# add representation label
+pca_df["rep"] = "PCA"
+hvg_df["rep"] = "HVG"
+
+df = pd.concat([pca_df, hvg_df], ignore_index=True)
+
+# clean
+df["model"] = df["model"].astype(str).str.upper().str.strip()
+df["time"] = pd.to_numeric(df["time"], errors="coerce")
+df = df.dropna(subset=["time"])
+df = df[df["time"] > 0]
+
+
+# =========================
+# ORDER + COLORS
+# =========================
+models = ["LR", "XGB", "SANN"]
+colors = {
+    "PCA": "tab:blue",
+    "HVG": "tab:orange"
+}
+
+
+# =========================
+# PLOT
+# =========================
+fig, ax = plt.subplots(figsize=(8.5, 5.5))
+
+x = np.arange(len(models))
+width = 0.35
+
+all_vals = []
+
+for i, rep in enumerate(["PCA", "HVG"]):
+    vals = []
+    for m in models:
+        row = df[(df["model"] == m) & (df["rep"] == rep)]
+        if row.empty:
+            raise ValueError(f"Missing runtime for model={m}, rep={rep}")
+        vals.append(float(row["time"].iloc[0]))
+
+    all_vals.extend(vals)
+    xpos = x + (i - 0.5) * width
+
+    ax.bar(
+        xpos,
+        vals,
+        width=width,
+        label=rep,
+        color=colors[rep],
+        alpha=0.85
     )
-    p.add_argument(
-        "--out_fig",
-        type=str,
-        default="results/figures/runtime_time_per_model_full.png",
-        help="Output figure path.",
-    )
-    p.add_argument(
-        "--out_summary",
-        type=str,
-        default="results/full_train/reports/runtime_summary_full.csv",
-        help="Output summary CSV path.",
-    )
 
-    p.add_argument("--dpi", type=int, default=300)
-    p.add_argument("--unit", type=str, default="seconds", choices=["seconds", "minutes"],
-                   help="Plot in seconds or minutes.")
-    p.add_argument("--jitter", type=float, default=0.06, help="Horizontal jitter for points.")
-    return p.parse_args()
-
-
-def standardise_model_name(x: str) -> str:
-    x = str(x).strip()
-    u = x.upper()
-    if u in {"LOGISTIC REGRESSION", "LOGREG", "LR"}:
-        return "LR"
-    if u in {"XGBOOST", "XGB"}:
-        return "XGB"
-    if u in {"SANN"}:
-        return "SANN"
-    return u
-
-
-def main():
-    args = parse_args()
-
-    if not os.path.exists(args.csv):
-        raise FileNotFoundError(f"CSV not found: {args.csv}")
-
-    os.makedirs(os.path.dirname(args.out_fig), exist_ok=True)
-    os.makedirs(os.path.dirname(args.out_summary), exist_ok=True)
-
-    df = pd.read_csv(args.csv)
-
-    # sanity check columns
-    required = {"model", "train_time_seconds"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"Missing required columns {missing}. Found columns: {list(df.columns)}")
-
-    # clean + standardise
-    df = df.copy()
-    df["model"] = df["model"].apply(standardise_model_name)
-    df["train_time_seconds"] = pd.to_numeric(df["train_time_seconds"], errors="coerce")
-    df = df.dropna(subset=["train_time_seconds"])
-    df = df[df["train_time_seconds"] > 0]
-
-    # keep only expected models
-    order = ["LR", "XGB", "SANN"]
-    models = [m for m in order if m in set(df["model"])]
-    if not models:
-        raise ValueError(f"No recognised models found. Found: {sorted(df['model'].unique())}")
-
-    # unit conversion
-    scale = 60.0 if args.unit == "minutes" else 1.0
-    df["time_unit"] = df["train_time_seconds"] / scale
-    y_label = "Training time (minutes)" if args.unit == "minutes" else "Training time (seconds)"
-    unit_short = "min" if args.unit == "minutes" else "s"
-
-    # summary
-    summary = (
-        df.groupby("model")["time_unit"]
-          .agg(["mean", "std", "count", "min", "max"])
-          .reindex(models)
-          .reset_index()
-    )
-    summary.to_csv(args.out_summary, index=False)
-
-    print("\n[Runtime Summary]")
-    for _, r in summary.iterrows():
-        m = r["model"]
-        mean = r["mean"]
-        std = 0.0 if np.isnan(r["std"]) else r["std"]
-        n = int(r["count"])
-        print(f"  {m}: {mean:.2f} ± {std:.2f} {unit_short} (n={n}) | min={r['min']:.2f}, max={r['max']:.2f}")
-    print(f"[Saved] {args.out_summary}")
-
-    # plot
-    fig, ax = plt.subplots(figsize=(8.2, 5.4))
-
-    x = np.arange(len(models)) + 1
-    means = summary["mean"].values
-    stds = summary["std"].fillna(0.0).values
-
-    # mean ± std error bars
-    ax.errorbar(x, means, yerr=stds, fmt="o", capsize=6, elinewidth=1.5, markersize=7)
-
-    # raw points with jitter
-    rng = np.random.RandomState(42)
-    for i, m in enumerate(models, start=1):
-        vals = df.loc[df["model"] == m, "time_unit"].values
-        xj = rng.normal(loc=i, scale=args.jitter, size=len(vals))
-        ax.scatter(xj, vals, s=28, alpha=0.85, linewidths=0)
-
-        std_val = stds[i - 1]
-        offset = std_val if std_val > 0 else (0.02 * means[i - 1] if means[i - 1] > 0 else 0.2)
-
+    # value labels
+    for xi, v in zip(xpos, vals):
         ax.text(
-            i,
-            means[i - 1] + offset + 0.02 * means[i - 1],
-            f"{means[i - 1]:.2f} ± {stds[i - 1]:.2f} {unit_short}",
+            xi,
+            v * 1.15,
+            f"{v:.1f}s",
             ha="center",
             va="bottom",
             fontsize=10
         )
 
-    ax.set_xticks(x)
-    ax.set_xticklabels(models)
-    ax.set_title("Training Time per Model (Repeated Splits)")
-    ax.set_xlabel("Model")
-    ax.set_ylabel(y_label)
-    ax.grid(False)
 
-    fig.tight_layout()
-    fig.savefig(args.out_fig, dpi=args.dpi, bbox_inches="tight")
-    plt.close(fig)
+# =========================
+# AXES
+# =========================
+ax.set_xticks(x)
+ax.set_xticklabels(models)
 
-    print(f"[Saved] {args.out_fig}")
+ax.set_title("Training Runtime Comparison (PCA vs HVG)")
+ax.set_xlabel("Model")
+ax.set_ylabel("Training Time (seconds, log scale)")
+
+ax.set_yscale("log")
+ax.grid(False)
+ax.legend()
+
+# optional: make top a bit looser so labels fit
+ax.set_ylim(min(all_vals) * 0.7, max(all_vals) * 1.6)
 
 
-if __name__ == "__main__":
-    main()
+# =========================
+# SAVE
+# =========================
+out_path = os.path.abspath(OUT_FIG)
+
+plt.tight_layout()
+plt.savefig(out_path, dpi=300, bbox_inches="tight")
+plt.close(fig)
+
+
+# =========================
+# PRINT OUTPUT
+# =========================
+print("\n✅ Runtime figure saved:\n")
+print(out_path)
