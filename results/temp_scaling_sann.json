@@ -2,7 +2,7 @@
   "temperature_T": 0.718376100063324,
   "calibration_nll_before": 0.2529454827308655,
   "calibration_nll_after": 0.21731045842170715,
-  "fit_time_seconds": 0.06600284576416016,
+  "fit_time_seconds": 1.4382212162017822,
   "test_accuracy_before": 0.9143983069400861,
   "test_accuracy_after": 0.9143983069400861,
   "test_ece_before": 0.04085469278968758,
