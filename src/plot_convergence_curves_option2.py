@@ -1,25 +1,25 @@
 # src/plot_convergence_curves_option2.py
+"""
+Produce two figures:
+  1) Validation Loss  — all 3 models overlaid, 1 row per rep (HVG, PCA)
+  2) Validation Macro-F1 — same layout
+X-axis = wall-clock seconds.
+"""
 import os
 import argparse
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 
 def parse_args():
     p = argparse.ArgumentParser(
-        description="Plot SANN convergence (normalized train loss + test Macro F1)."
+        description="Plot convergence curves for LR, XGB, and SANN (HVG + PCA combined)."
     )
-    p.add_argument(
-        "--history",
-        type=str,
-        default="results/full_train/sann_history.csv",
-    )
-    p.add_argument(
-        "--out",
-        type=str,
-        default="results/figures/sann_convergence_loss_f1.png",
-    )
+    p.add_argument("--hvg_dir", type=str, default="results/full_train_all_hvg")
+    p.add_argument("--pca_dir", type=str, default="results/full_train_all_pca")
+    p.add_argument("--outdir", type=str, default="results/figures")
     p.add_argument("--dpi", type=int, default=300)
     p.add_argument("--smooth", type=int, default=0,
                    help="Optional moving average window (0 disables).")
@@ -35,64 +35,152 @@ def moving_average(x, w):
     return np.convolve(xpad, kernel, mode="valid")
 
 
+def load_sann(path):
+    df = pd.read_csv(path).sort_values("epoch")
+    return (
+        df["elapsed_seconds"].astype(float).to_numpy(),
+        df["val_loss"].astype(float).to_numpy(),
+        df["val_macro_f1"].astype(float).to_numpy(),
+    )
+
+
+def load_lr(path):
+    df = pd.read_csv(path).sort_values("iteration")
+    return (
+        df["elapsed_seconds"].astype(float).to_numpy(),
+        df["val_loss"].astype(float).to_numpy(),
+        df["val_macro_f1"].astype(float).to_numpy(),
+    )
+
+
+def load_xgb(path):
+    df = pd.read_csv(path).sort_values("round")
+    t = df["elapsed_seconds"].astype(float).to_numpy()
+    val_loss = df["val_loss"].astype(float).to_numpy()
+
+    f1_raw = df["val_macro_f1"].astype(float).to_numpy()
+    valid = ~np.isnan(f1_raw)
+    f1_interp = np.interp(t, t[valid], f1_raw[valid])
+
+    return t, val_loss, f1_interp
+
+
+# ---------- styling ----------
+COLORS = {
+    "LR":   "#1b9e77",
+    "XGB":  "#d95f02",
+    "SANN": "#7570b3",
+}
+
+LOADERS = {
+    "LR":   ("lr_history.csv",   load_lr),
+    "XGB":  ("xgb_history.csv",  load_xgb),
+    "SANN": ("sann_history.csv", load_sann),
+}
+MODEL_ORDER = ["LR", "XGB", "SANN"]
+
+
+def _load_all(base_dir):
+    out = {}
+    for name, (fname, loader) in LOADERS.items():
+        path = os.path.join(base_dir, fname)
+        if os.path.exists(path):
+            out[name] = loader(path)
+    return out
+
+
+def _fmt_time_axis(ax):
+    def _fmt(x, _pos):
+        if x >= 60:
+            return f"{x / 60:.0f}m"
+        return f"{x:.0f}s"
+    ax.xaxis.set_major_formatter(ticker.FuncFormatter(_fmt))
+
+
 def main():
     args = parse_args()
-    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    os.makedirs(args.outdir, exist_ok=True)
 
-    if not os.path.exists(args.history):
-        raise FileNotFoundError(f"History CSV not found: {args.history}")
+    # Load both reps
+    reps = {}
+    if os.path.isdir(args.hvg_dir):
+        data = _load_all(args.hvg_dir)
+        if data:
+            reps["HVG"] = data
+    if os.path.isdir(args.pca_dir):
+        data = _load_all(args.pca_dir)
+        if data:
+            reps["PCA"] = data
 
-    df = pd.read_csv(args.history)
-    required = {"epoch", "train_loss", "test_macro_f1"}
-    if not required.issubset(df.columns):
-        raise ValueError(f"Missing required columns. Found: {list(df.columns)}")
+    if not reps:
+        raise FileNotFoundError("No history files found in either HVG or PCA directories.")
 
-    df = df.sort_values("epoch")
+    rep_labels = [r for r in ["HVG", "PCA"] if r in reps]
+    n_rows = len(rep_labels)
 
-    epoch = df["epoch"].to_numpy()
-    train_loss = df["train_loss"].astype(float).to_numpy()
-    test_mf1 = df["test_macro_f1"].astype(float).to_numpy()
+    # ================================================================
+    # Figure 1: Validation Loss — all models overlaid
+    # ================================================================
+    fig_loss, axes_loss = plt.subplots(
+        n_rows, 1, figsize=(10, 4.5 * n_rows),
+        squeeze=False,
+    )
 
-    # ---- Normalize train loss to [0,1] for single-axis plotting ----
-    loss_min = train_loss.min()
-    loss_max = train_loss.max()
-    train_loss_norm = (train_loss - loss_min) / (loss_max - loss_min)
+    for row, rep in enumerate(rep_labels):
+        ax = axes_loss[row, 0]
+        for model in MODEL_ORDER:
+            if model in reps[rep]:
+                t, vl, _ = reps[rep][model]
+                vl_plot = moving_average(vl, args.smooth) if args.smooth > 1 else vl
+                ax.plot(t, vl_plot, color=COLORS[model], linewidth=1.8,
+                        label=model)
 
-    # Optional smoothing (plot only)
-    if args.smooth > 1:
-        train_loss_plot = moving_average(train_loss_norm, args.smooth)
-        test_mf1_plot = moving_average(test_mf1, args.smooth)
-    else:
-        train_loss_plot = train_loss_norm
-        test_mf1_plot = test_mf1
+        ax.set_xlabel("Wall-clock time", fontsize=11)
+        ax.set_ylabel("Validation Loss", fontsize=11)
+        ax.set_title(f"{rep} Representation", fontsize=13, fontweight="bold")
+        ax.legend(fontsize=11, frameon=False)
+        ax.grid(True, alpha=0.3)
+        _fmt_time_axis(ax)
 
-    # ---- Plot ----
-    fig, ax = plt.subplots(figsize=(8.6, 5.2))
+    fig_loss.suptitle("Validation Loss — Convergence Curves",
+                      fontsize=15, fontweight="bold", y=1.01)
+    fig_loss.tight_layout()
+    out_loss = os.path.join(args.outdir, "convergence_val_loss.png")
+    fig_loss.savefig(out_loss, dpi=args.dpi, bbox_inches="tight")
+    plt.close(fig_loss)
+    print(f"[Saved] {out_loss}")
 
-    ax.plot(epoch, train_loss_plot,
-            color="blue", linewidth=2, label="Train Loss (normalized)")
+    # ================================================================
+    # Figure 2: Validation Macro-F1 — all models overlaid
+    # ================================================================
+    fig_f1, axes_f1 = plt.subplots(
+        n_rows, 1, figsize=(10, 4.5 * n_rows),
+        squeeze=False,
+    )
 
-    ax.plot(epoch, test_mf1_plot,
-            color="red", linewidth=2, label="Test Macro F1")
+    for row, rep in enumerate(rep_labels):
+        ax = axes_f1[row, 0]
+        for model in MODEL_ORDER:
+            if model in reps[rep]:
+                t, _, vf = reps[rep][model]
+                vf_plot = moving_average(vf, args.smooth) if args.smooth > 1 else vf
+                ax.plot(t, vf_plot, color=COLORS[model], linewidth=1.8,
+                        label=model)
 
-    ax.set_title("SANN Convergence")
-    ax.set_xlabel("Epoch")
-    ax.set_ylabel("Normalized scale (0–1)")
+        ax.set_xlabel("Wall-clock time", fontsize=11)
+        ax.set_ylabel("Validation Macro-F1", fontsize=11)
+        ax.set_title(f"{rep} Representation", fontsize=13, fontweight="bold")
+        ax.legend(fontsize=11, frameon=False)
+        ax.grid(True, alpha=0.3)
+        _fmt_time_axis(ax)
 
-    # Ensure axis starts at 0
-    ax.set_ylim(0, 1)
-    ax.set_xlim(epoch.min(), epoch.max())
-
-    # Legend outside
-    ax.legend(loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
-
-    ax.grid(False)
-
-    fig.tight_layout()
-    fig.savefig(args.out, dpi=args.dpi, bbox_inches="tight")
-    plt.close(fig)
-
-    print(f"[Saved] {args.out}")
+    fig_f1.suptitle("Validation Macro-F1 — Convergence Curves",
+                    fontsize=15, fontweight="bold", y=1.01)
+    fig_f1.tight_layout()
+    out_f1 = os.path.join(args.outdir, "convergence_val_f1.png")
+    fig_f1.savefig(out_f1, dpi=args.dpi, bbox_inches="tight")
+    plt.close(fig_f1)
+    print(f"[Saved] {out_f1}")
 
 
 if __name__ == "__main__":

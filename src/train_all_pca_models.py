@@ -19,7 +19,7 @@ import joblib
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, log_loss
 from sklearn.model_selection import StratifiedShuffleSplit
 
 import xgboost as xgb
@@ -134,6 +134,47 @@ def train_full_lr(X_train, y_train, X_val, y_val, X_test, y_test, outdir):
     train_time = time.time() - t0
     print(f"Best LR: C={best_C} | Val Macro-F1={best_f1:.4f} | time={train_time:.1f}s")
 
+    # --- convergence history via warm_start with incremental max_iter ---
+    import warnings
+    print("  Recording LR convergence history (warm_start)...")
+    iter_checkpoints = list(range(1, 21)) + list(range(25, 101, 5)) + list(range(150, 501, 50))
+    lr_history = []
+    warm_model = LogisticRegression(
+        C=best_C, max_iter=1, tol=0.0, solver="lbfgs",
+        n_jobs=1, random_state=42, warm_start=True,
+    )
+    n_checkpoints = len(iter_checkpoints)
+    t_hist = time.time()
+    for idx, it in enumerate(iter_checkpoints, 1):
+        warm_model.max_iter = it
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="lbfgs failed to converge")
+            warm_model.fit(X_train_s, y_train)
+
+        elapsed = time.time() - t_hist
+
+        train_probs = warm_model.predict_proba(X_train_s)
+        val_probs = warm_model.predict_proba(X_val_s)
+
+        train_ll = log_loss(y_train, train_probs)
+        val_ll = log_loss(y_val, val_probs)
+        val_pred_i = val_probs.argmax(axis=1)
+        val_f1_i = f1_score(y_val, val_pred_i, average="macro")
+        val_acc_i = accuracy_score(y_val, val_pred_i)
+
+        print(f"    [{idx}/{n_checkpoints}] max_iter={it} | val_loss={val_ll:.4f} | val_F1={val_f1_i:.4f} | {elapsed:.1f}s")
+
+        lr_history.append({
+            "iteration": it,
+            "train_loss": float(train_ll),
+            "val_loss": float(val_ll),
+            "val_acc": float(val_acc_i),
+            "val_macro_f1": float(val_f1_i),
+            "elapsed_seconds": float(elapsed),
+        })
+
+    pd.DataFrame(lr_history).to_csv(os.path.join(outdir, "lr_history.csv"), index=False)
+
     joblib.dump(best_model, os.path.join(outdir, "lr_model.pkl"))
     joblib.dump(scaler, os.path.join(outdir, "lr_scaler.pkl"))
 
@@ -177,17 +218,48 @@ def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, 
         "nthread": 1,
     }
 
+    evals_result = {}
+
     booster = xgb.train(
         params=params,
         dtrain=dtrain,
         num_boost_round=2000,
-        evals=[(dval, "valid")],
+        evals=[(dtrain, "train"), (dval, "valid")],
+        evals_result=evals_result,
         verbose_eval=50,
         callbacks=[xgb.callback.EarlyStopping(rounds=50, save_best=True)],
     )
 
     train_time = time.time() - t0
     print(f"XGB best_iteration={booster.best_iteration} | time={train_time:.1f}s")
+
+    # --- build convergence history ---
+    train_logloss = evals_result["train"]["mlogloss"]
+    val_logloss = evals_result["valid"]["mlogloss"]
+    # Cap at best_iteration+1 because save_best=True trims the booster
+    max_rounds = int(booster.best_iteration) + 1
+    n_rounds = min(len(val_logloss), max_rounds)
+    total_trained_rounds = len(val_logloss)
+
+    f1_interval = 10
+    xgb_history = []
+    for r in range(n_rounds):
+        elapsed_est = train_time * (r + 1) / total_trained_rounds
+
+        row = {
+            "round": r + 1,
+            "train_loss": float(train_logloss[r]),
+            "val_loss": float(val_logloss[r]),
+            "elapsed_seconds": float(elapsed_est),
+        }
+        if r % f1_interval == 0 or r == n_rounds - 1:
+            probs_val_r = booster.predict(dval, iteration_range=(0, r + 1))
+            pred_val_r = probs_val_r.argmax(axis=1)
+            row["val_macro_f1"] = float(f1_score(y_val, pred_val_r, average="macro"))
+            row["val_acc"] = float(accuracy_score(y_val, pred_val_r))
+        xgb_history.append(row)
+
+    pd.DataFrame(xgb_history).to_csv(os.path.join(outdir, "xgb_history.csv"), index=False)
 
     probs_test = booster.predict(dtest)
     pred_test = probs_test.argmax(axis=1)
@@ -245,6 +317,7 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
     patience = 15
     patience_counter = 0
     history = []
+    t_epoch_start = time.time()
 
     for epoch in range(1, 101):
         model.train()
@@ -296,12 +369,15 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
         val_acc = accuracy_score(val_true, val_pred)
         val_f1 = f1_score(val_true, val_pred, average="macro")
 
+        epoch_elapsed = time.time() - t_epoch_start
+
         history.append({
             "epoch": epoch,
             "train_loss": float(train_loss),
             "val_loss": float(val_loss),
             "val_acc": float(val_acc),
             "val_macro_f1": float(val_f1),
+            "elapsed_seconds": float(epoch_elapsed),
         })
 
         print(
