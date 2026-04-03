@@ -70,15 +70,22 @@ def reliability_points(probs: np.ndarray, y_true: np.ndarray, n_bins: int = 10):
     pred = probs.argmax(axis=1)
     correct = (pred == y_true).astype(int)
 
-    bins = np.linspace(0.0, 1.0, n_bins + 1)
-    bin_ids = np.digitize(conf, bins) - 1
-    bin_ids = np.clip(bin_ids, 0, n_bins - 1)
+    # Quantile binning — equal sample count per bin
+    qs = np.linspace(0.0, 1.0, n_bins + 1)
+    bin_edges = np.quantile(conf, qs)
+    bin_edges = np.unique(bin_edges)
+    if len(bin_edges) < 3:
+        bin_edges = np.linspace(0.0, 1.0, n_bins + 1)
 
-    bin_conf = np.full(n_bins, np.nan, dtype=float)
-    bin_acc = np.full(n_bins, np.nan, dtype=float)
-    bin_counts = np.zeros(n_bins, dtype=int)
+    bin_ids = np.digitize(conf, bin_edges, right=True) - 1
+    n_eff = len(bin_edges) - 1
+    bin_ids = np.clip(bin_ids, 0, n_eff - 1)
 
-    for b in range(n_bins):
+    bin_conf = np.full(n_eff, np.nan, dtype=float)
+    bin_acc = np.full(n_eff, np.nan, dtype=float)
+    bin_counts = np.zeros(n_eff, dtype=int)
+
+    for b in range(n_eff):
         m = (bin_ids == b)
         cnt = int(m.sum())
         bin_counts[b] = cnt
@@ -88,7 +95,7 @@ def reliability_points(probs: np.ndarray, y_true: np.ndarray, n_bins: int = 10):
 
     n_total = len(y_true)
     ece = 0.0
-    for b in range(n_bins):
+    for b in range(n_eff):
         if bin_counts[b] > 0:
             w = bin_counts[b] / n_total
             ece += w * abs(bin_acc[b] - bin_conf[b])
@@ -241,47 +248,55 @@ def main():
     print(f"[Sanity] Mean confidence: before={conf_b.mean():.4f} after={conf_a.mean():.4f}")
 
     # ----------------------------
-    # Overlaid histogram
+    # Reliability diagram: Before & After overlaid, improvement shaded yellow
     # ----------------------------
-    fig, ax = plt.subplots(figsize=(7.2, 5.6))
+    bin_conf_b, bin_acc_b, bin_cnt_b, _, _, _ = reliability_points(probs_test_before, y_test, n_bins=args.bins)
+    bin_conf_a, bin_acc_a, bin_cnt_a, _, _, _ = reliability_points(probs_test_after, y_test, n_bins=args.bins)
 
-    edges = np.linspace(0.0, 1.0, args.bins + 1)
+    fig, ax = plt.subplots(figsize=(7, 7))
 
-    weights_b = np.ones_like(conf_b) / len(conf_b)
-    weights_a = np.ones_like(conf_a) / len(conf_a)
+    # Use shared x-points: interpolate both curves onto a common grid
+    # so fill_between works cleanly
+    mask_b = bin_cnt_b > 0
+    mask_a = bin_cnt_a > 0
+    xb, yb = bin_conf_b[mask_b], bin_acc_b[mask_b]
+    xa, ya = bin_conf_a[mask_a], bin_acc_a[mask_a]
 
-    ax.hist(
-        conf_b,
-        bins=edges,
-        weights=weights_b,
-        alpha=0.5,
-        label=f"Before (ECE={ece_before:.3f})"
+    # Shade the difference between before and after curves in yellow
+    # Interpolate both onto a fine common grid
+    x_common = np.linspace(
+        max(xb.min(), xa.min()),
+        min(xb.max(), xa.max()),
+        200,
+    )
+    yb_interp = np.interp(x_common, xb, yb)
+    ya_interp = np.interp(x_common, xa, ya)
+
+    # Shade entire difference between before and after in yellow
+    ax.fill_between(
+        x_common, yb_interp, ya_interp,
+        color="#FFD700", alpha=0.40, label="Temperature scaling effect",
     )
 
-    ax.hist(
-        conf_a,
-        bins=edges,
-        weights=weights_a,
-        alpha=0.5,
-        label=f"After (ECE={ece_after:.3f})"
-    )
+    # Perfect calibration line
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1.5, label="Perfect Calibration")
+
+    # Before curve
+    ax.plot(xb, yb, "o-", color="#d62728", linewidth=2, markersize=7,
+            label=f"Before (ECE={ece_before:.3f})")
+
+    # After curve
+    ax.plot(xa, ya, "s-", color="#2ca02c", linewidth=2, markersize=7,
+            label=f"After T={T:.3f} (ECE={ece_after:.3f})")
 
     ax.set_xlim(0, 1)
-    ax.set_xticks(np.linspace(0, 1, 11))
-    ax.set_xlabel("Prediction confidence")
-    ax.set_ylabel("Proportion of predictions")
-    ax.set_title("SANN Confidence Distribution Before vs After Temperature Scaling")
-    ax.legend(frameon=False)
-    ax.grid(False)
-
-    ax.text(
-        0.03, 0.97,
-        f"Before: mean={conf_b.mean():.2f}\nAfter: mean={conf_a.mean():.2f}\nT={T:.3f}",
-        transform=ax.transAxes,
-        ha="left",
-        va="top",
-        fontsize=9
-    )
+    ax.set_ylim(0, 1)
+    ax.set_aspect("equal")
+    ax.set_xlabel("Predicted Probability", fontsize=12)
+    ax.set_ylabel("Accuracy", fontsize=12)
+    ax.set_title("SANN Reliability — Temperature Scaling", fontsize=14, fontweight="bold")
+    ax.legend(loc="upper left", fontsize=10, frameon=True, framealpha=0.9)
+    ax.grid(True, alpha=0.2)
 
     fig.tight_layout()
     fig.savefig(args.out_fig, dpi=args.dpi, bbox_inches="tight")

@@ -404,9 +404,12 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
     model.eval()
     with torch.no_grad():
         test_logits = model(X_test_t.to(device)).cpu().numpy()
+        val_logits_final = model(X_val_t.to(device)).cpu().numpy()
 
     test_probs = torch.softmax(torch.tensor(test_logits), dim=1).numpy()
     test_pred = test_probs.argmax(axis=1)
+
+    val_probs_final = torch.softmax(torch.tensor(val_logits_final), dim=1).numpy()
 
     acc = accuracy_score(y_test, test_pred)
     f1 = f1_score(y_test, test_pred, average="macro")
@@ -418,6 +421,8 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
     np.save(os.path.join(outdir, "sann_test_probs.npy"), test_probs)
     np.save(os.path.join(outdir, "sann_test_pred.npy"), test_pred)
     np.save(os.path.join(outdir, "sann_test_true.npy"), y_test)
+    np.save(os.path.join(outdir, "sann_val_probs.npy"), val_probs_final)
+    np.save(os.path.join(outdir, "sann_val_true.npy"), y_val)
 
     return {
         "Model": "SANN",
