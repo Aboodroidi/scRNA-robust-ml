@@ -128,12 +128,20 @@ def main():
 
     for row, rep in enumerate(rep_labels):
         ax = axes_loss[row, 0]
+        # Use SANN's final time as the x-axis limit
+        sann_max_t = None
+        if "SANN" in reps[rep]:
+            sann_max_t = reps[rep]["SANN"][0][-1]
+
         for model in MODEL_ORDER:
             if model in reps[rep]:
                 t, vl, _ = reps[rep][model]
                 vl_plot = moving_average(vl, args.smooth) if args.smooth > 1 else vl
                 ax.plot(t, vl_plot, color=COLORS[model], linewidth=1.8,
                         label=model)
+
+        if sann_max_t is not None:
+            ax.set_xlim(0, sann_max_t * 1.02)
 
         ax.set_xlabel("Wall-clock time", fontsize=11)
         ax.set_ylabel("Validation Loss", fontsize=11)
@@ -160,12 +168,19 @@ def main():
 
     for row, rep in enumerate(rep_labels):
         ax = axes_f1[row, 0]
+        sann_max_t = None
+        if "SANN" in reps[rep]:
+            sann_max_t = reps[rep]["SANN"][0][-1]
+
         for model in MODEL_ORDER:
             if model in reps[rep]:
                 t, _, vf = reps[rep][model]
                 vf_plot = moving_average(vf, args.smooth) if args.smooth > 1 else vf
                 ax.plot(t, vf_plot, color=COLORS[model], linewidth=1.8,
                         label=model)
+
+        if sann_max_t is not None:
+            ax.set_xlim(0, sann_max_t * 1.02)
 
         ax.set_xlabel("Wall-clock time", fontsize=11)
         ax.set_ylabel("Validation Macro-F1", fontsize=11)
