@@ -1,0 +1,4 @@
+Model,Accuracy,Macro-F1,TrainTimeSeconds,Notes
+LR,0.98182879661388,0.9826441469709356,0.8199880123138428,"input=PCA; best_C=5.0; solver=lbfgs; grid=[0.1, 1.0, 5.0]"
+XGB,0.9874480040866964,0.9768506618327572,38.42301893234253,input=PCA; best_iter=879
+SANN,0.988104794570532,0.9865581455975713,147.34638094902039,input=dual_encoder(expr_PCA_branch+mask_PCA_branch); branch=256→128; fusion=128→5; dropout=0.05; bn=True; class_weighted=True; lr=8e-4; l1_lambda=5e-08; temp_scaling=off

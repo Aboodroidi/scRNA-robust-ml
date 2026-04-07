@@ -34,38 +34,103 @@ from torch.utils.data import DataLoader, TensorDataset
 # ----------------------------
 # SANN MODEL
 # ----------------------------
+def _make_norm(dim, use_batchnorm, use_layernorm):
+    """Return the appropriate normalisation layer."""
+    if use_layernorm:
+        return nn.LayerNorm(dim)
+    if use_batchnorm:
+        return nn.BatchNorm1d(dim)
+    return nn.Identity()
+
+
 class SANN(nn.Module):
     """
-    Sparse-Aware Neural Network:
-    input = [scaled expression features, binary sparsity mask]
+    Sparse-Aware Neural Network — dual-encoder architecture.
+
+    Two separate branches process expression features and sparsity mask
+    independently before a fusion layer combines them for classification.
+
+    Expression branch:  expr_dim → branch_hidden → branch_out
+    Mask branch:        mask_dim → branch_hidden → branch_out
+    Fusion:             (branch_out * 2) → fusion_hidden → num_classes
     """
-    def __init__(self, input_dim, num_classes, hidden1=1024, hidden2=512, dropout=0.05, use_batchnorm=True):
+    def __init__(
+        self,
+        expr_dim,
+        mask_dim,
+        num_classes,
+        branch_hidden=512,
+        branch_out=256,
+        fusion_hidden=256,
+        dropout=0.05,
+        use_batchnorm=True,
+        use_layernorm=False,
+    ):
         super().__init__()
 
-        layers = [nn.Linear(input_dim, hidden1)]
-        if use_batchnorm:
-            layers.append(nn.BatchNorm1d(hidden1))
-        layers.append(nn.ReLU())
+        # --- Expression branch ---
+        expr_layers = [nn.Linear(expr_dim, branch_hidden)]
+        expr_layers.append(_make_norm(branch_hidden, use_batchnorm, use_layernorm))
+        expr_layers.append(nn.ReLU())
         if dropout > 0:
-            layers.append(nn.Dropout(dropout))
+            expr_layers.append(nn.Dropout(dropout))
+        expr_layers.append(nn.Linear(branch_hidden, branch_out))
+        expr_layers.append(_make_norm(branch_out, use_batchnorm, use_layernorm))
+        expr_layers.append(nn.ReLU())
+        self.expr_branch = nn.Sequential(*expr_layers)
 
-        layers.append(nn.Linear(hidden1, hidden2))
-        if use_batchnorm:
-            layers.append(nn.BatchNorm1d(hidden2))
-        layers.append(nn.ReLU())
+        # --- Mask branch ---
+        mask_layers = [nn.Linear(mask_dim, branch_hidden)]
+        mask_layers.append(_make_norm(branch_hidden, use_batchnorm, use_layernorm))
+        mask_layers.append(nn.ReLU())
         if dropout > 0:
-            layers.append(nn.Dropout(dropout))
+            mask_layers.append(nn.Dropout(dropout))
+        mask_layers.append(nn.Linear(branch_hidden, branch_out))
+        mask_layers.append(_make_norm(branch_out, use_batchnorm, use_layernorm))
+        mask_layers.append(nn.ReLU())
+        self.mask_branch = nn.Sequential(*mask_layers)
 
-        layers.append(nn.Linear(hidden2, num_classes))
-        self.net = nn.Sequential(*layers)
+        # --- Fusion head ---
+        fusion_layers = []
+        if dropout > 0:
+            fusion_layers.append(nn.Dropout(dropout))
+        fusion_layers.append(nn.Linear(branch_out * 2, fusion_hidden))
+        fusion_layers.append(_make_norm(fusion_hidden, use_batchnorm, use_layernorm))
+        fusion_layers.append(nn.ReLU())
+        if dropout > 0:
+            fusion_layers.append(nn.Dropout(dropout))
+        fusion_layers.append(nn.Linear(fusion_hidden, num_classes))
+        self.fusion = nn.Sequential(*fusion_layers)
+
+        self.expr_dim = expr_dim
 
     def forward(self, x):
-        return self.net(x)
+        x_expr = x[:, :self.expr_dim]
+        x_mask = x[:, self.expr_dim:]
+
+        h_expr = self.expr_branch(x_expr)
+        h_mask = self.mask_branch(x_mask)
+
+        h = torch.cat([h_expr, h_mask], dim=1)
+        return self.fusion(h)
 
 
 # ----------------------------
 # Utilities
 # ----------------------------
+def compute_class_weights(y, num_classes):
+    """Sqrt-inverse-frequency class weights, normalized to sum to num_classes.
+
+    Using sqrt dampens extreme ratios between rare and common classes,
+    preventing gradient explosion on high-dimensional inputs.
+    """
+    counts = np.bincount(y, minlength=num_classes).astype(np.float64)
+    counts = np.maximum(counts, 1.0)  # avoid division by zero
+    inv_freq = 1.0 / np.sqrt(counts)  # sqrt dampening
+    weights = inv_freq / inv_freq.sum() * num_classes
+    return weights.astype(np.float32)
+
+
 def to_dense_float32(x):
     if sp.issparse(x):
         return x.toarray().astype(np.float32)
@@ -367,23 +432,48 @@ def train_full_sann(
     y_test,
     num_classes,
     outdir,
+    n_expr_features,
     l1_lambda=5e-8,
 ):
-    print("\nTraining SANN (scaled HVG expression + binary mask, no temp scaling)...")
+    print("\nTraining SANN (dual-encoder: expression branch + mask branch, class-weighted)...")
     t0 = time.time()
 
     device = "cpu"
+    n_mask_features = X_train.shape[1] - n_expr_features
+
+    # Scale architecture to input dimensionality
+    if n_expr_features > 500:
+        # HVG: narrower branches, LayerNorm (no train/eval mismatch), more dropout
+        bh, bo, fh = 256, 128, 128
+        drop, lr_init, wd = 0.25, 1e-4, 1e-4
+        use_bn, use_ln = False, True
+        norm_label = "LayerNorm"
+    else:
+        # PCA: wider branches, BatchNorm is fine
+        bh, bo, fh = 512, 256, 256
+        drop, lr_init, wd = 0.05, 8e-4, 0.0
+        use_bn, use_ln = True, False
+        norm_label = "BatchNorm"
 
     model = SANN(
-        input_dim=X_train.shape[1],
+        expr_dim=n_expr_features,
+        mask_dim=n_mask_features,
         num_classes=num_classes,
-        hidden1=1024,
-        hidden2=512,
-        dropout=0.05,
-        use_batchnorm=True,
+        branch_hidden=bh,
+        branch_out=bo,
+        fusion_hidden=fh,
+        dropout=drop,
+        use_batchnorm=use_bn,
+        use_layernorm=use_ln,
     ).to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4, weight_decay=0.0)
+    print(f"  [Architecture] expr_branch: {n_expr_features}→{bh}→{bo} | "
+          f"mask_branch: {n_mask_features}→{bh}→{bo} | fusion: {bo*2}→{fh}→{num_classes}")
+    print(f"  [Config] norm={norm_label}, dropout={drop}, lr={lr_init}, weight_decay={wd}")
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"  [Architecture] Total parameters: {total_params:,}")
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr_init, weight_decay=wd)
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
         mode="max",
@@ -391,7 +481,12 @@ def train_full_sann(
         patience=6,
         min_lr=1e-5,
     )
-    criterion = nn.CrossEntropyLoss(label_smoothing=0.03)
+
+    # Class-weighted loss to handle imbalanced cell types
+    cw = compute_class_weights(y_train, num_classes)
+    class_weights_t = torch.tensor(cw, dtype=torch.float32).to(device)
+    print(f"  [Class weights] {dict(zip(range(num_classes), np.round(cw, 3)))}")
+    criterion = nn.CrossEntropyLoss(weight=class_weights_t, label_smoothing=0.03)
 
     X_train_t = torch.tensor(X_train, dtype=torch.float32)
     y_train_t = torch.tensor(y_train, dtype=torch.long)
@@ -426,6 +521,7 @@ def train_full_sann(
             loss = ce_loss + reg_l1
 
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
             bs = xb.size(0)
@@ -530,8 +626,9 @@ def train_full_sann(
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
         "Notes": (
-            f"input=scaled_HVG+mask; hidden1=1024; hidden2=512; dropout=0.05; "
-            f"bn=True; relu=True; lr=8e-4; weight_decay=0.0; l1_lambda={l1_lambda}; "
+            f"input=dual_encoder(expr_branch+mask_branch); "
+            f"branch=512→256; fusion=256→{num_classes}; dropout=0.05; "
+            f"bn=True; class_weighted=True; lr=8e-4; l1_lambda={l1_lambda}; "
             f"temp_scaling=off"
         ),
     }
@@ -548,14 +645,19 @@ def main():
     parser.add_argument("--val_frac", type=float, default=0.1)
     parser.add_argument("--max_hvgs", type=int, default=None)
     parser.add_argument("--l1_lambda", type=float, default=5e-8)
+    parser.add_argument("--models", type=str, default="lr,xgb,sann",
+                        help="Comma-separated list of models to train (lr,xgb,sann)")
+    parser.add_argument("--label_key", type=str, default="cell_type",
+                        help="obs column to use as labels (e.g. cell_type_coarse)")
     args = parser.parse_args()
+    args.models = [m.strip().lower() for m in args.models.split(",")]
 
     os.makedirs(args.outdir, exist_ok=True)
 
     # Shared HVG pathway for all models
     X_expr, y_expr, class_names_expr = load_expression_data(
         args.data,
-        label_key="cell_type",
+        label_key=args.label_key,
         hvg_key="highly_variable",
         max_hvgs=args.max_hvgs,
     )
@@ -617,32 +719,36 @@ def main():
 
     metrics_path = os.path.join(args.outdir, "baseline_metrics_full.csv")
 
-    lr_row = train_full_lr(
-        X_train_expr, y_train,
-        X_val_expr, y_val,
-        X_test_expr, y_test,
-        args.outdir
-    )
-    save_metrics_row(metrics_path, lr_row)
+    if "lr" in args.models:
+        lr_row = train_full_lr(
+            X_train_expr, y_train,
+            X_val_expr, y_val,
+            X_test_expr, y_test,
+            args.outdir
+        )
+        save_metrics_row(metrics_path, lr_row)
 
-    xgb_row = train_full_xgb(
-        X_train_expr, y_train,
-        X_val_expr, y_val,
-        X_test_expr, y_test,
-        num_classes,
-        args.outdir
-    )
-    save_metrics_row(metrics_path, xgb_row)
+    if "xgb" in args.models:
+        xgb_row = train_full_xgb(
+            X_train_expr, y_train,
+            X_val_expr, y_val,
+            X_test_expr, y_test,
+            num_classes,
+            args.outdir
+        )
+        save_metrics_row(metrics_path, xgb_row)
 
-    sann_row = train_full_sann(
-        X_train_sann, y_train,
-        X_val_sann, y_val,
-        X_test_sann, y_test,
-        num_classes,
-        args.outdir,
-        l1_lambda=args.l1_lambda,
-    )
-    save_metrics_row(metrics_path, sann_row)
+    if "sann" in args.models:
+        sann_row = train_full_sann(
+            X_train_sann, y_train,
+            X_val_sann, y_val,
+            X_test_sann, y_test,
+            num_classes,
+            args.outdir,
+            n_expr_features=n_expr_features,
+            l1_lambda=args.l1_lambda,
+        )
+        save_metrics_row(metrics_path, sann_row)
 
     print("\n✅ ALL FULL MODELS TRAINED CORRECTLY.")
     print(f"Saved metrics to: {metrics_path}")

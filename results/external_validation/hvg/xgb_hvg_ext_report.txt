@@ -1,0 +1,24 @@
+XGB_HVG — External Validation (PBMC 8K)
+Accuracy: 0.6677
+Macro-F1 (all): 0.2127
+Macro-F1 (known): 0.6913
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      0.99      0.99      1222
+       CD8 T       1.00      0.27      0.42      2897
+        CL 0       0.00      0.00      0.00         0
+       CL 12       0.00      0.00      0.00         0
+       CL 13       0.00      0.00      0.00         0
+       CL 15       0.00      0.00      0.00         0
+       CL 16       0.00      0.00      0.00         0
+        CL 6       0.00      0.00      0.00         0
+        CL 8       0.00      0.00      0.00         0
+        CL 9       0.00      0.00      0.00         0
+        Mono       1.00      0.99      0.99      2102
+          NK       0.22      0.98      0.36       313
+    Platelet       0.00      0.00      0.00         0
+
+    accuracy                           0.67      6534
+   macro avg       0.25      0.25      0.21      6534
+weighted avg       0.96      0.67      0.71      6534

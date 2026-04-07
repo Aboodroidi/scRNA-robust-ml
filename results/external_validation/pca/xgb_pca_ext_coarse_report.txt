@@ -1,0 +1,16 @@
+XGB_PCA — Coarse External Validation (PBMC 8K)
+Classes evaluated: ['B cells', 'Mono', 'NK', 'T cells']
+Accuracy: 0.8180
+Macro-F1: 0.7720
+Weighted-F1: 0.8551
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      1.00      1.00      1222
+        Mono       1.00      0.98      0.99      2102
+          NK       0.21      0.98      0.35       313
+     T cells       1.00      0.60      0.75      2897
+
+   micro avg       0.82      0.82      0.82      6534
+   macro avg       0.80      0.89      0.77      6534
+weighted avg       0.96      0.82      0.86      6534

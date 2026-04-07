@@ -19,6 +19,7 @@ import joblib
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 from sklearn.metrics import accuracy_score, f1_score, log_loss
 from sklearn.model_selection import StratifiedShuffleSplit
 
@@ -30,22 +31,95 @@ from torch.utils.data import DataLoader, TensorDataset
 
 
 # ----------------------------
-# SANN MODEL (PCA input only)
+# SANN MODEL (Sparse-Aware: PCA expression + PCA sparsity mask)
 # ----------------------------
 class SANN(nn.Module):
-    def __init__(self, input_dim, num_classes, hidden_dim=256, dropout=0.1, use_batchnorm=True):
+    """
+    Sparse-Aware Neural Network — dual-encoder for PCA inputs.
+
+    Expression branch:  expr_pca_dim → branch_hidden → branch_out
+    Mask branch:        mask_pca_dim → branch_hidden → branch_out
+    Fusion:             (branch_out * 2) → fusion_hidden → num_classes
+    """
+    def __init__(
+        self,
+        expr_dim,
+        mask_dim,
+        num_classes,
+        branch_hidden=256,
+        branch_out=128,
+        fusion_hidden=128,
+        dropout=0.05,
+        use_batchnorm=True,
+    ):
         super().__init__()
-        layers = [nn.Linear(input_dim, hidden_dim)]
+
+        # --- Expression branch ---
+        expr_layers = [nn.Linear(expr_dim, branch_hidden)]
         if use_batchnorm:
-            layers.append(nn.BatchNorm1d(hidden_dim))
-        layers.append(nn.ReLU())
-        if dropout and dropout > 0:
-            layers.append(nn.Dropout(dropout))
-        layers.append(nn.Linear(hidden_dim, num_classes))
-        self.net = nn.Sequential(*layers)
+            expr_layers.append(nn.BatchNorm1d(branch_hidden))
+        expr_layers.append(nn.ReLU())
+        if dropout > 0:
+            expr_layers.append(nn.Dropout(dropout))
+        expr_layers.append(nn.Linear(branch_hidden, branch_out))
+        if use_batchnorm:
+            expr_layers.append(nn.BatchNorm1d(branch_out))
+        expr_layers.append(nn.ReLU())
+        self.expr_branch = nn.Sequential(*expr_layers)
+
+        # --- Mask branch ---
+        mask_layers = [nn.Linear(mask_dim, branch_hidden)]
+        if use_batchnorm:
+            mask_layers.append(nn.BatchNorm1d(branch_hidden))
+        mask_layers.append(nn.ReLU())
+        if dropout > 0:
+            mask_layers.append(nn.Dropout(dropout))
+        mask_layers.append(nn.Linear(branch_hidden, branch_out))
+        if use_batchnorm:
+            mask_layers.append(nn.BatchNorm1d(branch_out))
+        mask_layers.append(nn.ReLU())
+        self.mask_branch = nn.Sequential(*mask_layers)
+
+        # --- Fusion head ---
+        fusion_layers = []
+        if dropout > 0:
+            fusion_layers.append(nn.Dropout(dropout))
+        fusion_layers.append(nn.Linear(branch_out * 2, fusion_hidden))
+        if use_batchnorm:
+            fusion_layers.append(nn.BatchNorm1d(fusion_hidden))
+        fusion_layers.append(nn.ReLU())
+        if dropout > 0:
+            fusion_layers.append(nn.Dropout(dropout))
+        fusion_layers.append(nn.Linear(fusion_hidden, num_classes))
+        self.fusion = nn.Sequential(*fusion_layers)
+
+        self.expr_dim = expr_dim
 
     def forward(self, x):
-        return self.net(x)
+        x_expr = x[:, :self.expr_dim]
+        x_mask = x[:, self.expr_dim:]
+
+        h_expr = self.expr_branch(x_expr)
+        h_mask = self.mask_branch(x_mask)
+
+        h = torch.cat([h_expr, h_mask], dim=1)
+        return self.fusion(h)
+
+
+def l1_penalty(model: nn.Module) -> torch.Tensor:
+    penalty = torch.tensor(0.0, device=next(model.parameters()).device)
+    for param in model.parameters():
+        penalty = penalty + param.abs().sum()
+    return penalty
+
+
+def compute_class_weights(y, num_classes):
+    """Sqrt-inverse-frequency class weights, normalized to sum to num_classes."""
+    counts = np.bincount(y, minlength=num_classes).astype(np.float64)
+    counts = np.maximum(counts, 1.0)
+    inv_freq = 1.0 / np.sqrt(counts)
+    weights = inv_freq / inv_freq.sum() * num_classes
+    return weights.astype(np.float32)
 
 
 # ----------------------------
@@ -63,8 +137,16 @@ def load_pca_data(data_path, label_key="cell_type", pca_key="X_pca", pca_dim=50)
     y = y_cat.cat.codes.to_numpy()
     class_names = list(y_cat.cat.categories)
 
-    X = np.asarray(adata.obsm[pca_key][:, :pca_dim], dtype=np.float32)
-    return X, y, class_names
+    X_pca = np.asarray(adata.obsm[pca_key][:, :pca_dim], dtype=np.float32)
+
+    # Raw HVG expression for sparsity mask computation
+    import scipy.sparse as sp
+    X_raw = adata.X
+    if sp.issparse(X_raw):
+        X_raw = X_raw.toarray()
+    X_raw = np.asarray(X_raw, dtype=np.float32)
+
+    return X_pca, X_raw, y, class_names
 
 
 def load_fixed_split(split_path):
@@ -286,22 +368,39 @@ def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, 
 # ----------------------------
 # SANN
 # ----------------------------
-def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir):
-    print("\nTraining SANN (PCA features only, no temp scaling)...")
+def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir, n_expr_features, l1_lambda=5e-8):
+    print("\nTraining SANN (dual-encoder: expr PCA branch + mask PCA branch, class-weighted)...")
     t0 = time.time()
 
     device = "cpu"
+    n_mask_features = X_train.shape[1] - n_expr_features
 
     model = SANN(
-        input_dim=X_train.shape[1],
+        expr_dim=n_expr_features,
+        mask_dim=n_mask_features,
         num_classes=num_classes,
-        hidden_dim=256,
-        dropout=0.1,
+        branch_hidden=256,
+        branch_out=128,
+        fusion_hidden=128,
+        dropout=0.05,
         use_batchnorm=True,
     ).to(device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
-    criterion = nn.CrossEntropyLoss(label_smoothing=0.05)
+    print(f"  [Architecture] expr_branch: {n_expr_features}→256→128 | "
+          f"mask_branch: {n_mask_features}→256→128 | fusion: 256→128→{num_classes}")
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"  [Architecture] Total parameters: {total_params:,}")
+
+    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4, weight_decay=0.0)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer, mode="max", factor=0.5, patience=6, min_lr=1e-5,
+    )
+
+    # Class-weighted loss
+    cw = compute_class_weights(y_train, num_classes)
+    class_weights_t = torch.tensor(cw, dtype=torch.float32).to(device)
+    print(f"  [Class weights] {dict(zip(range(num_classes), np.round(cw, 3)))}")
+    criterion = nn.CrossEntropyLoss(weight=class_weights_t, label_smoothing=0.03)
 
     X_train_t = torch.tensor(X_train, dtype=torch.float32)
     y_train_t = torch.tensor(y_train, dtype=torch.long)
@@ -314,12 +413,12 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
 
     best_val_f1 = -1.0
     best_state = None
-    patience = 15
+    patience = 22
     patience_counter = 0
     history = []
     t_epoch_start = time.time()
 
-    for epoch in range(1, 101):
+    for epoch in range(1, 121):
         model.train()
         train_loss_sum = 0.0
         train_n = 0
@@ -330,8 +429,13 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
 
             optimizer.zero_grad()
             logits = model(xb)
-            loss = criterion(logits, yb)
+
+            ce_loss = criterion(logits, yb)
+            reg_l1 = l1_penalty(model) * l1_lambda
+            loss = ce_loss + reg_l1
+
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
             optimizer.step()
 
             bs = xb.size(0)
@@ -352,7 +456,9 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
                 yb = yb.to(device)
 
                 logits = model(xb)
-                loss = criterion(logits, yb)
+                ce_loss = criterion(logits, yb)
+                reg_l1 = l1_penalty(model) * l1_lambda
+                loss = ce_loss + reg_l1
 
                 bs = xb.size(0)
                 val_loss_sum += float(loss.item()) * bs
@@ -369,6 +475,9 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
         val_acc = accuracy_score(val_true, val_pred)
         val_f1 = f1_score(val_true, val_pred, average="macro")
 
+        scheduler.step(val_f1)
+        current_lr = optimizer.param_groups[0]["lr"]
+
         epoch_elapsed = time.time() - t_epoch_start
 
         history.append({
@@ -377,12 +486,13 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
             "val_loss": float(val_loss),
             "val_acc": float(val_acc),
             "val_macro_f1": float(val_f1),
+            "lr": float(current_lr),
             "elapsed_seconds": float(epoch_elapsed),
         })
 
         print(
             f"  Epoch {epoch:03d} | train_loss={train_loss:.4f} | "
-            f"val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f}"
+            f"val_loss={val_loss:.4f} | val_macroF1={val_f1:.4f} | lr={current_lr:.6f}"
         )
 
         if val_f1 > best_val_f1:
@@ -429,7 +539,12 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
         "Accuracy": float(acc),
         "Macro-F1": float(f1),
         "TrainTimeSeconds": float(train_time),
-        "Notes": "input=PCA; hidden=256; dropout=0.1; bn=True; relu=True; temp_scaling=off",
+        "Notes": (
+            f"input=dual_encoder(expr_PCA_branch+mask_PCA_branch); "
+            f"branch=256→128; fusion=128→{num_classes}; dropout=0.05; "
+            f"bn=True; class_weighted=True; lr=8e-4; l1_lambda={l1_lambda}; "
+            f"temp_scaling=off"
+        ),
     }
 
 
@@ -443,36 +558,76 @@ def main():
     parser.add_argument("--outdir", default="results/full_train_all_pca")
     parser.add_argument("--val_frac", type=float, default=0.1)
     parser.add_argument("--pca_dim", type=int, default=50)
+    parser.add_argument("--mask_pca_dim", type=int, default=50)
+    parser.add_argument("--l1_lambda", type=float, default=5e-8)
+    parser.add_argument("--models", type=str, default="lr,xgb,sann",
+                        help="Comma-separated list of models to train (lr,xgb,sann)")
+    parser.add_argument("--label_key", type=str, default="cell_type",
+                        help="obs column to use as labels (e.g. cell_type_coarse)")
     args = parser.parse_args()
+    args.models = [m.strip().lower() for m in args.models.split(",")]
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    X, y, class_names = load_pca_data(
+    X_pca, X_raw, y, class_names = load_pca_data(
         args.data,
-        label_key="cell_type",
+        label_key=args.label_key,
         pca_key="X_pca",
         pca_dim=args.pca_dim,
     )
 
     train_idx_full, test_idx = load_fixed_split(args.splits)
 
-    X_train_full = X[train_idx_full]
+    # --- Expression PCA splits (for LR, XGB, and part of SANN) ---
+    X_pca_train_full = X_pca[train_idx_full]
     y_train_full = y[train_idx_full]
-    X_test = X[test_idx]
+    X_pca_test = X_pca[test_idx]
     y_test = y[test_idx]
 
     tr_rel, val_rel = make_train_val_split(y_train_full, val_frac=args.val_frac, seed=42)
 
-    X_train = X_train_full[tr_rel]
+    X_train = X_pca_train_full[tr_rel]
     y_train = y_train_full[tr_rel]
-    X_val = X_train_full[val_rel]
+    X_val = X_pca_train_full[val_rel]
     y_val = y_train_full[val_rel]
 
-    num_classes = len(class_names)
+    # --- Sparsity mask PCA (fit on train only) ---
+    print("\n[Sparse-Aware] Computing binary sparsity mask and fitting mask PCA...")
+    X_mask_all = (X_raw != 0).astype(np.float32)  # binary: 1 = expressed, 0 = dropout/zero
 
-    print(f"[Sanity] Total samples = {len(y)} | classes = {num_classes}")
-    print(f"[Sanity] PCA shape = {X.shape}")
-    print(f"[Sanity] Train_full={len(train_idx_full)} | Train={len(tr_rel)} | Val={len(val_rel)} | Test={len(test_idx)}")
+    X_mask_train_full = X_mask_all[train_idx_full]
+    X_mask_test = X_mask_all[test_idx]
+
+    X_mask_train = X_mask_train_full[tr_rel]
+    X_mask_val = X_mask_train_full[val_rel]
+
+    mask_pca = PCA(n_components=args.mask_pca_dim, random_state=42)
+    mask_pca.fit(X_mask_train)  # fit on train only
+
+    X_mask_pca_train = mask_pca.transform(X_mask_train).astype(np.float32)
+    X_mask_pca_val = mask_pca.transform(X_mask_val).astype(np.float32)
+    X_mask_pca_test = mask_pca.transform(X_mask_test).astype(np.float32)
+
+    explained_var = mask_pca.explained_variance_ratio_.sum()
+    print(f"[Sparse-Aware] Mask PCA: {args.mask_pca_dim} components, "
+          f"explained variance = {explained_var:.4f}")
+
+    # Build SANN input: [expression PCA, mask PCA]
+    X_sann_train = np.concatenate([X_train, X_mask_pca_train], axis=1)
+    X_sann_val = np.concatenate([X_val, X_mask_pca_val], axis=1)
+    X_sann_test = np.concatenate([X_pca_test, X_mask_pca_test], axis=1)
+
+    num_classes = len(class_names)
+    n_expr_pca = args.pca_dim
+    n_mask_pca = args.mask_pca_dim
+
+    print(f"\n[Sanity] Total samples = {len(y)} | classes = {num_classes}")
+    print(f"[Sanity] Expression PCA shape = {X_pca.shape}")
+    print(f"[Sanity] LR/XGB input shape = {X_train.shape}")
+    print(f"[Sanity] SANN shape = {X_sann_train.shape} "
+          f"(expr_pca={n_expr_pca}, mask_pca={n_mask_pca})")
+    print(f"[Sanity] Train_full={len(train_idx_full)} | Train={len(tr_rel)} "
+          f"| Val={len(val_rel)} | Test={len(test_idx)}")
     print(f"[Sanity] class names: {class_names}")
 
     with open(os.path.join(args.outdir, "train_val_test_split.json"), "w") as f:
@@ -483,34 +638,48 @@ def main():
             "test_size": int(len(test_idx)),
             "val_frac": float(args.val_frac),
             "pca_dim": int(args.pca_dim),
+            "mask_pca_dim": int(args.mask_pca_dim),
+            "mask_pca_explained_variance": float(explained_var),
+            "sann_total_input_dim": int(X_sann_train.shape[1]),
+            "l1_lambda": float(args.l1_lambda),
             "temperature_scaling_used": False,
         }, f, indent=2)
 
+    # Save mask PCA model for reproducibility
+    joblib.dump(mask_pca, os.path.join(args.outdir, "mask_pca_model.pkl"))
+
     metrics_path = os.path.join(args.outdir, "baseline_metrics_full.csv")
 
-    lr_row = train_full_lr(
-        X_train, y_train,
-        X_val, y_val,
-        X_test, y_test,
-        args.outdir
-    )
-    save_metrics_row(metrics_path, lr_row)
+    # LR and XGB use expression PCA only (unchanged)
+    if "lr" in args.models:
+        lr_row = train_full_lr(
+            X_train, y_train,
+            X_val, y_val,
+            X_pca_test, y_test,
+            args.outdir
+        )
+        save_metrics_row(metrics_path, lr_row)
 
-    xgb_row = train_full_xgb(
-        X_train, y_train,
-        X_val, y_val,
-        X_test, y_test,
-        num_classes,
-        args.outdir
-    )
-    save_metrics_row(metrics_path, xgb_row)
+    if "xgb" in args.models:
+        xgb_row = train_full_xgb(
+            X_train, y_train,
+            X_val, y_val,
+            X_pca_test, y_test,
+            num_classes,
+            args.outdir
+        )
+        save_metrics_row(metrics_path, xgb_row)
 
-    sann_row = train_full_sann(
-        X_train, y_train,
-        X_val, y_val,
-        X_test, y_test,
-        num_classes,
-        args.outdir
+    if "sann" in args.models:
+        # SANN uses [expression PCA + mask PCA] (sparse-aware)
+        sann_row = train_full_sann(
+            X_sann_train, y_train,
+            X_sann_val, y_val,
+            X_sann_test, y_test,
+            num_classes,
+            args.outdir,
+            n_expr_features=args.pca_dim,
+            l1_lambda=args.l1_lambda,
     )
     save_metrics_row(metrics_path, sann_row)
 

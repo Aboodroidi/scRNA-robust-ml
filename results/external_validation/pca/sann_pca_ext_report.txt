@@ -1,0 +1,25 @@
+SANN_PCA — External Validation (PBMC 8K)
+Accuracy: 0.6645
+Macro-F1 (all): 0.1960
+Macro-F1 (known): 0.6859
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      1.00      1.00      1222
+       CD8 T       1.00      0.26      0.41      2897
+        CL 0       0.00      0.00      0.00         0
+       CL 12       0.00      0.00      0.00         0
+       CL 13       0.00      0.00      0.00         0
+       CL 15       0.00      0.00      0.00         0
+       CL 16       0.00      0.00      0.00         0
+       CL 19       0.00      0.00      0.00         0
+        CL 6       0.00      0.00      0.00         0
+        CL 8       0.00      0.00      0.00         0
+        CL 9       0.00      0.00      0.00         0
+        Mono       0.99      0.98      0.99      2102
+          NK       0.21      0.99      0.35       313
+    Platelet       0.00      0.00      0.00         0
+
+    accuracy                           0.66      6534
+   macro avg       0.23      0.23      0.20      6534
+weighted avg       0.96      0.66      0.70      6534
