@@ -34,10 +34,42 @@ import torch
 import torch.nn as nn
 
 from sklearn.metrics import accuracy_score, f1_score, classification_report
+import glob as glob_module
+
+
+def load_sann_ensemble(model_dir, model_class, X_input, model_filename="sann_model.pt"):
+    """Load all SANN seed models from a directory and return averaged probabilities.
+    If multiple seed models exist (sann_model_seed0.pt, seed1.pt, ...),
+    loads all and averages softmax probabilities. Otherwise loads single model."""
+    seed_files = sorted(glob_module.glob(os.path.join(model_dir, "sann_model_seed*.pt")))
+    if len(seed_files) > 1:
+        print(f"  Deep ensemble: found {len(seed_files)} seed models")
+        all_probs = []
+        for sf in seed_files:
+            m = model_class()
+            m.load_state_dict(torch.load(sf, map_location="cpu"))
+            m.eval()
+            with torch.no_grad():
+                logits = m(torch.tensor(X_input, dtype=torch.float32)).numpy()
+            probs = torch.softmax(torch.tensor(logits), dim=1).numpy()
+            all_probs.append(probs)
+            print(f"    Loaded {os.path.basename(sf)}")
+        avg_probs = np.mean(all_probs, axis=0)
+        return avg_probs
+    else:
+        # Single model fallback
+        m = model_class()
+        m.load_state_dict(torch.load(
+            os.path.join(model_dir, model_filename), map_location="cpu"
+        ))
+        m.eval()
+        with torch.no_grad():
+            logits = m(torch.tensor(X_input, dtype=torch.float32)).numpy()
+        return torch.softmax(torch.tensor(logits), dim=1).numpy()
 
 
 # ----------------------------
-# SANN architecture (must match training exactly)
+# SANN v2 architecture (must match training exactly)
 # ----------------------------
 def _make_norm(dim, use_batchnorm, use_layernorm):
     if use_layernorm:
@@ -47,54 +79,100 @@ def _make_norm(dim, use_batchnorm, use_layernorm):
     return nn.Identity()
 
 
+class ResidualBlock(nn.Module):
+    def __init__(self, dim, dropout=0.1, use_batchnorm=False, use_layernorm=True):
+        super().__init__()
+        self.norm = _make_norm(dim, use_batchnorm, use_layernorm)
+        self.fc1 = nn.Linear(dim, dim)
+        self.fc2 = nn.Linear(dim, dim)
+        self.drop = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
+        self.act = nn.GELU()
+
+    def forward(self, x):
+        h = self.norm(x)
+        h = self.act(self.fc1(h))
+        h = self.drop(h)
+        h = self.fc2(h)
+        return x + h
+
+
 class SANN(nn.Module):
     def __init__(
         self, expr_dim, mask_dim, num_classes,
         branch_hidden=512, branch_out=256, fusion_hidden=256,
         dropout=0.05, use_batchnorm=True, use_layernorm=False,
+        input_noise=0.0,
     ):
         super().__init__()
-
-        expr_layers = [nn.Linear(expr_dim, branch_hidden)]
-        expr_layers.append(_make_norm(branch_hidden, use_batchnorm, use_layernorm))
-        expr_layers.append(nn.ReLU())
-        if dropout > 0:
-            expr_layers.append(nn.Dropout(dropout))
-        expr_layers.append(nn.Linear(branch_hidden, branch_out))
-        expr_layers.append(_make_norm(branch_out, use_batchnorm, use_layernorm))
-        expr_layers.append(nn.ReLU())
-        self.expr_branch = nn.Sequential(*expr_layers)
-
-        mask_layers = [nn.Linear(mask_dim, branch_hidden)]
-        mask_layers.append(_make_norm(branch_hidden, use_batchnorm, use_layernorm))
-        mask_layers.append(nn.ReLU())
-        if dropout > 0:
-            mask_layers.append(nn.Dropout(dropout))
-        mask_layers.append(nn.Linear(branch_hidden, branch_out))
-        mask_layers.append(_make_norm(branch_out, use_batchnorm, use_layernorm))
-        mask_layers.append(nn.ReLU())
-        self.mask_branch = nn.Sequential(*mask_layers)
-
-        fusion_layers = []
-        if dropout > 0:
-            fusion_layers.append(nn.Dropout(dropout))
-        fusion_layers.append(nn.Linear(branch_out * 2, fusion_hidden))
-        fusion_layers.append(_make_norm(fusion_hidden, use_batchnorm, use_layernorm))
-        fusion_layers.append(nn.ReLU())
-        if dropout > 0:
-            fusion_layers.append(nn.Dropout(dropout))
-        fusion_layers.append(nn.Linear(fusion_hidden, num_classes))
-        self.fusion = nn.Sequential(*fusion_layers)
-
         self.expr_dim = expr_dim
+        self.input_noise = input_noise
+
+        self.expr_proj = nn.Sequential(
+            nn.Linear(expr_dim, branch_hidden),
+            _make_norm(branch_hidden, use_batchnorm, use_layernorm),
+            nn.GELU(),
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+        )
+        self.expr_res1 = ResidualBlock(branch_hidden, dropout, use_batchnorm, use_layernorm)
+        self.expr_res2 = ResidualBlock(branch_hidden, dropout, use_batchnorm, use_layernorm)
+        self.expr_out = nn.Sequential(
+            nn.Linear(branch_hidden, branch_out),
+            _make_norm(branch_out, use_batchnorm, use_layernorm),
+            nn.GELU(),
+        )
+
+        self.mask_proj = nn.Sequential(
+            nn.Linear(mask_dim, branch_hidden),
+            _make_norm(branch_hidden, use_batchnorm, use_layernorm),
+            nn.GELU(),
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+        )
+        self.mask_res1 = ResidualBlock(branch_hidden, dropout, use_batchnorm, use_layernorm)
+        self.mask_res2 = ResidualBlock(branch_hidden, dropout, use_batchnorm, use_layernorm)
+        self.mask_out = nn.Sequential(
+            nn.Linear(branch_hidden, branch_out),
+            _make_norm(branch_out, use_batchnorm, use_layernorm),
+            nn.GELU(),
+        )
+
+        self.gate = nn.Sequential(
+            nn.Linear(branch_out * 2, branch_out),
+            nn.GELU(),
+            nn.Linear(branch_out, branch_out),
+            nn.Sigmoid(),
+        )
+
+        self.classifier = nn.Sequential(
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+            nn.Linear(branch_out, fusion_hidden),
+            _make_norm(fusion_hidden, use_batchnorm, use_layernorm),
+            nn.GELU(),
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+            nn.Linear(fusion_hidden, num_classes),
+        )
 
     def forward(self, x):
         x_expr = x[:, :self.expr_dim]
         x_mask = x[:, self.expr_dim:]
-        h_expr = self.expr_branch(x_expr)
-        h_mask = self.mask_branch(x_mask)
-        h = torch.cat([h_expr, h_mask], dim=1)
-        return self.fusion(h)
+
+        if self.training and self.input_noise > 0:
+            x_expr = x_expr + torch.randn_like(x_expr) * self.input_noise
+
+        h_expr = self.expr_proj(x_expr)
+        h_expr = self.expr_res1(h_expr)
+        h_expr = self.expr_res2(h_expr)
+        h_expr = self.expr_out(h_expr)
+
+        h_mask = self.mask_proj(x_mask)
+        h_mask = self.mask_res1(h_mask)
+        h_mask = self.mask_res2(h_mask)
+        h_mask = self.mask_out(h_mask)
+
+        combined = torch.cat([h_expr, h_mask], dim=1)
+        alpha = self.gate(combined)
+        h_fused = alpha * h_expr + (1 - alpha) * h_mask
+
+        return self.classifier(h_fused)
 
 
 # ----------------------------
@@ -381,8 +459,6 @@ def main():
     print(f"    std:   {X_8k_zscored.std():.4f}  (68K was ~0.553)")
 
     # Binary sparsity mask from z-scored data (consistent with training)
-    # Note: after z-scoring, nearly all values are non-zero. During training,
-    # the mask was also computed from z-scored data (adata.X), so this is correct.
     X_mask_zscored = (X_8k_zscored != 0).astype(np.float32)
     print(f"    mask fraction non-zero: {X_mask_zscored.mean():.4f}")
 
@@ -467,31 +543,22 @@ def main():
     # Training: SANN applied additional standardization (sann_expr_mean/std)
     # on top of z-scored data, mask from z-scored data
     print("\nEvaluating SANN (HVG)...")
-    expr_mean = np.load(os.path.join(args.hvg_dir, "sann_expr_mean.npy"))
-    expr_std = np.load(os.path.join(args.hvg_dir, "sann_expr_std.npy"))
-    # Guard against zero std
-    expr_std = np.where(expr_std < 1e-6, 1.0, expr_std)
-
-    X_expr_for_sann = ((X_8k_zscored - expr_mean) / expr_std).astype(np.float32)
+    # SANN v2: no double standardization — pass z-scored expression directly
+    # (same input space as LR/XGB, internal LayerNorm handles normalization)
+    X_expr_for_sann = X_8k_zscored.copy()
     X_sann = np.concatenate([X_expr_for_sann, X_mask_zscored], axis=1).astype(np.float32)
 
     print(f"  SANN input shape: {X_sann.shape}")
     print(f"  Expression branch stats: mean={X_expr_for_sann.mean():.4f}, std={X_expr_for_sann.std():.4f}")
 
-    # HVG SANN: LayerNorm, 256→128 branches
-    sann_hvg = SANN(
-        expr_dim=2000, mask_dim=2000, num_classes=num_classes_model,
-        branch_hidden=256, branch_out=128, fusion_hidden=128,
-        dropout=0.25, use_batchnorm=False, use_layernorm=True,
-    )
-    sann_hvg.load_state_dict(torch.load(
-        os.path.join(args.hvg_dir, "sann_model.pt"), map_location="cpu"
-    ))
-    sann_hvg.eval()
-
-    with torch.no_grad():
-        logits = sann_hvg(torch.tensor(X_sann, dtype=torch.float32)).numpy()
-    sann_probs = torch.softmax(torch.tensor(logits), dim=1).numpy()
+    # HVG SANN: LayerNorm, 256→128 branches (deep ensemble if multiple seeds)
+    def make_sann_hvg():
+        return SANN(
+            expr_dim=2000, mask_dim=2000, num_classes=num_classes_model,
+            branch_hidden=256, branch_out=128, fusion_hidden=128,
+            dropout=0.4, use_batchnorm=False, use_layernorm=True,
+        )
+    sann_probs = load_sann_ensemble(args.hvg_dir, make_sann_hvg, X_sann)
     sann_pred = sann_probs.argmax(axis=1)
     sann_hvg_metrics = evaluate_model(
         "SANN_HVG", y_true_mapped[known_mask], sann_pred[known_mask],
@@ -570,20 +637,14 @@ def main():
     X_sann_pca = np.concatenate([X_pca_for_sann, X_mask_pca], axis=1).astype(np.float32)
     print(f"  SANN PCA input shape: {X_sann_pca.shape}")
 
-    # PCA SANN: BatchNorm, 256→128 branches
-    sann_pca = SANN(
-        expr_dim=args.pca_dim, mask_dim=args.pca_dim, num_classes=num_classes_model,
-        branch_hidden=256, branch_out=128, fusion_hidden=128,
-        dropout=0.05, use_batchnorm=True, use_layernorm=False,
-    )
-    sann_pca.load_state_dict(torch.load(
-        os.path.join(args.pca_dir, "sann_model.pt"), map_location="cpu"
-    ))
-    sann_pca.eval()
-
-    with torch.no_grad():
-        logits_pca = sann_pca(torch.tensor(X_sann_pca, dtype=torch.float32)).numpy()
-    sann_probs_pca = torch.softmax(torch.tensor(logits_pca), dim=1).numpy()
+    # PCA SANN v2: BatchNorm, 512→256 branches (deep ensemble if multiple seeds)
+    def make_sann_pca():
+        return SANN(
+            expr_dim=args.pca_dim, mask_dim=args.pca_dim, num_classes=num_classes_model,
+            branch_hidden=512, branch_out=256, fusion_hidden=256,
+            dropout=0.25, use_batchnorm=True, use_layernorm=False,
+        )
+    sann_probs_pca = load_sann_ensemble(args.pca_dir, make_sann_pca, X_sann_pca)
     sann_pred_pca = sann_probs_pca.argmax(axis=1)
     sann_pca_metrics = evaluate_model(
         "SANN_PCA", y_true_mapped[known_mask], sann_pred_pca[known_mask],

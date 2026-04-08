@@ -1,4 +1,4 @@
 Model,Accuracy,Macro-F1,TrainTimeSeconds,Notes
-LR,0.9783988907538496,0.970831643053861,29.988306045532227,"input=HVG_expression; best_C=0.1; solver=lbfgs; grid=[0.1, 1.0, 5.0]"
-XGB,0.9807341458074874,0.9639751358138064,2383.9193589687347,input=HVG_expression; best_iter=990
-SANN,0.9777421002700138,0.9773102387921885,293.8297379016876,input=dual_encoder(expr_branch+mask_branch); branch=512→256; fusion=256→5; dropout=0.05; bn=True; class_weighted=True; lr=8e-4; l1_lambda=5e-08; temp_scaling=off
+LR,0.931766766401518,0.9028860359735748,64.21732807159424,"input=HVG_expression; best_C=0.1; solver=lbfgs; grid=[0.1, 1.0, 5.0]"
+XGB,0.9451944829599358,0.9097927259091836,1447.8443410396576,input=HVG_expression; best_iter=618
+SANN,0.9145442603809385,0.9105168220163977,458.65324211120605,input=dual_encoder(expr_branch+mask_branch); branch=512→256; fusion=256→5; dropout=0.05; bn=True; class_weighted=True; lr=8e-4; l1_lambda=5e-08; temp_scaling=off; ensemble=3_seeds

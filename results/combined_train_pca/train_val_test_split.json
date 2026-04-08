@@ -1,0 +1,13 @@
+{
+  "train_full_size": 67537,
+  "train_size": 60783,
+  "val_size": 6754,
+  "test_size": 7505,
+  "val_frac": 0.1,
+  "pca_dim": 50,
+  "mask_pca_dim": 50,
+  "mask_pca_explained_variance": NaN,
+  "sann_total_input_dim": 100,
+  "l1_lambda": 5e-08,
+  "temperature_scaling_used": false
+}

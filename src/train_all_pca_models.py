@@ -31,15 +31,36 @@ from torch.utils.data import DataLoader, TensorDataset
 
 
 # ----------------------------
-# SANN MODEL (Sparse-Aware: PCA expression + PCA sparsity mask)
+# SANN MODEL v2 (Sparse-Aware: PCA expression + PCA sparsity mask)
 # ----------------------------
+def _make_norm_pca(dim, use_batchnorm):
+    if use_batchnorm:
+        return nn.BatchNorm1d(dim)
+    return nn.LayerNorm(dim)
+
+
+class ResidualBlockPCA(nn.Module):
+    """Pre-norm residual block for PCA branch."""
+    def __init__(self, dim, dropout=0.1, use_batchnorm=True):
+        super().__init__()
+        self.norm = _make_norm_pca(dim, use_batchnorm)
+        self.fc1 = nn.Linear(dim, dim)
+        self.fc2 = nn.Linear(dim, dim)
+        self.drop = nn.Dropout(dropout) if dropout > 0 else nn.Identity()
+        self.act = nn.GELU()
+
+    def forward(self, x):
+        h = self.norm(x)
+        h = self.act(self.fc1(h))
+        h = self.drop(h)
+        h = self.fc2(h)
+        return x + h
+
+
 class SANN(nn.Module):
     """
-    Sparse-Aware Neural Network — dual-encoder for PCA inputs.
-
-    Expression branch:  expr_pca_dim → branch_hidden → branch_out
-    Mask branch:        mask_pca_dim → branch_hidden → branch_out
-    Fusion:             (branch_out * 2) → fusion_hidden → num_classes
+    Sparse-Aware Neural Network v2 — dual-encoder with residual blocks
+    and gated attention fusion for PCA inputs.
     """
     def __init__(
         self,
@@ -51,59 +72,82 @@ class SANN(nn.Module):
         fusion_hidden=128,
         dropout=0.05,
         use_batchnorm=True,
+        input_noise=0.0,
     ):
         super().__init__()
-
-        # --- Expression branch ---
-        expr_layers = [nn.Linear(expr_dim, branch_hidden)]
-        if use_batchnorm:
-            expr_layers.append(nn.BatchNorm1d(branch_hidden))
-        expr_layers.append(nn.ReLU())
-        if dropout > 0:
-            expr_layers.append(nn.Dropout(dropout))
-        expr_layers.append(nn.Linear(branch_hidden, branch_out))
-        if use_batchnorm:
-            expr_layers.append(nn.BatchNorm1d(branch_out))
-        expr_layers.append(nn.ReLU())
-        self.expr_branch = nn.Sequential(*expr_layers)
-
-        # --- Mask branch ---
-        mask_layers = [nn.Linear(mask_dim, branch_hidden)]
-        if use_batchnorm:
-            mask_layers.append(nn.BatchNorm1d(branch_hidden))
-        mask_layers.append(nn.ReLU())
-        if dropout > 0:
-            mask_layers.append(nn.Dropout(dropout))
-        mask_layers.append(nn.Linear(branch_hidden, branch_out))
-        if use_batchnorm:
-            mask_layers.append(nn.BatchNorm1d(branch_out))
-        mask_layers.append(nn.ReLU())
-        self.mask_branch = nn.Sequential(*mask_layers)
-
-        # --- Fusion head ---
-        fusion_layers = []
-        if dropout > 0:
-            fusion_layers.append(nn.Dropout(dropout))
-        fusion_layers.append(nn.Linear(branch_out * 2, fusion_hidden))
-        if use_batchnorm:
-            fusion_layers.append(nn.BatchNorm1d(fusion_hidden))
-        fusion_layers.append(nn.ReLU())
-        if dropout > 0:
-            fusion_layers.append(nn.Dropout(dropout))
-        fusion_layers.append(nn.Linear(fusion_hidden, num_classes))
-        self.fusion = nn.Sequential(*fusion_layers)
-
         self.expr_dim = expr_dim
+        self.input_noise = input_noise
+
+        # --- Expression branch (projection + 2 residual blocks) ---
+        self.expr_proj = nn.Sequential(
+            nn.Linear(expr_dim, branch_hidden),
+            _make_norm_pca(branch_hidden, use_batchnorm),
+            nn.GELU(),
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+        )
+        self.expr_res1 = ResidualBlockPCA(branch_hidden, dropout, use_batchnorm)
+        self.expr_res2 = ResidualBlockPCA(branch_hidden, dropout, use_batchnorm)
+        self.expr_out = nn.Sequential(
+            nn.Linear(branch_hidden, branch_out),
+            _make_norm_pca(branch_out, use_batchnorm),
+            nn.GELU(),
+        )
+
+        # --- Mask branch (projection + 2 residual blocks) ---
+        self.mask_proj = nn.Sequential(
+            nn.Linear(mask_dim, branch_hidden),
+            _make_norm_pca(branch_hidden, use_batchnorm),
+            nn.GELU(),
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+        )
+        self.mask_res1 = ResidualBlockPCA(branch_hidden, dropout, use_batchnorm)
+        self.mask_res2 = ResidualBlockPCA(branch_hidden, dropout, use_batchnorm)
+        self.mask_out = nn.Sequential(
+            nn.Linear(branch_hidden, branch_out),
+            _make_norm_pca(branch_out, use_batchnorm),
+            nn.GELU(),
+        )
+
+        # --- Gated attention fusion ---
+        self.gate = nn.Sequential(
+            nn.Linear(branch_out * 2, branch_out),
+            nn.GELU(),
+            nn.Linear(branch_out, branch_out),
+            nn.Sigmoid(),
+        )
+
+        # --- Classification head ---
+        self.classifier = nn.Sequential(
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+            nn.Linear(branch_out, fusion_hidden),
+            _make_norm_pca(fusion_hidden, use_batchnorm),
+            nn.GELU(),
+            nn.Dropout(dropout) if dropout > 0 else nn.Identity(),
+            nn.Linear(fusion_hidden, num_classes),
+        )
 
     def forward(self, x):
         x_expr = x[:, :self.expr_dim]
         x_mask = x[:, self.expr_dim:]
 
-        h_expr = self.expr_branch(x_expr)
-        h_mask = self.mask_branch(x_mask)
+        if self.training and self.input_noise > 0:
+            x_expr = x_expr + torch.randn_like(x_expr) * self.input_noise
 
-        h = torch.cat([h_expr, h_mask], dim=1)
-        return self.fusion(h)
+        h_expr = self.expr_proj(x_expr)
+        h_expr = self.expr_res1(h_expr)
+        h_expr = self.expr_res2(h_expr)
+        h_expr = self.expr_out(h_expr)
+
+        h_mask = self.mask_proj(x_mask)
+        h_mask = self.mask_res1(h_mask)
+        h_mask = self.mask_res2(h_mask)
+        h_mask = self.mask_out(h_mask)
+
+        combined = torch.cat([h_expr, h_mask], dim=1)
+        alpha = self.gate(combined)
+        h_fused = alpha * h_expr + (1 - alpha) * h_mask
+
+        return self.classifier(h_fused)
 
 
 def l1_penalty(model: nn.Module) -> torch.Tensor:
@@ -369,38 +413,54 @@ def train_full_xgb(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, 
 # SANN
 # ----------------------------
 def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes, outdir, n_expr_features, l1_lambda=5e-8):
-    print("\nTraining SANN (dual-encoder: expr PCA branch + mask PCA branch, class-weighted)...")
+    print("\nTraining SANN v2 (dual-encoder + residual + gated fusion, class-weighted)...")
     t0 = time.time()
 
     device = "cpu"
     n_mask_features = X_train.shape[1] - n_expr_features
 
+    max_epochs = 200
+    warmup_epochs = 10
+    bh, bo, fh = 512, 256, 256
+    drop, lr_init, wd = 0.25, 3e-4, 1e-4
+    input_noise = 0.05
+    mixup_alpha = 0.3
+
     model = SANN(
         expr_dim=n_expr_features,
         mask_dim=n_mask_features,
         num_classes=num_classes,
-        branch_hidden=256,
-        branch_out=128,
-        fusion_hidden=128,
-        dropout=0.05,
+        branch_hidden=bh,
+        branch_out=bo,
+        fusion_hidden=fh,
+        dropout=drop,
         use_batchnorm=True,
+        input_noise=input_noise,
     ).to(device)
 
-    print(f"  [Architecture] expr_branch: {n_expr_features}→256→128 | "
-          f"mask_branch: {n_mask_features}→256→128 | fusion: 256→128→{num_classes}")
+    print(f"  [Architecture] expr_branch: {n_expr_features}→{bh}→res→res→{bo} | "
+          f"mask_branch: {n_mask_features}→{bh}→res→res→{bo} | gated_fusion→{fh}→{num_classes}")
+    print(f"  [Config] dropout={drop}, lr={lr_init}, weight_decay={wd}, "
+          f"input_noise={input_noise}, mixup_alpha={mixup_alpha}")
     total_params = sum(p.numel() for p in model.parameters())
     print(f"  [Architecture] Total parameters: {total_params:,}")
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=8e-4, weight_decay=0.0)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer, mode="max", factor=0.5, patience=6, min_lr=1e-5,
-    )
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr_init, weight_decay=wd)
+
+    def lr_lambda(epoch):
+        if epoch < warmup_epochs:
+            return (epoch + 1) / warmup_epochs
+        progress = (epoch - warmup_epochs) / max(max_epochs - warmup_epochs, 1)
+        return 0.5 * (1 + np.cos(np.pi * progress))
+
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda)
 
     # Class-weighted loss
     cw = compute_class_weights(y_train, num_classes)
     class_weights_t = torch.tensor(cw, dtype=torch.float32).to(device)
     print(f"  [Class weights] {dict(zip(range(num_classes), np.round(cw, 3)))}")
-    criterion = nn.CrossEntropyLoss(weight=class_weights_t, label_smoothing=0.03)
+
+    criterion = nn.CrossEntropyLoss(weight=class_weights_t, label_smoothing=0.1)
 
     X_train_t = torch.tensor(X_train, dtype=torch.float32)
     y_train_t = torch.tensor(y_train, dtype=torch.long)
@@ -408,17 +468,35 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
     y_val_t = torch.tensor(y_val, dtype=torch.long)
     X_test_t = torch.tensor(X_test, dtype=torch.float32)
 
-    train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=512, shuffle=True)
-    val_loader = DataLoader(TensorDataset(X_val_t, y_val_t), batch_size=512, shuffle=False)
+    train_loader = DataLoader(TensorDataset(X_train_t, y_train_t), batch_size=1024, shuffle=True)
+    val_loader = DataLoader(TensorDataset(X_val_t, y_val_t), batch_size=1024, shuffle=False)
+
+    def mixup_batch(xb, yb, alpha, num_classes):
+        if alpha <= 0:
+            return xb, torch.nn.functional.one_hot(yb, num_classes).float()
+        lam = np.random.beta(alpha, alpha)
+        lam = max(lam, 1 - lam)
+        idx = torch.randperm(xb.size(0))
+        x_mix = lam * xb + (1 - lam) * xb[idx]
+        y_onehot = torch.nn.functional.one_hot(yb, num_classes).float()
+        y_mix = lam * y_onehot + (1 - lam) * y_onehot[idx]
+        return x_mix, y_mix
+
+    def soft_cross_entropy(logits, soft_targets, class_weights=None):
+        log_probs = torch.nn.functional.log_softmax(logits, dim=1)
+        if class_weights is not None:
+            log_probs = log_probs * class_weights.unsqueeze(0)
+        loss = -(soft_targets * log_probs).sum(dim=1).mean()
+        return loss
 
     best_val_f1 = -1.0
     best_state = None
-    patience = 22
+    patience = 30
     patience_counter = 0
     history = []
     t_epoch_start = time.time()
 
-    for epoch in range(1, 121):
+    for epoch in range(1, max_epochs + 1):
         model.train()
         train_loss_sum = 0.0
         train_n = 0
@@ -428,9 +506,11 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
             yb = yb.to(device)
 
             optimizer.zero_grad()
-            logits = model(xb)
 
-            ce_loss = criterion(logits, yb)
+            xb_mix, yb_soft = mixup_batch(xb, yb, mixup_alpha, num_classes)
+            logits = model(xb_mix)
+
+            ce_loss = soft_cross_entropy(logits, yb_soft, class_weights_t)
             reg_l1 = l1_penalty(model) * l1_lambda
             loss = ce_loss + reg_l1
 
@@ -475,7 +555,7 @@ def train_full_sann(X_train, y_train, X_val, y_val, X_test, y_test, num_classes,
         val_acc = accuracy_score(val_true, val_pred)
         val_f1 = f1_score(val_true, val_pred, average="macro")
 
-        scheduler.step(val_f1)
+        scheduler.step()
         current_lr = optimizer.param_groups[0]["lr"]
 
         epoch_elapsed = time.time() - t_epoch_start
@@ -564,6 +644,8 @@ def main():
                         help="Comma-separated list of models to train (lr,xgb,sann)")
     parser.add_argument("--label_key", type=str, default="cell_type",
                         help="obs column to use as labels (e.g. cell_type_coarse)")
+    parser.add_argument("--n_seeds", type=int, default=1,
+                        help="Number of SANN seeds for deep ensemble (default: 1)")
     args = parser.parse_args()
     args.models = [m.strip().lower() for m in args.models.split(",")]
 
@@ -671,17 +753,59 @@ def main():
         save_metrics_row(metrics_path, xgb_row)
 
     if "sann" in args.models:
-        # SANN uses [expression PCA + mask PCA] (sparse-aware)
-        sann_row = train_full_sann(
-            X_sann_train, y_train,
-            X_sann_val, y_val,
-            X_sann_test, y_test,
-            num_classes,
-            args.outdir,
-            n_expr_features=args.pca_dim,
-            l1_lambda=args.l1_lambda,
-    )
-    save_metrics_row(metrics_path, sann_row)
+        n_seeds = args.n_seeds
+        all_test_probs = []
+        all_val_probs = []
+        for seed_i in range(n_seeds):
+            seed_val = 42 + seed_i
+            print(f"\n{'='*60}")
+            print(f"  SANN seed {seed_i+1}/{n_seeds} (seed={seed_val})")
+            print(f"{'='*60}")
+            torch.manual_seed(seed_val)
+            np.random.seed(seed_val)
+
+            sann_row = train_full_sann(
+                X_sann_train, y_train,
+                X_sann_val, y_val,
+                X_sann_test, y_test,
+                num_classes,
+                args.outdir,
+                n_expr_features=args.pca_dim,
+                l1_lambda=args.l1_lambda,
+            )
+
+            # Save individual seed model
+            if n_seeds > 1:
+                import shutil
+                src = os.path.join(args.outdir, "sann_model.pt")
+                dst = os.path.join(args.outdir, f"sann_model_seed{seed_i}.pt")
+                shutil.copy2(src, dst)
+
+            # Collect test/val probs for ensemble averaging
+            test_probs_i = np.load(os.path.join(args.outdir, "sann_test_probs.npy"))
+            val_probs_i = np.load(os.path.join(args.outdir, "sann_val_probs.npy"))
+            all_test_probs.append(test_probs_i)
+            all_val_probs.append(val_probs_i)
+
+        if n_seeds > 1:
+            # Ensemble: average probabilities across seeds
+            ens_test_probs = np.mean(all_test_probs, axis=0)
+            ens_val_probs = np.mean(all_val_probs, axis=0)
+            ens_pred = ens_test_probs.argmax(axis=1)
+            ens_acc = accuracy_score(y_test, ens_pred)
+            ens_f1 = f1_score(y_test, ens_pred, average="macro")
+            print(f"\nSANN ENSEMBLE ({n_seeds} seeds) | Test Acc={ens_acc:.4f} | Test Macro-F1={ens_f1:.4f}")
+
+            # Save ensemble probs (eval scripts will load these)
+            np.save(os.path.join(args.outdir, "sann_test_probs.npy"), ens_test_probs)
+            np.save(os.path.join(args.outdir, "sann_val_probs.npy"), ens_val_probs)
+            np.save(os.path.join(args.outdir, "sann_test_pred.npy"), ens_pred)
+
+            sann_row["Accuracy"] = float(ens_acc)
+            sann_row["Macro-F1"] = float(ens_f1)
+            sann_row["Notes"] += f"; ensemble={n_seeds}_seeds"
+
+        save_metrics_row(metrics_path, sann_row)
 
     print("\n✅ ALL PCA MODELS TRAINED CORRECTLY.")
     print(f"Saved metrics to: {metrics_path}")

@@ -1,25 +1,16 @@
 SANN_HVG — External Validation (PBMC 8K)
-Accuracy: 0.6598
-Macro-F1 (all): 0.1896
-Macro-F1 (known): 0.6637
+Accuracy: 0.8923
+Macro-F1 (all): 0.6739
+Macro-F1 (known): 0.8424
 
               precision    recall  f1-score   support
 
-     B cells       0.98      1.00      0.99      1222
-       CD8 T       1.00      0.25      0.40      2897
-        CL 0       0.00      0.00      0.00         0
-       CL 12       0.00      0.00      0.00         0
-       CL 13       0.00      0.00      0.00         0
-       CL 15       0.00      0.00      0.00         0
-       CL 16       0.00      0.00      0.00         0
-       CL 19       0.00      0.00      0.00         0
-        CL 6       0.00      0.00      0.00         0
-        CL 8       0.00      0.00      0.00         0
-        CL 9       0.00      0.00      0.00         0
-        Mono       0.86      0.98      0.91      2102
-          NK       0.21      0.98      0.35       313
+     B cells       0.99      1.00      1.00      1222
+        Mono       0.93      0.98      0.96      2102
+          NK       0.38      0.99      0.55       313
     Platelet       0.00      0.00      0.00         0
+     T cells       1.00      0.77      0.87      2897
 
-    accuracy                           0.66      6534
-   macro avg       0.22      0.23      0.19      6534
-weighted avg       0.91      0.66      0.67      6534
+    accuracy                           0.89      6534
+   macro avg       0.66      0.75      0.67      6534
+weighted avg       0.95      0.89      0.91      6534

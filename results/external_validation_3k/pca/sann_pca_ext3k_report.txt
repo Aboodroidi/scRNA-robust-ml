@@ -1,0 +1,16 @@
+SANN_PCA — External Validation (PBMC 3K)
+Accuracy: 0.9850
+Macro-F1: 0.9720
+Macro-F1 (known): 0.9720
+
+              precision    recall  f1-score   support
+
+     B cells       0.97      0.99      0.98       342
+        Mono       0.99      1.00      0.99       630
+          NK       0.92      0.94      0.93       154
+    Platelet       1.00      0.93      0.97        15
+     T cells       0.99      0.98      0.99      1460
+
+    accuracy                           0.99      2601
+   macro avg       0.97      0.97      0.97      2601
+weighted avg       0.99      0.99      0.99      2601
