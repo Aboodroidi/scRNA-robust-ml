@@ -319,7 +319,7 @@ def prepare_external_labels(y_raw, class_names):
 # MAIN
 # ══════════════════════════════════════════
 def main():
-    parser = argparse.ArgumentParser(description="Ablation: SANN_PCA with mask vs without mask")
+    parser = argparse.ArgumentParser(description="Ablation: SANN with mask vs without mask")
     parser.add_argument("--data", default="data/processed/pbmc68k_labeled.h5ad")
     parser.add_argument("--data_8k", default="data/processed/pbmc8k_labeled.h5ad")
     parser.add_argument("--data_3k", default="data/processed/pbmc3k_labeled.h5ad")
@@ -329,6 +329,12 @@ def main():
     parser.add_argument("--label_key", type=str, default="cell_type_coarse")
     parser.add_argument("--n_seeds", type=int, default=3)
     parser.add_argument("--outdir", default="results/ablation_mask")
+    parser.add_argument("--mode", choices=["pca", "hvg", "both"], default="both",
+                        help="Run ablation on PCA, HVG, or both")
+    parser.add_argument("--pca_model_dir", default="results/full_train_all_pca_coarse",
+                        help="Dir with trained v2 PCA seed models")
+    parser.add_argument("--hvg_model_dir", default="results/full_train_all_hvg_coarse",
+                        help="Dir with trained v2 HVG seed models")
     args = parser.parse_args()
 
     os.makedirs(args.outdir, exist_ok=True)
@@ -400,22 +406,75 @@ def main():
     print(f"  Without mask input shape: {X_train_nomask.shape}")
 
     # ── Load external datasets ──
+    # Use the SAME pipeline as evaluate_external_pbmc8k.py:
+    # Load raw 8K → CPM → log1p → align to 68K HVGs → z-score with 68K stats
     print("\nLoading 8K dataset...")
     adata_8k = sc.read_h5ad(args.data_8k)
-    X_8k_hvg = prepare_external_hvg(adata_8k, gene_names, gene_mean, gene_std)
+
+    # Labels
     ext_label_key = "cell_type" if "cell_type_coarse" not in adata_8k.obs.columns else args.label_key
     y_8k_raw = adata_8k.obs[ext_label_key].values.astype(str)
     y_8k, mask_8k = prepare_external_labels(y_8k_raw, class_names)
-    X_8k_hvg_known = X_8k_hvg[mask_8k]
+
+    # Load raw 8K counts and normalize (same as eval script)
+    raw_8k_dir = "data/raw/pbmc8k/filtered_gene_bc_matrices/GRCh38"
+    adata_8k_raw = sc.read_10x_mtx(raw_8k_dir, var_names="gene_symbols", make_unique=True)
+
+    # QC filtering
+    X_r = adata_8k_raw.X
+    if sp.issparse(X_r):
+        genes_per_cell = np.array((X_r > 0).sum(axis=1)).flatten()
+        total_counts = np.array(X_r.sum(axis=1)).flatten()
+    else:
+        genes_per_cell = (X_r > 0).sum(axis=1)
+        total_counts = X_r.sum(axis=1)
+    mt_mask_8k = adata_8k_raw.var_names.str.upper().str.startswith("MT-")
+    if sp.issparse(X_r):
+        mt_counts = np.array(X_r[:, mt_mask_8k].sum(axis=1)).flatten()
+    else:
+        mt_counts = X_r[:, mt_mask_8k].sum(axis=1)
+    pct_mt = mt_counts / (total_counts + 1e-8) * 100
+    cell_mask_8k = (genes_per_cell >= 200) & (pct_mt < 10.0)
+    adata_8k_raw = adata_8k_raw[cell_mask_8k].copy()
+    if sp.issparse(adata_8k_raw.X):
+        cells_per_gene = np.array((adata_8k_raw.X > 0).sum(axis=0)).flatten()
+    else:
+        cells_per_gene = (adata_8k_raw.X > 0).sum(axis=0)
+    adata_8k_raw = adata_8k_raw[:, cells_per_gene >= 3].copy()
+
+    sc.pp.normalize_total(adata_8k_raw, target_sum=1e4)
+    sc.pp.log1p(adata_8k_raw)
+
+    # Align to 68K HVG genes
+    ext_gene_idx = {g: i for i, g in enumerate(adata_8k_raw.var_names)}
+    X_8k_lognorm = np.zeros((adata_8k_raw.n_obs, len(gene_names)), dtype=np.float32)
+    matched = 0
+    for j, g in enumerate(gene_names):
+        if g in ext_gene_idx:
+            col = adata_8k_raw.X[:, ext_gene_idx[g]]
+            if sp.issparse(col):
+                col = col.toarray().flatten()
+            X_8k_lognorm[:, j] = col
+            matched += 1
+    print(f"  Gene alignment: {matched}/{len(gene_names)} shared, {len(gene_names)-matched} missing")
+
+    # Z-score with 68K stats (same as eval script)
+    gene_std_safe = np.where(gene_std == 0, 1.0, gene_std)
+    X_8k_hvg_zscored = ((X_8k_lognorm - gene_mean) / gene_std_safe).astype(np.float32)
+    X_8k_hvg_zscored = np.clip(X_8k_hvg_zscored, -10, 10)
+
+    # Filter to known classes
+    X_8k_hvg_known = X_8k_hvg_zscored[mask_8k]
     y_8k_known = y_8k[mask_8k]
 
-    # 8K PCA: project through 68K PCA loadings
+    # 8K PCA: center with 68K mean, project through 68K loadings (same as eval script)
     pca_loadings = adata_68k.varm["PCs"][:, :args.pca_dim]
-    X_8k_pca = (X_8k_hvg_known @ pca_loadings).astype(np.float32)
+    pca_center = X_raw.mean(axis=0)  # per-gene mean of z-scored 68K
+    X_8k_pca = ((X_8k_hvg_known - pca_center) @ pca_loadings).astype(np.float32)
 
-    # 8K mask PCA
-    X_8k_mask_binary = (X_8k_hvg_known != 0).astype(np.float32)
-    X_8k_mask_pca = mask_pca.transform(X_8k_mask_binary).astype(np.float32)
+    # 8K mask PCA (from z-scored data, consistent with training)
+    X_8k_mask_zscored = (X_8k_hvg_known != 0).astype(np.float32)
+    X_8k_mask_pca = mask_pca.transform(X_8k_mask_zscored).astype(np.float32)
 
     X_8k_with_mask = np.concatenate([X_8k_pca, X_8k_mask_pca], axis=1)
     X_8k_no_mask = X_8k_pca
@@ -424,7 +483,32 @@ def main():
 
     print("\nLoading 3K dataset...")
     adata_3k = sc.read_h5ad(args.data_3k)
-    X_3k_hvg = prepare_external_hvg(adata_3k, gene_names, gene_mean, gene_std)
+
+    # Load raw 3K, normalize properly (same as evaluate_external_pbmc3k.py)
+    adata_3k_raw = sc.read_h5ad("data/raw/pbmc3k/pbmc3k_raw.h5ad")
+    adata_3k_raw = adata_3k_raw[adata_3k.obs_names].copy()
+    sc.pp.normalize_total(adata_3k_raw, target_sum=1e4)
+    sc.pp.log1p(adata_3k_raw)
+    X_3k_lognorm = adata_3k_raw.X
+    if sp.issparse(X_3k_lognorm):
+        X_3k_lognorm = X_3k_lognorm.toarray()
+    genes_3k_raw = list(adata_3k_raw.var_names)
+
+    # Align to 68K HVG gene order
+    X_3k_aligned = np.zeros((adata_3k.shape[0], len(gene_names)), dtype=np.float32)
+    matched = 0
+    for j, g in enumerate(gene_names):
+        if g in genes_3k_raw:
+            idx = genes_3k_raw.index(g)
+            X_3k_aligned[:, j] = np.array(X_3k_lognorm[:, idx]).flatten()
+            matched += 1
+    print(f"  Gene alignment: {matched}/{len(gene_names)} shared, "
+          f"{len(gene_names) - matched} missing (zero-filled)")
+
+    # Z-score with 68K stats
+    std_safe = np.where(gene_std == 0, 1.0, gene_std)
+    X_3k_hvg = np.clip((X_3k_aligned - gene_mean) / std_safe, -10, 10).astype(np.float32)
+
     ext_label_key_3k = "cell_type" if "cell_type_coarse" not in adata_3k.obs.columns else args.label_key
     y_3k_raw = adata_3k.obs[ext_label_key_3k].values.astype(str)
     y_3k, mask_3k = prepare_external_labels(y_3k_raw, class_names)
@@ -441,49 +525,148 @@ def main():
     print(f"  3K known: {X_3k_hvg_known.shape[0]} cells")
 
     # ══════════════════════════════════════════
-    # Train and evaluate both variants
+    # HVG data preparation (for HVG ablation)
+    # ══════════════════════════════════════════
+    if args.mode in ("hvg", "both"):
+        # 68K HVG: already z-scored in h5ad
+        X_hvg_train = X_raw[train_idx].astype(np.float32)
+        X_hvg_val = X_raw[val_idx].astype(np.float32)
+        X_hvg_test = X_raw[test_idx].astype(np.float32)
+
+        # HVG binary masks
+        X_hvg_mask_train = (X_hvg_train != 0).astype(np.float32)
+        X_hvg_mask_val = (X_hvg_val != 0).astype(np.float32)
+        X_hvg_mask_test = (X_hvg_test != 0).astype(np.float32)
+        X_8k_hvg_mask = (X_8k_hvg_known != 0).astype(np.float32)
+        X_3k_hvg_mask = (X_3k_hvg_known != 0).astype(np.float32)
+
+        # WITH mask: [expr(2000) + mask(2000)] = 4000
+        X_hvg_train_mask = np.concatenate([X_hvg_train, X_hvg_mask_train], axis=1)
+        X_hvg_val_mask = np.concatenate([X_hvg_val, X_hvg_mask_val], axis=1)
+        X_hvg_test_mask = np.concatenate([X_hvg_test, X_hvg_mask_test], axis=1)
+        X_8k_hvg_with_mask = np.concatenate([X_8k_hvg_known, X_8k_hvg_mask], axis=1)
+        X_3k_hvg_with_mask = np.concatenate([X_3k_hvg_known, X_3k_hvg_mask], axis=1)
+
+        # WITHOUT mask: just [expr(2000)]
+        X_hvg_train_nomask = X_hvg_train
+        X_hvg_val_nomask = X_hvg_val
+        X_hvg_test_nomask = X_hvg_test
+        X_8k_hvg_no_mask = X_8k_hvg_known
+        X_3k_hvg_no_mask = X_3k_hvg_known
+
+        print(f"\n  HVG with mask input shape:    {X_hvg_train_mask.shape}")
+        print(f"  HVG without mask input shape: {X_hvg_train_nomask.shape}")
+
+    # ══════════════════════════════════════════
+    # Train and evaluate all variants
     # ══════════════════════════════════════════
     results = []
 
-    for variant_name, X_tr, X_v, X_te, X_8k, X_3k, has_mask in [
-        ("with_mask", X_train_mask, X_val_mask, X_test_mask, X_8k_with_mask, X_3k_with_mask, True),
-        ("no_mask", X_train_nomask, X_val_nomask, X_test_nomask, X_8k_no_mask, X_3k_no_mask, False),
-    ]:
+    # Build list of ablation runs
+    ablation_runs = []
+    if args.mode in ("pca", "both"):
+        ablation_runs.extend([
+            ("PCA_with_mask", X_train_mask, X_val_mask, X_test_mask,
+             X_8k_with_mask, X_3k_with_mask, True, "pca"),
+            ("PCA_no_mask", X_train_nomask, X_val_nomask, X_test_nomask,
+             X_8k_no_mask, X_3k_no_mask, False, "pca"),
+        ])
+    if args.mode in ("hvg", "both"):
+        ablation_runs.extend([
+            ("HVG_with_mask", X_hvg_train_mask, X_hvg_val_mask, X_hvg_test_mask,
+             X_8k_hvg_with_mask, X_3k_hvg_with_mask, True, "hvg"),
+            ("HVG_no_mask", X_hvg_train_nomask, X_hvg_val_nomask, X_hvg_test_nomask,
+             X_8k_hvg_no_mask, X_3k_hvg_no_mask, False, "hvg"),
+        ])
+
+    for variant_name, X_tr, X_v, X_te, X_8k_v, X_3k_v, has_mask, rep_type in ablation_runs:
         print(f"\n{'='*60}")
-        print(f"  VARIANT: SANN_PCA_{variant_name} ({args.n_seeds}-seed ensemble)")
+        print(f"  VARIANT: SANN_{variant_name} ({args.n_seeds}-seed ensemble)")
         print(f"  Input dim: {X_tr.shape[1]}")
         print(f"{'='*60}")
+
+        # Select hyperparameters matching trained SANN v2
+        if rep_type == "pca":
+            bh, bo, fh = 512, 256, 256
+            drop, lr, wd = 0.25, 3e-4, 1e-4
+            use_bn = True
+            input_noise, mixup_alpha = 0.05, 0.3
+            expr_dim = args.pca_dim
+            mask_dim = args.mask_pca_dim
+        else:  # hvg
+            bh, bo, fh = 256, 128, 128
+            drop, lr, wd = 0.4, 2e-4, 5e-4
+            use_bn = False  # LayerNorm
+            input_noise, mixup_alpha = 0.1, 0.4
+            expr_dim = 2000
+            mask_dim = 2000
 
         all_test_probs = []
         all_8k_probs = []
         all_3k_probs = []
 
-        for seed in seeds:
+        # For with_mask variants, load the already-trained v2 seed models
+        # so results match the published v2 numbers exactly
+        load_pretrained = False
+        pretrained_dir = None
+        if has_mask:
+            if rep_type == "pca":
+                pretrained_dir = args.pca_model_dir
+            else:
+                pretrained_dir = args.hvg_model_dir
+            import glob as glob_module
+            seed_files = sorted(glob_module.glob(os.path.join(pretrained_dir, "sann_model_seed*.pt")))
+            if len(seed_files) >= len(seeds):
+                load_pretrained = True
+                print(f"  Loading {len(seeds)} pre-trained v2 models from {pretrained_dir}")
+
+        for si, seed in enumerate(seeds):
             print(f"\n  Seed {seed}:")
-            if has_mask:
+
+            if load_pretrained:
+                # Load the already-trained v2 model
                 model = SANN(
-                    expr_dim=args.pca_dim, mask_dim=args.mask_pca_dim,
+                    expr_dim=expr_dim, mask_dim=mask_dim,
                     num_classes=num_classes,
-                    branch_hidden=512, branch_out=256, fusion_hidden=256,
-                    dropout=0.25, use_batchnorm=True, input_noise=0.05)
+                    branch_hidden=bh, branch_out=bo, fusion_hidden=fh,
+                    dropout=drop, use_batchnorm=use_bn, input_noise=input_noise)
+                seed_file = os.path.join(pretrained_dir, f"sann_model_seed{si}.pt")
+                model.load_state_dict(torch.load(seed_file, map_location="cpu"))
+                model.eval()
+                total_params = sum(p.numel() for p in model.parameters())
+                print(f"    Loaded: {seed_file}")
+                print(f"    Parameters: {total_params:,}")
+            elif has_mask:
+                model = SANN(
+                    expr_dim=expr_dim, mask_dim=mask_dim,
+                    num_classes=num_classes,
+                    branch_hidden=bh, branch_out=bo, fusion_hidden=fh,
+                    dropout=drop, use_batchnorm=use_bn, input_noise=input_noise)
+                total_params = sum(p.numel() for p in model.parameters())
+                print(f"    Parameters: {total_params:,}")
+                t0 = time.time()
+                model, best_f1 = train_sann_model(
+                    model, X_tr, y_train, X_v, y_val, num_classes, seed,
+                    lr_init=lr, wd=wd, mixup_alpha=mixup_alpha)
+                train_time = time.time() - t0
+                print(f"    Best val F1: {best_f1:.4f} | Time: {train_time:.1f}s")
             else:
                 model = SANN_NoMask(
-                    expr_dim=args.pca_dim, num_classes=num_classes,
-                    branch_hidden=512, branch_out=256, fusion_hidden=256,
-                    dropout=0.25, use_batchnorm=True, input_noise=0.05)
-
-            total_params = sum(p.numel() for p in model.parameters())
-            print(f"    Parameters: {total_params:,}")
-
-            t0 = time.time()
-            model, best_f1 = train_sann_model(
-                model, X_tr, y_train, X_v, y_val, num_classes, seed)
-            train_time = time.time() - t0
-            print(f"    Best val F1: {best_f1:.4f} | Time: {train_time:.1f}s")
+                    expr_dim=expr_dim, num_classes=num_classes,
+                    branch_hidden=bh, branch_out=bo, fusion_hidden=fh,
+                    dropout=drop, use_batchnorm=use_bn, input_noise=input_noise)
+                total_params = sum(p.numel() for p in model.parameters())
+                print(f"    Parameters: {total_params:,}")
+                t0 = time.time()
+                model, best_f1 = train_sann_model(
+                    model, X_tr, y_train, X_v, y_val, num_classes, seed,
+                    lr_init=lr, wd=wd, mixup_alpha=mixup_alpha)
+                train_time = time.time() - t0
+                print(f"    Best val F1: {best_f1:.4f} | Time: {train_time:.1f}s")
 
             test_probs = predict_probs(model, X_te)
-            probs_8k = predict_probs(model, X_8k)
-            probs_3k = predict_probs(model, X_3k)
+            probs_8k = predict_probs(model, X_8k_v)
+            probs_3k = predict_probs(model, X_3k_v)
 
             all_test_probs.append(test_probs)
             all_8k_probs.append(probs_8k)
@@ -525,11 +708,17 @@ def main():
     print(f"\n{'='*60}")
     print("MASK ABLATION SUMMARY")
     print(f"{'='*60}")
-    for dataset in ["68K_test", "8K", "3K"]:
-        with_mask = df[(df["variant"] == "with_mask") & (df["dataset"] == dataset)]["macro_f1"].values[0]
-        no_mask = df[(df["variant"] == "no_mask") & (df["dataset"] == dataset)]["macro_f1"].values[0]
-        diff = with_mask - no_mask
-        print(f"  {dataset:>8s}: with_mask={with_mask:.4f}  no_mask={no_mask:.4f}  diff={diff:+.4f}")
+    for rep in ["PCA", "HVG"]:
+        wm = df[df["variant"] == f"{rep}_with_mask"]
+        nm = df[df["variant"] == f"{rep}_no_mask"]
+        if len(wm) == 0:
+            continue
+        print(f"\n  {rep}:")
+        for dataset in ["68K_test", "8K", "3K"]:
+            wm_f1 = wm[wm["dataset"] == dataset]["macro_f1"].values[0]
+            nm_f1 = nm[nm["dataset"] == dataset]["macro_f1"].values[0]
+            diff = wm_f1 - nm_f1
+            print(f"    {dataset:>8s}: with_mask={wm_f1:.4f}  no_mask={nm_f1:.4f}  diff={diff:+.4f}")
 
 
 if __name__ == "__main__":
