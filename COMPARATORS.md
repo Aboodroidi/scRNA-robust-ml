@@ -8,7 +8,7 @@ Comparing the SANN_PCA 3-seed ensemble against established cell-type classificat
 |-------------------|-------:|------------:|---------------:|-------:|------------:|---------------:|
 | **SANN_PCA (ours)**  | 0.987  | 0.788       | 0.990          | 0.985  | 0.972       | 0.985          |
 | SingleR (Monaco)  | 0.959  | 0.763       | 0.971          | 0.974  | 0.774       | 0.976          |
-| Seurat label xfer | —      | —           | —              | —      | —           | —              |
+| Seurat label xfer | 0.990  | 0.790       | 0.992          | 0.985  | 0.965       | 0.985          |
 | scANVI            | **dropped** — see notes |
 | ACTINN            | **not attempted** — see notes |
 
@@ -45,10 +45,15 @@ Macro-F1 values reflect the 5-class coarse taxonomy (B cells, Mono, NK, Platelet
 - **Reason:** `scvi-tools` (1.0+) depends on `jax` which requires AVX CPU instructions. The development machine (older Intel Mac, SSE4.2-only) cannot run modern jax. We tried downgrading to `scvi-tools 0.20.3` (pre-jax), but the pip-installed files on disk were corrupted — the metadata reported 0.20.3 while the actual module tree was from 1.x. Patching around individual imports led to further jax chains.
 - **Honest framing for the paper:** this is a legitimate reproducibility issue worth noting — scANVI's hard dependency on jax/AVX excludes it from deployment on commodity hardware. A re-run on a newer machine would be feasible.
 
-### Seurat label transfer (not yet run)
+### Seurat label transfer (DID RUN)
 
-- **Status:** Scripts not written yet. Seurat is available in the R install but the label-transfer workflow (`FindTransferAnchors` / `TransferData`) requires a Seurat reference built from the 68K data, which is a separate setup step.
-- **Next step:** build the 68K Seurat reference, transfer to 8K and 3K, post-process identically to SingleR.
+- **Version:** Seurat (CRAN install, R 4.4.0).
+- **Reference:** built in-house from PBMC 68K raw 10x counts + the same 5-class coarse labels used for SANN training. No external atlas — this gives Seurat the fairest footing against SANN (same reference donor, same label taxonomy).
+- **Input:** raw 10x MEX matrices for 68K / 8K / 3K. Standard Seurat pipeline: `NormalizeData` → `FindVariableFeatures` (vst, 2000) → `ScaleData` → `RunPCA` (30 PCs). Label transfer via `FindTransferAnchors(dims = 1:30, reference.reduction = "pca")` then `TransferData(refdata = ref$coarse_label)`.
+- **No label mapping needed:** the reference carries the 5-class taxonomy directly, so Seurat predictions are native 5-class. Any prediction outside the taxonomy (none observed in practice) would land in `"Other"`.
+- **Platelet advantage over SingleR:** because the 68K reference contains Platelet cells (Seurat was given the same training donor as SANN), Seurat achieves Platelet F1 = 0.93 on 3K — whereas SingleR's Monaco reference has no Platelet cells at all. 8K has no Platelet ground-truth cells, so Platelet F1 = 0 there by construction (same as SANN and SingleR).
+- **Outcome:** Seurat slightly edges SANN on 8K accuracy (0.990 vs 0.987) but lags on 3K macro-F1 (0.965 vs 0.972). Across both donors Seurat is the strongest external comparator.
+- **Runtime:** reference build + both transfers on CPU.
 
 ### ACTINN (not attempted)
 
@@ -83,6 +88,30 @@ Outputs land in `results/comparators/singleR/`:
 - `singleR_metrics.json` — all metrics in one JSON
 - `singleR_run_info.csv` — runtime & tool versions
 
+### Run Seurat label transfer
+
+```bash
+# Install Seurat (one-off, ~20–45 min)
+Rscript src/install_seurat.R
+
+# Export barcode → label CSVs (68K coarse, 8K native, 3K native)
+KMP_DUPLICATE_LIB_OK=TRUE python src/export_labels_for_seurat.py
+
+# Build 68K reference, transfer to 8K and 3K
+Rscript src/comparator_seurat.R
+
+# Compute metrics + confusion matrices
+KMP_DUPLICATE_LIB_OK=TRUE python src/comparator_seurat_postprocess.py
+```
+
+Outputs land in `results/comparators/seurat/`:
+- `pbmc68k_seurat_reference.rds` — built reference (can be reused)
+- `seurat_{8k,3k}_predictions.csv` — per-cell predictions + max transfer score
+- `seurat_{8k,3k}_confusion.csv` — 6×6 confusion matrix (5 classes + "Other")
+- `seurat_metrics.json` — all metrics in one JSON
+- `seurat_run_info.csv` — runtime & tool versions
+- `labels/` — barcode→label CSVs consumed by the R script
+
 ### scANVI (not recoverable on this hardware)
 
 ```bash
@@ -107,6 +136,11 @@ Outputs land in `results/comparators/singleR/`:
 | `src/comparator_singleR.R` | R script for 8K (and 3K if tarball extracts) |
 | `src/comparator_singleR_3k.R` | R script for 3K from exported MEX |
 | `src/comparator_singleR_postprocess.py` | Label mapping + metrics computation |
+| `results/comparators/seurat/` | Seurat predictions, confusion matrices, metrics |
+| `src/comparator_seurat.R` | R script building 68K reference + transfers to 8K/3K |
+| `src/comparator_seurat_postprocess.py` | Metrics + confusion matrices for Seurat |
+| `src/export_labels_for_seurat.py` | Exports barcode→label CSVs used by the R script |
+| `src/install_seurat.R` | One-shot Seurat install helper |
 | `src/comparator_scanvi.py` | scANVI script (not runnable on this machine) |
 | `src/export_3k_to_mex.py` | Convert 3K h5ad → 10x MEX format |
 | `src/install_singleR.R` | One-shot R install helper |

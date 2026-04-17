@@ -3,3 +3,5 @@ SANN_PCA_ensemble,8K,0.9873,0.7876,0.9900,0.9959,0.9909,0.9574,0.0000,0.9938,653
 SANN_PCA_ensemble,3K,0.9850,0.9720,0.9850,0.9841,0.9921,0.9338,0.9655,0.9847,2601,"3-seed deep ensemble"
 SingleR,8K,0.9594,0.7629,0.9712,0.9909,0.9744,0.8785,0.0000,0.9705,6534,"Monaco Immune reference; 152 predictions landed outside 5-class taxonomy (DC/Neutrophil/Basophil/Progenitor)"
 SingleR,3K,0.9739,0.7735,0.9756,0.9855,0.9849,0.9108,0.0000,0.9862,2601,"Monaco Immune reference; 24 predictions outside taxonomy; Platelet F1=0 because Monaco atlas lacks Platelet labels — all 15 true platelets misclassified as errors"
+Seurat_label_transfer,8K,0.9899,0.7898,0.9922,0.9963,0.9899,0.9677,0.0000,0.9948,6534,"FindTransferAnchors/TransferData; 68K reference built from raw counts with coarse labels; 8K has no Platelet ground-truth cells so Platelet F1=0 by construction"
+Seurat_label_transfer,3K,0.9850,0.9648,0.9850,0.9855,0.9937,0.9286,0.9286,0.9876,2601,"FindTransferAnchors/TransferData; 68K reference built from raw counts with coarse labels; Platelet F1=0.93 (vs SingleR 0.0) because 68K reference includes Platelet cells"

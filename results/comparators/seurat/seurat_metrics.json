@@ -1,0 +1,53 @@
+{
+  "tool": "Seurat_label_transfer",
+  "8K": {
+    "n_total": 8371,
+    "n_known": 6534,
+    "n_excluded": 1837,
+    "n_other_predictions": 0,
+    "accuracy": 0.98989898989899,
+    "macro_f1": 0.7897652573231428,
+    "weighted_f1": 0.9922334684448073,
+    "per_class_f1": {
+      "B cells": 0.9963310232368529,
+      "Mono": 0.9899328859060402,
+      "NK": 0.967741935483871,
+      "Platelet": 0.0,
+      "T cells": 0.9948204419889503
+    }
+  },
+  "3K": {
+    "n_total": 2638,
+    "n_known": 2601,
+    "n_excluded": 37,
+    "n_other_predictions": 0,
+    "accuracy": 0.9850057670126874,
+    "macro_f1": 0.9647922625777596,
+    "weighted_f1": 0.9849761662546349,
+    "per_class_f1": {
+      "B cells": 0.9855072463768116,
+      "Mono": 0.9936908517350158,
+      "NK": 0.9285714285714286,
+      "Platelet": 0.9285714285714286,
+      "T cells": 0.9876203576341128
+    }
+  },
+  "run_info": [
+    {
+      "dataset": "8K",
+      "n_cells": 8371,
+      "runtime_min": 0.0344241142272949,
+      "tool": "Seurat_label_transfer",
+      "seurat_version": "5.4.0",
+      "r_version": "4.4.0"
+    },
+    {
+      "dataset": "3K",
+      "n_cells": 2638,
+      "runtime_min": 0.0136672139167786,
+      "tool": "Seurat_label_transfer",
+      "seurat_version": "5.4.0",
+      "r_version": "4.4.0"
+    }
+  ]
+}
