@@ -1,0 +1,69 @@
+{
+  "8K": {
+    "n_total": 8371,
+    "n_known": 6534,
+    "n_excluded": 1837,
+    "n_other_predictions": 152,
+    "accuracy": 0.9594429139883686,
+    "macro_f1": 0.7628739640512039,
+    "weighted_f1": 0.9711939261024953,
+    "per_class_f1": {
+      "B cells": 0.990924092409241,
+      "Mono": 0.97442143727162,
+      "NK": 0.8784773060029283,
+      "Platelet": 0.0,
+      "T cells": 0.97054698457223
+    }
+  },
+  "3K": {
+    "n_total": 2638,
+    "n_known": 2601,
+    "n_excluded": 37,
+    "n_other_predictions": 24,
+    "accuracy": 0.9738562091503268,
+    "macro_f1": 0.7734807366112159,
+    "weighted_f1": 0.9756492579094644,
+    "per_class_f1": {
+      "B cells": 0.9854651162790697,
+      "Mono": 0.984884645982498,
+      "NK": 0.910828025477707,
+      "Platelet": 0.0,
+      "T cells": 0.9862258953168044
+    }
+  },
+  "run_info": [
+    {
+      "dataset": "3K",
+      "n_cells": 2700,
+      "runtime_min": 1.52365608215332,
+      "reference": "MonacoImmuneData",
+      "tool": "SingleR",
+      "r_version": "4.4.0"
+    }
+  ],
+  "tool": "SingleR",
+  "reference": "MonacoImmuneData",
+  "label_mapping_notes": {
+    "source": "Monaco Immune label.main",
+    "target": "5-class coarse taxonomy",
+    "mapping": {
+      "B cells": "B cells",
+      "T cells": "T cells",
+      "CD4+ T cells": "T cells",
+      "CD8+ T cells": "T cells",
+      "NK cells": "NK",
+      "Monocytes": "Mono",
+      "Dendritic cells": "Other",
+      "Basophils": "Other",
+      "Neutrophils": "Other",
+      "Progenitors": "Other"
+    },
+    "unmappable_classes": [
+      "Dendritic cells",
+      "Basophils",
+      "Neutrophils",
+      "Progenitors"
+    ],
+    "note": "Predictions from unmappable classes count as 'Other' and are misclassifications."
+  }
+}
