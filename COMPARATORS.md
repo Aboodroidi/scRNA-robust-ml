@@ -4,13 +4,18 @@ Comparing the SANN_PCA 3-seed ensemble against established cell-type classificat
 
 ## Results summary
 
-| Tool              | 8K Acc | 8K Macro-F1 | 8K Weighted-F1 | 3K Acc | 3K Macro-F1 | 3K Weighted-F1 |
-|-------------------|-------:|------------:|---------------:|-------:|------------:|---------------:|
-| **SANN_PCA (ours)**  | 0.987  | 0.788       | 0.990          | 0.985  | 0.972       | 0.985          |
-| SingleR (Monaco)  | 0.959  | 0.763       | 0.971          | 0.974  | 0.774       | 0.976          |
-| Seurat label xfer | 0.990  | 0.790       | 0.992          | 0.985  | 0.965       | 0.985          |
+| Tool              | 8K Acc | 8K Macro-F1 | 8K Weighted-F1 | 3K Acc | 3K Macro-F1 | 3K Weighted-F1 | Training/ref time¹ |
+|-------------------|-------:|------------:|---------------:|-------:|------------:|---------------:|-------------------:|
+| **SANN_PCA (ours)**  | 0.987  | 0.788       | 0.990          | 0.985  | 0.972       | 0.985          | ~40 min (CPU)      |
+| SingleR (Monaco)  | 0.959  | 0.763       | 0.971          | 0.974  | 0.774       | 0.976          | 34.3 min²          |
+| Seurat label xfer | 0.990  | 0.790       | 0.992          | 0.985  | 0.965       | 0.985          | ~15 min (CPU)³     |
+| ACTINN (reimpl)   | 0.980  | 0.767       | 0.982          | 0.972  | 0.943       | 0.973          | **24.0 h** (CPU)⁴  |
 | scANVI            | **dropped** — see notes |
-| ACTINN            | **not attempted** — see notes |
+
+¹ Wall-clock time to train/build the reference on Donor A (68K), measured on the same pre-AVX CPU. Inference time on 8K/3K is negligible (<5 s) for all tools except SingleR (see note 2).
+² SingleR has no training phase — reported time is reference-to-query matching on 8K (32.8 min) + 3K (1.5 min). Runtime grows linearly with query size.
+³ Seurat pipeline (NormalizeData + ScaleData + PCA + FindTransferAnchors) was not cleanly instrumented — only `TransferData` was timed (2 s on 8K, <1 s on 3K). Total reference-build + transfer observed to complete in roughly 15 minutes during the run.
+⁴ ACTINN training time is anomalously high because the host CPU lacks AVX: BLAS cannot vectorise the 19,224 × 100 first-layer matmul. A modern AVX/GPU machine would complete the same run in ~5 min (paper reports <10 min on GPU). Reported honestly as a reproducibility artefact, not a property of the method.
 
 Raw per-class F1 and notes are in `results/comparators/comparator_results.csv`.
 
@@ -55,10 +60,15 @@ Macro-F1 values reflect the 5-class coarse taxonomy (B cells, Mono, NK, Platelet
 - **Outcome:** Seurat slightly edges SANN on 8K accuracy (0.990 vs 0.987) but lags on 3K macro-F1 (0.965 vs 0.972). Across both donors Seurat is the strongest external comparator.
 - **Runtime:** reference build + both transfers on CPU.
 
-### ACTINN (not attempted)
+### ACTINN (DID RUN — PyTorch reimplementation)
 
-- **Status:** Deferred / likely to be dropped.
-- **Reason:** ACTINN's upstream code targets TensorFlow 1.x (Python 3.7). Modern Python (3.9+) cannot install the original repo without significant patching. Given the AVX issues already encountered and the diminishing marginal value of a fourth comparator that's likely to fail similarly, we recommend framing the paper around a three-tool comparison (SANN vs SingleR vs Seurat) rather than forcing ACTINN through.
+- **Status:** Paper-faithful PyTorch reimplementation of Ma & Pellegrini (2020). The upstream repo targets TensorFlow 1.x / Python 3.7 and does not install on modern Python; rather than fight dependency hell (same trap as scANVI), we reimplemented the architecture exactly as specified in the paper.
+- **Architecture:** `Linear(D → 100) → ReLU → Linear(100 → 50) → ReLU → Linear(50 → 25) → ReLU → Linear(25 → 5)`. ~1.9M parameters dominated by the first layer.
+- **Input:** raw 10x counts from all three donors → gene-symbol intersection (30,316 shared) → drop genes with zero expression in 68K (11,092 dropped) → **19,224 genes retained** → `log2(x + 1)`.
+- **Training:** Adam, lr = 1e-4, cross-entropy. **Paper defaults were 50 epochs, batch 128**; on CPU without AVX one epoch at that batch size was infeasible (>1 hr). We reduced to **20 epochs, batch 512** — paper's Figure 2 shows convergence well before epoch 20, and our training curves confirmed it (train_acc = 0.977 by epoch 9, gains negligible thereafter). Deviation documented for transparency.
+- **No label mapping needed:** ACTINN trains on 5-class coarse labels directly, so predictions are native 5-class (same regime as Seurat).
+- **Runtime:** ~23 hours total training on pre-AVX CPU (~70 min/epoch with 19K genes × 68K cells). A modern AVX/GPU machine would complete in ~5 min.
+- **Outcome:** Competitive with SingleR on 8K and slightly better on 3K. Clearly behind SANN and Seurat on both donors. NK F1 is the weakest cell-class (0.87 on 8K, 0.83 on 3K) — suggesting the 25-unit bottleneck layer struggles with the NK/T-cell boundary, which SANN's attention pathway handles natively.
 
 ## Reproducing the comparators
 
@@ -87,6 +97,22 @@ Outputs land in `results/comparators/singleR/`:
 - `singleR_{8k,3k}_confusion.csv` — 6×6 confusion matrix (5 classes + "Other")
 - `singleR_metrics.json` — all metrics in one JSON
 - `singleR_run_info.csv` — runtime & tool versions
+
+### Run ACTINN (reimplementation)
+
+```bash
+# Train on 68K + predict on 8K/3K  (slow on CPU; ~23 h on pre-AVX hardware, ~5 min on GPU)
+KMP_DUPLICATE_LIB_OK=TRUE python src/comparator_actinn.py
+
+# Compute metrics + confusion matrices (seconds)
+KMP_DUPLICATE_LIB_OK=TRUE python src/comparator_actinn_postprocess.py
+```
+
+Outputs land in `results/comparators/actinn/`:
+- `actinn_{8k,3k}_predictions.csv` — per-cell predictions + max softmax score
+- `actinn_{8k,3k}_confusion.csv` — 6×6 confusion matrix (5 classes + "Other")
+- `actinn_metrics.json` — all metrics in one JSON
+- `actinn_run_info.csv` — runtime, epochs, hyperparameters, torch version
 
 ### Run Seurat label transfer
 
@@ -141,6 +167,9 @@ Outputs land in `results/comparators/seurat/`:
 | `src/comparator_seurat_postprocess.py` | Metrics + confusion matrices for Seurat |
 | `src/export_labels_for_seurat.py` | Exports barcode→label CSVs used by the R script |
 | `src/install_seurat.R` | One-shot Seurat install helper |
+| `results/comparators/actinn/` | ACTINN predictions, confusion matrices, metrics |
+| `src/comparator_actinn.py` | PyTorch reimplementation, trains on 68K + predicts on 8K/3K |
+| `src/comparator_actinn_postprocess.py` | Metrics + confusion matrices for ACTINN |
 | `src/comparator_scanvi.py` | scANVI script (not runnable on this machine) |
 | `src/export_3k_to_mex.py` | Convert 3K h5ad → 10x MEX format |
 | `src/install_singleR.R` | One-shot R install helper |

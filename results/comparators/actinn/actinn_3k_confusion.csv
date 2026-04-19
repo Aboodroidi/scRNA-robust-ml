@@ -1,0 +1,7 @@
+,B cells,Mono,NK,Platelet,T cells,Other
+B cells,340,2,0,0,0,0
+Mono,0,630,0,0,0,0
+NK,1,0,137,0,16,0
+Platelet,0,1,0,13,1,0
+T cells,9,5,38,0,1408,0
+Other,0,0,0,0,0,0

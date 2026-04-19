@@ -1,0 +1,2 @@
+tool,n_train_cells,n_genes,n_epochs,batch_size,lr,hidden,training_min,torch_version,device,seed
+ACTINN_pytorch_reimpl,68512,19224,20,512,0.0001,100-50-25,1440.682446149985,2.2.2,cpu,42
