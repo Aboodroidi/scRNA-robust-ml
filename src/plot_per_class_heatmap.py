@@ -117,15 +117,27 @@ def main():
             ax.axhline(edge - 0.5, color="white", linewidth=1.2)
 
         # Annotate cells
+        # For the PCA panel we want larger white labels (Abdullah's spec);
+        # HVG keeps the original contrast-aware styling.
+        if args.rep == "pca":
+            cell_fontsize = 11
+            cell_fontweight = "semibold"
+        else:
+            cell_fontsize = 8.5
+            cell_fontweight = "medium"
+
         for row in range(3):
             for col in range(n_classes):
                 val = data[row, col]
-                txt_color = "white" if val > 0.85 else "#222222"
+                if args.rep == "pca":
+                    txt_color = "white"
+                else:
+                    txt_color = "white" if val > 0.85 else "#222222"
                 ax.text(
                     col, row, f"{val:.2f}",
                     ha="center", va="center",
-                    fontsize=8.5, color=txt_color,
-                    fontweight="medium",
+                    fontsize=cell_fontsize, color=txt_color,
+                    fontweight=cell_fontweight,
                 )
 
         # Y-axis: model names
@@ -144,17 +156,6 @@ def main():
             ax.set_xticklabels([])
 
         ax.tick_params(length=0)
-
-    # Horizontal separator lines between panels
-    for idx in range(2):
-        line_y = axes[idx].get_position().y0
-        fig.add_artist(
-            plt.Line2D(
-                [0.06, 0.88], [line_y, line_y],
-                transform=fig.transFigure,
-                color="#999999", linewidth=0.8,
-            )
-        )
 
     # Shared colourbar
     cbar_ax = fig.add_axes([0.91, 0.12, 0.015, 0.76])
