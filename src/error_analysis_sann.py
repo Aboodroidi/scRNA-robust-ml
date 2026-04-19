@@ -135,7 +135,7 @@ def plot_submatrix(cm: np.ndarray, class_names, true_label: str, pred_label: str
     sub = cm[np.ix_([a, b], [a, b])]
 
     fig, ax = plt.subplots(figsize=(4.6, 4.2))
-    im = ax.imshow(sub, aspect="auto")
+    im = ax.imshow(sub, aspect="auto", vmin=0, vmax=sub.max())
 
     ax.set_xticks([0, 1])
     ax.set_yticks([0, 1])
@@ -146,12 +146,21 @@ def plot_submatrix(cm: np.ndarray, class_names, true_label: str, pred_label: str
     ax.set_ylabel("True")
     ax.set_title(f"Confusion Submatrix: {true_label} vs {pred_label}")
 
-    # annotate counts
+    # annotate counts — white on dark (low) cells, black on light (high) cells
+    vmax = max(sub.max(), 1)
     for i in range(2):
         for j in range(2):
-            ax.text(j, i, str(int(sub[i, j])), ha="center", va="center", fontsize=11)
+            val = int(sub[i, j])
+            txt_color = "white" if val / vmax < 0.35 else "black"
+            ax.text(
+                j, i, str(val),
+                ha="center", va="center",
+                fontsize=15, fontweight="semibold",
+                color=txt_color,
+            )
 
-    fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar = fig.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cbar.set_label("Cell count")
     fig.tight_layout()
     fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)

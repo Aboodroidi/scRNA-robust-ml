@@ -152,7 +152,7 @@ def plot_pairs(ax, umap_xy, y_true, y_pred, class_names, title, top_k, bg_size, 
     ax.legend(frameon=False, bbox_to_anchor=(1.02, 1), loc="upper left", borderaxespad=0)
 
 
-def plot_density(ax, umap_xy, is_mis, title, bg_size, bg_alpha, gridsize):
+def plot_density(ax, umap_xy, is_mis, title, bg_size, err_size, bg_alpha, gridsize):
     # background test points grey
     ax.scatter(
         umap_xy[:, 0], umap_xy[:, 1],
@@ -160,13 +160,26 @@ def plot_density(ax, umap_xy, is_mis, title, bg_size, bg_alpha, gridsize):
     )
 
     if is_mis.any():
-        hb = ax.hexbin(
-            umap_xy[is_mis, 0], umap_xy[is_mis, 1],
-            gridsize=gridsize, mincnt=1
+        # Compute misclassified-cell count per UMAP bin, then colour each
+        # misclassified point by the count in its bin (circular dots instead
+        # of hex bins).
+        mx = umap_xy[is_mis, 0]
+        my = umap_xy[is_mis, 1]
+        H, xedges, yedges = np.histogram2d(mx, my, bins=gridsize)
+        xi = np.clip(np.digitize(mx, xedges) - 1, 0, gridsize - 1)
+        yi = np.clip(np.digitize(my, yedges) - 1, 0, gridsize - 1)
+        counts = H[xi, yi]
+        vmax = max(counts.max(), 1)
+        sc = ax.scatter(
+            mx, my,
+            c=counts, cmap="viridis",
+            s=err_size, linewidths=0,
+            vmin=0, vmax=vmax,
         )
-        plt.colorbar(hb, ax=ax, fraction=0.046, pad=0.04, label="Misclassified density")
+        cbar = plt.colorbar(sc, ax=ax, fraction=0.046, pad=0.04)
+        cbar.set_label(f"Misclassified cells per UMAP bin ({gridsize}×{gridsize} grid, raw count)")
 
-    ax.set_title(title)
+    ax.set_title(f"{title}\n(colour = # misclassified cells in local UMAP neighbourhood)", fontsize=11)
     ax.set_xlabel("UMAP1")
     ax.set_ylabel("UMAP2")
     ax.grid(False)
@@ -257,6 +270,7 @@ def main():
         is_mis,
         title=f"Misclassification Density on UMAP ({args.model.upper()})",
         bg_size=args.bg_size,
+        err_size=args.err_size,
         bg_alpha=args.bg_alpha,
         gridsize=args.hex_gridsize,
     )
