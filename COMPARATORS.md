@@ -10,12 +10,13 @@ Comparing the SANN_PCA 3-seed ensemble against established cell-type classificat
 | SingleR (Monaco)  | 0.959  | 0.763       | 0.971          | 0.974  | 0.774       | 0.976          | 34.3 min²          |
 | Seurat label xfer | 0.990  | 0.790       | 0.992          | 0.985  | 0.965       | 0.985          | ~15 min (CPU)³     |
 | ACTINN (reimpl)   | 0.980  | 0.767       | 0.982          | 0.972  | 0.943       | 0.973          | **24.0 h** (CPU)⁴  |
-| scANVI            | **dropped** — see notes |
+| scANVI            | 0.960  | 0.736       | 0.962          | 0.950  | 0.734       | 0.950          | 26.0 min (T4 GPU)⁵ |
 
 ¹ Wall-clock time to train/build the reference on Donor A (68K), measured on the same pre-AVX CPU. Inference time on 8K/3K is negligible (<5 s) for all tools except SingleR (see note 2).
 ² SingleR has no training phase — reported time is reference-to-query matching on 8K (32.8 min) + 3K (1.5 min). Runtime grows linearly with query size.
 ³ Seurat pipeline (NormalizeData + ScaleData + PCA + FindTransferAnchors) was not cleanly instrumented — only `TransferData` was timed (2 s on 8K, <1 s on 3K). Total reference-build + transfer observed to complete in roughly 15 minutes during the run.
 ⁴ ACTINN training time is anomalously high because the host CPU lacks AVX: BLAS cannot vectorise the 19,224 × 100 first-layer matmul. A modern AVX/GPU machine would complete the same run in ~5 min (paper reports <10 min on GPU). Reported honestly as a reproducibility artefact, not a property of the method.
+⁵ scANVI was trained on a Google Colab T4 GPU because the local CPU lacks AVX support required by modern JAX (an unavoidable dependency of `scvi-tools ≥ 1.0`). Runtime is reported for completeness but is **not directly comparable** to the other rows. Accuracy metrics are computed on identical held-out data and remain comparable.
 
 Raw per-class F1 and notes are in `results/comparators/comparator_results.csv`.
 
@@ -44,11 +45,16 @@ Macro-F1 values reflect the 5-class coarse taxonomy (B cells, Mono, NK, Platelet
 - **Platelet problem:** Monaco Immune has no Platelet reference cells. Any cell with a true Platelet label was necessarily predicted incorrectly (15 cells in 3K). This pulls SingleR's 3K macro-F1 down from an otherwise strong 0.97 (weighted-F1) to 0.77.
 - **Runtime:** 8K took 32.8 min, 3K took ~5 min. Run on CPU.
 
-### scANVI (DROPPED)
+### scANVI (DID RUN — on Google Colab GPU)
 
-- **Status:** Excluded from comparison due to environment incompatibility.
-- **Reason:** `scvi-tools` (1.0+) depends on `jax` which requires AVX CPU instructions. The development machine (older Intel Mac, SSE4.2-only) cannot run modern jax. We tried downgrading to `scvi-tools 0.20.3` (pre-jax), but the pip-installed files on disk were corrupted — the metadata reported 0.20.3 while the actual module tree was from 1.x. Patching around individual imports led to further jax chains.
-- **Honest framing for the paper:** this is a legitimate reproducibility issue worth noting — scANVI's hard dependency on jax/AVX excludes it from deployment on commodity hardware. A re-run on a newer machine would be feasible.
+- **Status:** Ran successfully on a Google Colab T4 GPU after confirming the local machine cannot host `scvi-tools`.
+- **Why Colab:** `scvi-tools` (1.0+) depends on `jax` which requires AVX CPU instructions. The development machine (older Intel Mac, SSE4.2-only) cannot install any released `jaxlib`. Downgrading to `scvi-tools 0.20.3` (pre-jax) was also attempted but the pip install merged 1.x source files with 0.20.3 metadata. Rather than keep patching, we moved the workload to Colab. Data bundle was uploaded via Google Drive (mounted at runtime) after the Colab sidebar failed to parse a binary tarball.
+- **Version:** `scvi-tools 1.4.2` (Python 3.11, Colab default).
+- **Input:** raw 10x counts from all three donors → gene intersection → concatenated AnnData with `batch_key=dataset`. `highly_variable_genes(flavor="seurat_v3", n_top_genes=2000, batch_key="batch")` on raw counts.
+- **Labels:** 68K cells carry the 5-class coarse labels; 8K/3K cells are marked `Unknown` so scANVI treats them as query cells in the semi-supervised ELBO. This matches the cross-donor protocol used for SANN.
+- **Training:** SCVI pre-training 100 epochs (11.8 min) → SCANVI fine-tuning 50 epochs (13.8 min) → prediction on the `8K` and `3K` batches. Total 26.0 min on a T4.
+- **Outcome:** 8K accuracy 0.9602 / macro-F1 0.7360; 3K accuracy 0.9496 / macro-F1 0.7341. Weighted-F1 ≈ 0.95–0.96 on both donors, but **Platelet F1 = 0.00 on both donors.** On 8K this is by construction (no Platelet ground-truth cells). On 3K — where Seurat achieved Platelet F1 = 0.93 from the same 68K reference — scANVI missed all 15 true Platelets. The 68K training set has only 236 Platelets (0.3%) against ~52K T-cells; the unweighted ELBO objective washes out such a rare class. NK F1 is also weak (0.74–0.75 across both donors) — the same class-imbalance artefact. This is a genuine methodological finding worth reporting: scANVI's generative objective trades per-class fidelity for a well-mixed latent space, so it underperforms Seurat and SANN on cell-class-level metrics even on the same reference.
+- **Reproducibility caveat:** runtime is not comparable to the other rows (different hardware). Accuracy/F1 are fully comparable because evaluation is identical to every other tool.
 
 ### Seurat label transfer (DID RUN)
 
@@ -138,13 +144,37 @@ Outputs land in `results/comparators/seurat/`:
 - `seurat_run_info.csv` — runtime & tool versions
 - `labels/` — barcode→label CSVs consumed by the R script
 
-### scANVI (not recoverable on this hardware)
+### Run scANVI (on Google Colab)
+
+The local CPU cannot host `scvi-tools`, so training is performed on Colab and
+only the prediction CSVs are pulled back for metric computation.
 
 ```bash
-# Attempted, does not run due to AVX missing in host CPU
-# pip install "scvi-tools==0.20.3"
-# python src/comparator_scanvi.py
+# 1. Bundle raw data + label CSVs for upload (local)
+tar czf scanvi_data.tgz \
+    data/raw/pbmc68k/filtered_matrices_mex/hg19 \
+    data/raw/pbmc8k/filtered_gene_bc_matrices/GRCh38 \
+    data/raw/pbmc3k/mex \
+    results/comparators/seurat/labels/
+
+# 2. Colab (T4 runtime): upload the bundle (Google Drive mount works best)
+#    and run the Colab variant of the script:
+# !tar xzf scanvi_data.tgz -C /content/
+# !pip install -q "scvi-tools" "anndata"
+# !python comparator_scanvi_colab.py --use_gpu
+
+# 3. Download the two prediction CSVs back into
+#    results/comparators/scanvi/
+
+# 4. Compute metrics + confusion matrices locally
+KMP_DUPLICATE_LIB_OK=TRUE python src/comparator_scanvi_postprocess.py
 ```
+
+Outputs land in `results/comparators/scanvi/`:
+- `scanvi_{8k,3k}_predictions.csv` — per-cell predictions
+- `scanvi_{8k,3k}_confusion.csv` — 6×6 confusion matrix (5 classes + "Other")
+- `scanvi_metrics.json` — all metrics in one JSON
+- `scanvi_run_info.csv` — scvi-tools version, epochs, GPU runtime
 
 ## Fairness disclosures
 
@@ -170,6 +200,8 @@ Outputs land in `results/comparators/seurat/`:
 | `results/comparators/actinn/` | ACTINN predictions, confusion matrices, metrics |
 | `src/comparator_actinn.py` | PyTorch reimplementation, trains on 68K + predicts on 8K/3K |
 | `src/comparator_actinn_postprocess.py` | Metrics + confusion matrices for ACTINN |
-| `src/comparator_scanvi.py` | scANVI script (not runnable on this machine) |
+| `results/comparators/scanvi/` | scANVI predictions, confusion matrices, metrics, run info |
+| `src/comparator_scanvi_colab.py` | Colab-ready pipeline (SCVI + SCANVI training on GPU) |
+| `src/comparator_scanvi_postprocess.py` | Metrics + confusion matrices for scANVI |
 | `src/export_3k_to_mex.py` | Convert 3K h5ad → 10x MEX format |
 | `src/install_singleR.R` | One-shot R install helper |

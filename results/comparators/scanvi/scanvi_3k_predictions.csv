@@ -1,0 +1,2639 @@
+barcode,predicted_label,true_raw,true_coarse
+AAACATACAACCAC-1,T cells,T cells,T cells
+AAACATTGAGCTAC-1,B cells,B cells,B cells
+AAACATTGATCAGC-1,T cells,T cells,T cells
+AAACCGTGCTTCCG-1,Mono,Mono,Mono
+AAACCGTGTATGCG-1,NK,NK,NK
+AAACGCACTGGTAC-1,T cells,T cells,T cells
+AAACGCTGACCAGT-1,NK,T cells,T cells
+AAACGCTGGTTCTT-1,T cells,T cells,T cells
+AAACGCTGTAGCCA-1,NK,T cells,T cells
+AAACGCTGTTTCTG-1,Mono,Mono,Mono
+AAACTTGAAAAACG-1,B cells,B cells,B cells
+AAACTTGATCCAGA-1,T cells,T cells,T cells
+AAAGAGACGAGATA-1,T cells,T cells,T cells
+AAAGAGACGCGAGA-1,Mono,Mono,Mono
+AAAGAGACGGACTT-1,NK,T cells,T cells
+AAAGAGACGGCATT-1,T cells,T cells,T cells
+AAAGCAGATATCGG-1,Mono,Mono,Mono
+AAAGCCTGTATGCG-1,T cells,T cells,T cells
+AAAGGCCTGTCTAG-1,B cells,B cells,B cells
+AAAGTTTGATCACG-1,B cells,B cells,B cells
+AAAGTTTGGGGTGA-1,B cells,B cells,B cells
+AAAGTTTGTAGAGA-1,T cells,T cells,T cells
+AAAGTTTGTAGCGT-1,Mono,Mono,Mono
+AAATCAACAATGCC-1,B cells,B cells,B cells
+AAATCAACACCAGT-1,T cells,T cells,T cells
+AAATCAACCAGGAG-1,T cells,T cells,T cells
+AAATCAACCCTATT-1,Mono,T cells,T cells
+AAATCAACGGAAGC-1,T cells,T cells,T cells
+AAATCAACTCGCAA-1,T cells,T cells,T cells
+AAATCATGACCACA-1,Mono,Mono,Mono
+AAATCCCTCCACAA-1,T cells,T cells,T cells
+AAATCCCTGCTATG-1,B cells,B cells,B cells
+AAATGTTGAACGAA-1,Mono,Mono,Mono
+AAATGTTGCCACAA-1,T cells,T cells,T cells
+AAATGTTGTGGCAT-1,Mono,Mono,Mono
+AAATTCGAAGGTTC-1,T cells,T cells,T cells
+AAATTCGAATCACG-1,Mono,Mono,Mono
+AAATTCGAGCTGAT-1,Mono,Mono,Mono
+AAATTCGAGGAGTG-1,T cells,T cells,T cells
+AAATTCGATTCTCA-1,NK,T cells,T cells
+AAATTGACACGACT-1,T cells,T cells,T cells
+AAATTGACTCGCTC-1,T cells,T cells,T cells
+AACAAACTCATTTC-1,T cells,T cells,T cells
+AACAAACTTTCGTT-1,T cells,T cells,T cells
+AACAATACGACGAG-1,T cells,T cells,T cells
+AACACGTGCAGAGG-1,T cells,T cells,T cells
+AACACGTGGAAAGT-1,T cells,T cells,T cells
+AACACGTGGAACCT-1,Mono,Mono,Mono
+AACACGTGGCTACA-1,T cells,T cells,T cells
+AACACGTGTACGAC-1,Mono,Mono,Mono
+AACAGCACAAGAGT-1,Mono,Mono,Mono
+AACATTGATGGGAG-1,Mono,Mono,Mono
+AACCAGTGATACCG-1,Mono,Mono,Mono
+AACCCAGATCGCTC-1,T cells,T cells,T cells
+AACCGATGCTCCCA-1,T cells,T cells,T cells
+AACCGATGGTCATG-1,B cells,B cells,B cells
+AACCGATGTTCTAC-1,Mono,Mono,Mono
+AACCGCCTAGCGTT-1,T cells,T cells,T cells
+AACCGCCTCTACGA-1,Mono,Mono,Mono
+AACCTACTGTGAGG-1,Mono,Mono,Mono
+AACCTACTGTGTTG-1,T cells,T cells,T cells
+AACCTTACGAGACG-1,T cells,T cells,T cells
+AACCTTACGCGAGA-1,NK,NK,NK
+AACCTTACTAACGC-1,Mono,Mono,Mono
+AACCTTTGGACGGA-1,T cells,T cells,T cells
+AACCTTTGTACGCA-1,Mono,Mono,Mono
+AACGCAACAAGTAG-1,T cells,T cells,T cells
+AACGCATGACCCAA-1,T cells,T cells,T cells
+AACGCATGCCTTCG-1,T cells,T cells,T cells
+AACGCATGTACTTC-1,T cells,T cells,T cells
+AACGCCCTCGGGAA-1,T cells,T cells,T cells
+AACGCCCTCGTACA-1,NK,NK,NK
+AACGCCCTGGCATT-1,T cells,T cells,T cells
+AACGTCGAGTATCG-1,NK,NK,NK
+AACGTGTGAAAGCA-1,T cells,T cells,T cells
+AACGTGTGGCGGAA-1,B cells,B cells,B cells
+AACGTGTGTCCAAG-1,T cells,T cells,T cells
+AACGTGTGTGCTTT-1,T cells,T cells,T cells
+AACTACCTTAGAGA-1,T cells,T cells,T cells
+AACTCACTCAAGCT-1,Mono,Mono,Mono
+AACTCACTTGGAGG-1,Mono,Mono,Mono
+AACTCGGAAAGTGA-1,T cells,T cells,T cells
+AACTCGGAAGGTCT-1,Mono,Mono,Mono
+AACTCTTGCAGGAG-1,T cells,T cells,T cells
+AACTGTCTCCCTTG-1,Mono,Mono,Mono
+AACTTGCTACGCTA-1,B cells,B cells,B cells
+AACTTGCTGGGACA-1,T cells,T cells,T cells
+AAGAACGAGTGTTG-1,T cells,T cells,T cells
+AAGAAGACGTAGGG-1,B cells,B cells,B cells
+AAGACAGAAGTCTG-1,B cells,B cells,B cells
+AAGACAGAGGATCT-1,T cells,T cells,T cells
+AAGACAGATTACCT-1,Mono,Mono,Mono
+AAGAGATGGGTAGG-1,B cells,B cells,B cells
+AAGATGGAAAACAG-1,B cells,B cells,B cells
+AAGATGGAGAACTC-1,Mono,Mono,Mono
+AAGATGGAGATAAG-1,Mono,Mono,Mono
+AAGATTACAACCTG-1,T cells,T cells,T cells
+AAGATTACAGATCC-1,Mono,Mono,Mono
+AAGATTACCCGTTC-1,Mono,Mono,Mono
+AAGATTACCGCCTT-1,Mono,DC,DC
+AAGATTACCTCAAG-1,NK,NK,NK
+AAGATTACTCCTCG-1,Mono,Mono,Mono
+AAGCAAGAGCGAGA-1,T cells,T cells,T cells
+AAGCAAGAGCTTAG-1,T cells,T cells,T cells
+AAGCAAGAGGTGTT-1,NK,NK,NK
+AAGCACTGAGCAAA-1,B cells,B cells,B cells
+AAGCACTGCATACG-1,NK,T cells,T cells
+AAGCACTGGTTCTT-1,B cells,B cells,B cells
+AAGCCAACGTGTTG-1,T cells,T cells,T cells
+AAGCCATGAACTGC-1,Mono,DC,DC
+AAGCCATGACACGT-1,Mono,Mono,Mono
+AAGCCATGCGTGAT-1,T cells,T cells,T cells
+AAGCCATGTCTCGC-1,NK,T cells,T cells
+AAGCCTGACATGCA-1,T cells,T cells,T cells
+AAGCCTGACCGAAT-1,Mono,Mono,Mono
+AAGCGACTCCTCAC-1,Mono,Mono,Mono
+AAGCGACTGTGTCA-1,T cells,T cells,T cells
+AAGCGACTTACAGC-1,B cells,B cells,B cells
+AAGCGACTTTGACG-1,Mono,Mono,Mono
+AAGCGTACGTCTTT-1,T cells,T cells,T cells
+AAGGCTTGCGAACT-1,T cells,T cells,T cells
+AAGGTCACGGTTAC-1,Mono,Mono,Mono
+AAGGTCACTGTTTC-1,B cells,B cells,B cells
+AAGGTCACTTCCCG-1,T cells,T cells,T cells
+AAGGTCTGACAGTC-1,T cells,T cells,T cells
+AAGGTCTGCAGATC-1,T cells,T cells,T cells
+AAGTAACTCTGAAC-1,Mono,Mono,Mono
+AAGTAACTGAGATA-1,B cells,B cells,B cells
+AAGTAGGATACAGC-1,NK,NK,NK
+AAGTATACCGAACT-1,T cells,T cells,T cells
+AAGTCCGACTTGTT-1,T cells,T cells,T cells
+AAGTCCGATAGAAG-1,T cells,T cells,T cells
+AAGTCTCTAGTCGT-1,T cells,T cells,T cells
+AAGTCTCTCGGAGA-1,T cells,T cells,T cells
+AAGTGGCTTGGAGG-1,B cells,B cells,B cells
+AAGTTCCTCATTCT-1,Mono,Mono,Mono
+AAGTTCCTTCTTAC-1,T cells,T cells,T cells
+AATAAGCTCGAATC-1,T cells,T cells,T cells
+AATAAGCTCGTTGA-1,T cells,T cells,T cells
+AATACCCTGGACGA-1,B cells,B cells,B cells
+AATACCCTGGCATT-1,T cells,T cells,T cells
+AATACTGAAAGGGC-1,NK,T cells,T cells
+AATACTGAATTGGC-1,NK,NK,NK
+AATAGGGAACCCTC-1,B cells,B cells,B cells
+AATAGGGAGAATGA-1,T cells,T cells,T cells
+AATCAAACTATCGG-1,T cells,T cells,T cells
+AATCCGGAATGCTG-1,B cells,B cells,B cells
+AATCCTACCGGTAT-1,T cells,T cells,T cells
+AATCCTTGACGGGA-1,Mono,Mono,Mono
+AATCCTTGGTGAGG-1,NK,NK,NK
+AATCGGTGGAACTC-1,T cells,T cells,T cells
+AATCGGTGTGCTTT-1,T cells,T cells,T cells
+AATCTAGAAAAGTG-1,T cells,T cells,T cells
+AATCTAGAATCGGT-1,T cells,T cells,T cells
+AATCTCACAGCCTA-1,Mono,Mono,Mono
+AATCTCACTCTAGG-1,T cells,T cells,T cells
+AATCTCTGAACAGA-1,T cells,T cells,T cells
+AATCTCTGCTTTAC-1,NK,NK,NK
+AATGATACACCAAC-1,NK,T cells,T cells
+AATGATACGGTCAT-1,Mono,Mono,Mono
+AATGCGTGACACCA-1,B cells,B cells,B cells
+AATGCGTGGACGGA-1,Mono,DC,DC
+AATGCGTGGCTATG-1,B cells,B cells,B cells
+AATGGAGAATCGTG-1,Mono,Mono,Mono
+AATGGAGATCCTTA-1,NK,T cells,T cells
+AATGGCTGACACCA-1,B cells,B cells,B cells
+AATGGCTGCGTGAT-1,T cells,T cells,T cells
+AATGGCTGTAAAGG-1,T cells,T cells,T cells
+AATGGCTGTACTCT-1,T cells,T cells,T cells
+AATGGCTGTGAAGA-1,T cells,T cells,T cells
+AATGTAACGGTGGA-1,T cells,T cells,T cells
+AATGTCCTCTTCTA-1,T cells,T cells,T cells
+AATGTTGACAGTCA-1,T cells,T cells,T cells
+AATGTTGAGTTGAC-1,Mono,Mono,Mono
+AATGTTGATCTACT-1,T cells,T cells,T cells
+AATTACGAATTCCT-1,Mono,DC,DC
+AATTACGACTTCTA-1,T cells,T cells,T cells
+AATTACGAGTGAGG-1,T cells,T cells,T cells
+AATTACGATTGGCA-1,B cells,B cells,B cells
+AATTCCTGCTCAGA-1,B cells,B cells,B cells
+AATTGATGTCGCAA-1,Mono,Mono,Mono
+AATTGTGACTTGGA-1,B cells,B cells,B cells
+ACAAAGGAGGGTGA-1,T cells,T cells,T cells
+ACAAATTGATTCTC-1,Mono,Mono,Mono
+ACAAATTGCTCAGA-1,Mono,Mono,Mono
+ACAAATTGTTGCGA-1,NK,NK,NK
+ACAACCGAGGGATG-1,NK,NK,NK
+ACAACCGAGTTACG-1,T cells,T cells,T cells
+ACAAGAGAAGTCGT-1,Mono,Mono,Mono
+ACAAGAGACTTATC-1,T cells,T cells,T cells
+ACAAGAGAGTTGAC-1,B cells,B cells,B cells
+ACAATCCTAACCGT-1,T cells,T cells,T cells
+ACAATCCTTAGCGT-1,B cells,B cells,B cells
+ACAATTGACTGACA-1,T cells,T cells,T cells
+ACAATTGATGACTG-1,NK,NK,NK
+ACACAGACCATACG-1,T cells,T cells,T cells
+ACACCAGAGGGCAA-1,NK,T cells,T cells
+ACACCCTGGTGTTG-1,NK,NK,NK
+ACACGAACAGTTCG-1,T cells,T cells,T cells
+ACACGATGACGCAT-1,NK,T cells,T cells
+ACACGATGATGTGC-1,Mono,Mono,Mono
+ACACGATGTCGTAG-1,T cells,T cells,T cells
+ACACGATGTGGTCA-1,T cells,T cells,T cells
+ACAGACACGGCATT-1,NK,T cells,T cells
+ACAGACACGTTGTG-1,T cells,T cells,T cells
+ACAGCAACACCTAG-1,Mono,Mono,Mono
+ACAGCAACCTCAAG-1,Mono,Mono,Mono
+ACAGGTACCCCACT-1,T cells,T cells,T cells
+ACAGGTACGCTGTA-1,T cells,T cells,T cells
+ACAGGTACTGGTGT-1,NK,NK,NK
+ACAGTCGACCCAAA-1,T cells,T cells,T cells
+ACAGTCGACCGATA-1,T cells,T cells,T cells
+ACAGTGACTCACCC-1,T cells,T cells,T cells
+ACAGTGACTCTATC-1,NK,T cells,T cells
+ACAGTGTGGTCACA-1,T cells,T cells,T cells
+ACAGTGTGTTGCGA-1,Mono,Mono,Mono
+ACATCACTCTACTT-1,Mono,Mono,Mono
+ACATGGTGAAGCCT-1,T cells,T cells,T cells
+ACATGGTGCAACCA-1,B cells,B cells,B cells
+ACATGGTGCGAGTT-1,T cells,T cells,T cells
+ACATTCTGGCATAC-1,T cells,T cells,T cells
+ACATTCTGGGAACG-1,Mono,Mono,Mono
+ACCAACGACATGCA-1,T cells,T cells,T cells
+ACCACAGAAAGTAG-1,T cells,T cells,T cells
+ACCACAGAGTTGGT-1,T cells,T cells,T cells
+ACCACCTGTGTGCA-1,T cells,T cells,T cells
+ACCACGCTACAGCT-1,T cells,T cells,T cells
+ACCACGCTACCCAA-1,T cells,T cells,T cells
+ACCACGCTGCGAGA-1,T cells,T cells,T cells
+ACCACGCTGCTGTA-1,T cells,T cells,T cells
+ACCAGCCTGACAGG-1,T cells,T cells,T cells
+ACCAGTGAACGGTT-1,B cells,B cells,B cells
+ACCAGTGAATACCG-1,Mono,Mono,Mono
+ACCAGTGAGGGATG-1,T cells,T cells,T cells
+ACCAGTGATGACTG-1,Mono,Mono,Mono
+ACCATTACCTTCTA-1,T cells,T cells,T cells
+ACCATTACGAGATA-1,T cells,T cells,T cells
+ACCATTTGTCATTC-1,T cells,T cells,T cells
+ACCCAAGAACTGTG-1,T cells,T cells,T cells
+ACCCAAGAATTCCT-1,Mono,Mono,Mono
+ACCCAAGAGGACAG-1,T cells,T cells,T cells
+ACCCAAGATTCACT-1,B cells,B cells,B cells
+ACCCACTGCGCCTT-1,Mono,Mono,Mono
+ACCCACTGGACAGG-1,T cells,T cells,T cells
+ACCCACTGGTTCAG-1,T cells,Platelet,Platelet
+ACCCACTGTCGTAG-1,Mono,Mono,Mono
+ACCCAGCTCAGAAA-1,T cells,T cells,T cells
+ACCCAGCTGTTAGC-1,Mono,Mono,Mono
+ACCCAGCTTGCTTT-1,T cells,T cells,T cells
+ACCCGTTGATGACC-1,B cells,B cells,B cells
+ACCCGTTGCTGCAA-1,T cells,T cells,T cells
+ACCCGTTGCTTCTA-1,B cells,DC,DC
+ACCCTCGACCTATT-1,T cells,T cells,T cells
+ACCCTCGACGGTAT-1,B cells,B cells,B cells
+ACCCTCGATAAGGA-1,Mono,Mono,Mono
+ACCCTCGATCAAGC-1,Mono,Mono,Mono
+ACCGTGCTACCAGT-1,T cells,T cells,T cells
+ACCGTGCTGGAACG-1,B cells,B cells,B cells
+ACCTATTGCTGAGT-1,B cells,B cells,B cells
+ACCTATTGTGCCCT-1,Mono,Mono,Mono
+ACCTCCGAGTCCTC-1,T cells,T cells,T cells
+ACCTCCGATATGCG-1,T cells,T cells,T cells
+ACCTCCGATGCTGA-1,T cells,T cells,T cells
+ACCTCGTGAACCAC-1,NK,T cells,T cells
+ACCTGAGATATCGG-1,Mono,Platelet,Platelet
+ACCTGGCTAAGTAG-1,NK,NK,NK
+ACCTTTGACTCCCA-1,Mono,Mono,Mono
+ACCTTTGAGGAACG-1,Mono,Mono,Mono
+ACCTTTGAGGAAGC-1,Mono,Mono,Mono
+ACGAACACCTTGTT-1,T cells,NK,NK
+ACGAACTGGCTATG-1,Mono,Platelet,Platelet
+ACGAAGCTCTCCAC-1,T cells,T cells,T cells
+ACGAAGCTCTGAGT-1,B cells,B cells,B cells
+ACGACCCTATCTCT-1,Mono,Mono,Mono
+ACGACCCTGATGAA-1,T cells,T cells,T cells
+ACGACCCTTGACAC-1,B cells,B cells,B cells
+ACGACCCTTGACCA-1,T cells,T cells,T cells
+ACGAGGGACAGGAG-1,Mono,DC,DC
+ACGAGGGACGAACT-1,T cells,T cells,T cells
+ACGAGGGATGTAGC-1,T cells,T cells,T cells
+ACGAGTACCCTAAG-1,B cells,B cells,B cells
+ACGAGTACGAATCC-1,B cells,B cells,B cells
+ACGATCGAGGACTT-1,NK,NK,NK
+ACGATCGAGTCACA-1,Mono,Mono,Mono
+ACGATGACAATGCC-1,T cells,T cells,T cells
+ACGATGACTGGTCA-1,T cells,T cells,T cells
+ACGATTCTACGGGA-1,T cells,T cells,T cells
+ACGCAATGGTTCAG-1,NK,NK,NK
+ACGCACCTGTTAGC-1,B cells,B cells,B cells
+ACGCCACTGAACTC-1,Mono,Mono,Mono
+ACGCCGGAAACCAC-1,Mono,Mono,Mono
+ACGCCGGAAAGCCT-1,T cells,T cells,T cells
+ACGCCGGAAATGCC-1,T cells,T cells,T cells
+ACGCCTTGCTCCCA-1,Mono,Mono,Mono
+ACGCGGTGGCGAGA-1,T cells,T cells,T cells
+ACGCGGTGTGTGGT-1,B cells,B cells,B cells
+ACGCGGTGTTTGCT-1,NK,T cells,T cells
+ACGCTCACAGTACC-1,T cells,T cells,T cells
+ACGCTCACCCTTGC-1,T cells,T cells,T cells
+ACGCTGCTGTTCTT-1,NK,NK,NK
+ACGGAACTCAGATC-1,NK,NK,NK
+ACGGAACTGTCGTA-1,Mono,Mono,Mono
+ACGGAGGACTCTTA-1,Mono,Mono,Mono
+ACGGATTGGGAGGT-1,B cells,B cells,B cells
+ACGGATTGGTTAGC-1,T cells,T cells,T cells
+ACGGCTCTGAGCAG-1,T cells,T cells,T cells
+ACGGCTCTTGCACA-1,T cells,T cells,T cells
+ACGGTAACCGCTAA-1,T cells,T cells,T cells
+ACGGTAACCTTCGC-1,T cells,T cells,T cells
+ACGGTAACGGTGGA-1,T cells,T cells,T cells
+ACGGTAACTCGCAA-1,NK,T cells,T cells
+ACGGTATGAGTCGT-1,Mono,Mono,Mono
+ACGGTATGGGTATC-1,B cells,B cells,B cells
+ACGGTATGGTTGTG-1,B cells,B cells,B cells
+ACGGTCCTAACGGG-1,T cells,T cells,T cells
+ACGGTCCTCGGGAA-1,T cells,T cells,T cells
+ACGTAGACAACCAC-1,T cells,T cells,T cells
+ACGTAGACTACAGC-1,B cells,B cells,B cells
+ACGTCAGAAACGAA-1,T cells,T cells,T cells
+ACGTCAGAGAGCTT-1,Mono,Mono,Mono
+ACGTCAGAGGGATG-1,T cells,T cells,T cells
+ACGTCCTGATAAGG-1,Mono,Mono,Mono
+ACGTCCTGTGAACC-1,Mono,Mono,Mono
+ACGTCGCTCCTGAA-1,NK,NK,NK
+ACGTCGCTCTATTC-1,Mono,Mono,Mono
+ACGTCGCTTCTCAT-1,B cells,B cells,B cells
+ACGTGATGCCATGA-1,Mono,DC,DC
+ACGTGATGGGTCTA-1,T cells,T cells,T cells
+ACGTGATGTAACCG-1,Mono,Mono,Mono
+ACGTGATGTGACAC-1,NK,NK,NK
+ACGTGCCTCCGTAA-1,T cells,T cells,T cells
+ACGTGCCTTCTATC-1,NK,T cells,T cells
+ACGTTACTTTCCAT-1,T cells,T cells,T cells
+ACGTTGGAAAAGCA-1,T cells,T cells,T cells
+ACGTTGGAAACCTG-1,T cells,T cells,T cells
+ACGTTGGACCGTAA-1,Mono,Mono,Mono
+ACGTTGGAGCCAAT-1,NK,NK,NK
+ACGTTGGATATGGC-1,B cells,B cells,B cells
+ACGTTGGATCAGGT-1,Mono,Mono,Mono
+ACGTTTACATCAGC-1,T cells,T cells,T cells
+ACTAAAACCCACAA-1,T cells,T cells,T cells
+ACTAAAACTCGACA-1,Mono,Mono,Mono
+ACTACGGAATTTCC-1,T cells,T cells,T cells
+ACTACGGACCTATT-1,T cells,T cells,T cells
+ACTACGGATCGCTC-1,T cells,T cells,T cells
+ACTACTACTAAGGA-1,T cells,T cells,T cells
+ACTAGGTGGAACCT-1,T cells,T cells,T cells
+ACTAGGTGGAACTC-1,T cells,T cells,T cells
+ACTATCACCTTGGA-1,NK,T cells,T cells
+ACTATCACTGCCAA-1,T cells,T cells,T cells
+ACTCAGGACTGAAC-1,T cells,T cells,T cells
+ACTCAGGATCTATC-1,B cells,B cells,B cells
+ACTCAGGATTCGTT-1,Mono,Mono,Mono
+ACTCCTCTCAACTG-1,T cells,T cells,T cells
+ACTCGCACGAAAGT-1,Mono,Mono,Mono
+ACTCGCACTACGAC-1,Mono,Mono,Mono
+ACTCTCCTGACACT-1,T cells,T cells,T cells
+ACTCTCCTGCATAC-1,B cells,T cells,T cells
+ACTCTCCTGTTTGG-1,T cells,T cells,T cells
+ACTGAGACAACCAC-1,T cells,T cells,T cells
+ACTGAGACCCATAG-1,Mono,Mono,Mono
+ACTGAGACGTTGGT-1,B cells,B cells,B cells
+ACTGCCACACACGT-1,T cells,T cells,T cells
+ACTGCCACTCCGTC-1,NK,NK,NK
+ACTGGCCTTCAGTG-1,NK,NK,NK
+ACTGTGGACGTGTA-1,B cells,T cells,T cells
+ACTGTGGATCTAGG-1,B cells,B cells,B cells
+ACTGTTACCCACAA-1,Mono,Mono,Mono
+ACTGTTACTGCAGT-1,T cells,T cells,T cells
+ACTTAAGAACCACA-1,T cells,T cells,T cells
+ACTTAAGATTACTC-1,Mono,DC,DC
+ACTTAGCTGCGTAT-1,Mono,Mono,Mono
+ACTTAGCTGGGAGT-1,T cells,T cells,T cells
+ACTTCAACAAGCAA-1,T cells,T cells,T cells
+ACTTCAACGTAGGG-1,NK,NK,NK
+ACTTCCCTTTCCGC-1,T cells,T cells,T cells
+ACTTCTGACATGCA-1,B cells,B cells,B cells
+ACTTGACTCCACAA-1,B cells,B cells,B cells
+ACTTGGGAGAAAGT-1,Mono,Mono,Mono
+ACTTGGGAGGTTTG-1,T cells,T cells,T cells
+ACTTGGGATGTGAC-1,Mono,Mono,Mono
+ACTTGGGATTGACG-1,Mono,Mono,Mono
+ACTTGTACCTGTCC-1,T cells,T cells,T cells
+ACTTTGTGGAAAGT-1,T cells,T cells,T cells
+ACTTTGTGGATAGA-1,Mono,Mono,Mono
+AGAAACGAAAGTAG-1,B cells,B cells,B cells
+AGAAAGTGCGCAAT-1,T cells,T cells,T cells
+AGAAAGTGGGGATG-1,Mono,Mono,Mono
+AGAACAGAAATGCC-1,NK,NK,NK
+AGAACAGACGACTA-1,B cells,B cells,B cells
+AGAACAGAGACAAA-1,T cells,T cells,T cells
+AGAACGCTTTGCTT-1,T cells,T cells,T cells
+AGAAGATGTGACTG-1,T cells,T cells,T cells
+AGAATGGAAGAAGT-1,T cells,T cells,T cells
+AGAATTTGTAACCG-1,T cells,T cells,T cells
+AGAATTTGTAGAGA-1,T cells,T cells,T cells
+AGACACACTGTAGC-1,T cells,T cells,T cells
+AGACACTGTCAAGC-1,Mono,Mono,Mono
+AGACCTGAAGTAGA-1,Mono,Mono,Mono
+AGACCTGACCAACA-1,T cells,T cells,T cells
+AGACCTGAGGAAGC-1,T cells,T cells,T cells
+AGACGTACAGAGGC-1,T cells,T cells,T cells
+AGACGTACCCCTAC-1,B cells,B cells,B cells
+AGACGTACCTCTTA-1,Mono,DC,DC
+AGACGTACTCGTGA-1,Mono,Mono,Mono
+AGACTGACCATCAG-1,NK,T cells,T cells
+AGACTGACCCTTTA-1,T cells,T cells,T cells
+AGACTTCTCATGCA-1,B cells,B cells,B cells
+AGAGATGACAGTCA-1,B cells,B cells,B cells
+AGAGATGACTGAAC-1,T cells,T cells,T cells
+AGAGATGAGGTTTG-1,Mono,Mono,Mono
+AGAGATGATCTCGC-1,B cells,B cells,B cells
+AGAGATGATTGTGG-1,T cells,T cells,T cells
+AGAGCGGAGGCAAG-1,Mono,Mono,Mono
+AGAGTCTGGTCGTA-1,Mono,Mono,Mono
+AGAGTGCTCAGCTA-1,T cells,T cells,T cells
+AGAGTGCTCGAATC-1,T cells,T cells,T cells
+AGAGTGCTGTCATG-1,T cells,T cells,T cells
+AGAGTGCTGTCCTC-1,T cells,T cells,T cells
+AGAGTGCTGTGTTG-1,B cells,B cells,B cells
+AGATATACCCGTAA-1,T cells,NK,NK
+AGATATACGATGAA-1,T cells,T cells,T cells
+AGATATACTGTTCT-1,B cells,B cells,B cells
+AGATATTGCCTACC-1,T cells,T cells,T cells
+AGATATTGGCCAAT-1,Mono,Mono,Mono
+AGATCGTGTCTGGA-1,Mono,Mono,Mono
+AGATCGTGTTTGTC-1,B cells,B cells,B cells
+AGATCTCTATCACG-1,B cells,B cells,B cells
+AGATTAACGTTCTT-1,Mono,Mono,Mono
+AGATTCCTATCGTG-1,T cells,T cells,T cells
+AGATTCCTCACTTT-1,Mono,Mono,Mono
+AGATTCCTGACGAG-1,Mono,Mono,Mono
+AGATTCCTGTTCAG-1,NK,NK,NK
+AGCAAAGATATGCG-1,T cells,T cells,T cells
+AGCACAACAGTCTG-1,T cells,T cells,T cells
+AGCACTGAGGGAGT-1,T cells,T cells,T cells
+AGCACTGATATGCG-1,T cells,T cells,T cells
+AGCACTGATGCTTT-1,Mono,DC,DC
+AGCACTGATTGCGA-1,T cells,T cells,T cells
+AGCATCGAAGATCC-1,T cells,T cells,T cells
+AGCATCGAAGGGTG-1,B cells,B cells,B cells
+AGCATCGAGCTTCC-1,Mono,Mono,Mono
+AGCATCGAGTGAGG-1,T cells,T cells,T cells
+AGCATCGATAACCG-1,Mono,Mono,Mono
+AGCATGACGATGAA-1,T cells,T cells,T cells
+AGCCAATGGGGAGT-1,Mono,Mono,Mono
+AGCCAATGTATCTC-1,T cells,T cells,T cells
+AGCCACCTGGATCT-1,NK,T cells,T cells
+AGCCGGTGCCAATG-1,T cells,T cells,T cells
+AGCCGGTGTGTTTC-1,T cells,T cells,T cells
+AGCCGTCTCAATCG-1,T cells,T cells,T cells
+AGCCGTCTGAGAGC-1,T cells,T cells,T cells
+AGCCTCACGTTCGA-1,T cells,T cells,T cells
+AGCCTCACTGTCAG-1,Mono,Mono,Mono
+AGCCTCTGCAGTTG-1,B cells,B cells,B cells
+AGCCTCTGCCAATG-1,NK,NK,NK
+AGCGAACTGGATCT-1,T cells,T cells,T cells
+AGCGAACTTACTGG-1,T cells,T cells,T cells
+AGCGATACGGAGCA-1,T cells,T cells,T cells
+AGCGATTGAGATCC-1,NK,NK,NK
+AGCGCCGAATCTCT-1,T cells,T cells,T cells
+AGCGCCGACAGAGG-1,T cells,T cells,T cells
+AGCGCTCTACCTTT-1,T cells,T cells,T cells
+AGCGGCACCGGGAA-1,T cells,T cells,T cells
+AGCGGCTGATGTGC-1,T cells,T cells,T cells
+AGCGGGCTTGCCAA-1,T cells,T cells,T cells
+AGCGTAACATGCTG-1,T cells,T cells,T cells
+AGCGTAACTGAGAA-1,Mono,Mono,Mono
+AGCTCGCTACTGGT-1,T cells,T cells,T cells
+AGCTCGCTCTGCTC-1,T cells,T cells,T cells
+AGCTGAACCATACG-1,Mono,Mono,Mono
+AGCTGAACCTCTCG-1,T cells,T cells,T cells
+AGCTGCCTTGGGAG-1,Mono,Mono,Mono
+AGCTGCCTTTCATC-1,T cells,T cells,T cells
+AGCTGCCTTTCTGT-1,T cells,T cells,T cells
+AGCTGTGATCCAAG-1,T cells,T cells,T cells
+AGCTTTACAAGTAG-1,T cells,T cells,T cells
+AGCTTTACACCAAC-1,T cells,T cells,T cells
+AGCTTTACTCTCAT-1,B cells,B cells,B cells
+AGGAAATGAGGAGC-1,T cells,T cells,T cells
+AGGAACCTCTTAGG-1,Mono,Mono,Mono
+AGGAACCTTGCCTC-1,T cells,T cells,T cells
+AGGAATGATAACGC-1,T cells,T cells,T cells
+AGGAATGATTTGTC-1,T cells,T cells,T cells
+AGGAGTCTGGTTTG-1,T cells,T cells,T cells
+AGGAGTCTTGTCAG-1,T cells,T cells,T cells
+AGGATAGACATTTC-1,T cells,T cells,T cells
+AGGATAGAGGATTC-1,NK,T cells,T cells
+AGGATGCTACTAGC-1,B cells,B cells,B cells
+AGGATGCTTTAGGC-1,NK,NK,NK
+AGGCAACTGAAGGC-1,T cells,T cells,T cells
+AGGCAGGAGTACCA-1,T cells,T cells,T cells
+AGGCCTCTAGTCGT-1,T cells,T cells,T cells
+AGGCCTCTCGGAGA-1,T cells,T cells,T cells
+AGGCCTCTCGTAAC-1,T cells,T cells,T cells
+AGGGACGACGTTGA-1,T cells,T cells,T cells
+AGGGACGAGTCAAC-1,NK,NK,NK
+AGGGACGAGTTGTG-1,T cells,T cells,T cells
+AGGGACGATAGAGA-1,T cells,T cells,T cells
+AGGGACGATGCATG-1,T cells,T cells,T cells
+AGGGAGTGAGCCTA-1,T cells,T cells,T cells
+AGGGCCACCATACG-1,T cells,T cells,T cells
+AGGGCGCTAACCAC-1,Mono,Mono,Mono
+AGGGCGCTATGGTC-1,T cells,T cells,T cells
+AGGGTGGACAGTCA-1,B cells,B cells,B cells
+AGGGTGGACTCAAG-1,Mono,Mono,Mono
+AGGGTGGAGTTGCA-1,T cells,T cells,T cells
+AGGGTTTGTTCATC-1,Mono,Mono,Mono
+AGGTCATGAGTGTC-1,B cells,B cells,B cells
+AGGTCATGCTTATC-1,T cells,T cells,T cells
+AGGTCTGATTCTCA-1,Mono,Mono,Mono
+AGGTGGGAAGAATG-1,T cells,T cells,T cells
+AGGTGGGAAGTTCG-1,T cells,T cells,T cells
+AGGTGTTGGTTACG-1,B cells,B cells,B cells
+AGGTTCGAACCTCC-1,Mono,Mono,Mono
+AGGTTCGAACGTAC-1,Mono,Mono,Mono
+AGGTTCGAGGGTGA-1,T cells,T cells,T cells
+AGTAAGGAGTTTGG-1,T cells,T cells,T cells
+AGTAAGGATTCTTG-1,T cells,T cells,T cells
+AGTAATACATCACG-1,NK,NK,NK
+AGTAATACCGAACT-1,B cells,B cells,B cells
+AGTAATTGTCCCAC-1,T cells,T cells,T cells
+AGTACGTGAGGGTG-1,T cells,T cells,T cells
+AGTACGTGCTGCAA-1,T cells,T cells,T cells
+AGTACGTGCTTGGA-1,T cells,T cells,T cells
+AGTACTCTACGTGT-1,B cells,B cells,B cells
+AGTACTCTCAACCA-1,NK,T cells,T cells
+AGTACTCTCGGTAT-1,T cells,T cells,T cells
+AGTAGGCTTGCCTC-1,Mono,Mono,Mono
+AGTATAACTTGTCT-1,Mono,Mono,Mono
+AGTATCCTAGAACA-1,T cells,T cells,T cells
+AGTCACGATGAGCT-1,B cells,NK,NK
+AGTCAGACGAATAG-1,T cells,T cells,T cells
+AGTCAGACGCTTAG-1,T cells,T cells,T cells
+AGTCAGACTAGAGA-1,T cells,T cells,T cells
+AGTCAGACTGCACA-1,T cells,T cells,T cells
+AGTCCAGATATCTC-1,T cells,T cells,T cells
+AGTCCAGATTTCAC-1,T cells,T cells,T cells
+AGTCGAACCAACCA-1,T cells,T cells,T cells
+AGTCGCCTCCGTAA-1,T cells,T cells,T cells
+AGTCTACTAGGGTG-1,Mono,Mono,Mono
+AGTCTACTTGCATG-1,Mono,Mono,Mono
+AGTCTTACACCACA-1,T cells,T cells,T cells
+AGTCTTACTTCGCC-1,T cells,T cells,T cells
+AGTCTTACTTCGGA-1,T cells,Platelet,Platelet
+AGTGACTGCAACTG-1,Mono,Mono,Mono
+AGTGTTCTAACCTG-1,T cells,T cells,T cells
+AGTGTTCTATAAGG-1,T cells,T cells,T cells
+AGTGTTCTCACTTT-1,Mono,Mono,Mono
+AGTTAAACCACTTT-1,T cells,T cells,T cells
+AGTTATGAACAGTC-1,Mono,Mono,Mono
+AGTTATGACTGAGT-1,T cells,T cells,T cells
+AGTTATGAGTTCAG-1,T cells,T cells,T cells
+AGTTCTACCAGCTA-1,Mono,Mono,Mono
+AGTTCTTGAAGCCT-1,NK,T cells,T cells
+AGTTGTCTACTACG-1,T cells,T cells,T cells
+AGTTTAGATGGTCA-1,T cells,T cells,T cells
+AGTTTCACGGTCTA-1,T cells,T cells,T cells
+AGTTTGCTACAGTC-1,T cells,T cells,T cells
+AGTTTGCTACTGGT-1,NK,T cells,T cells
+AGTTTGCTCCAAGT-1,T cells,T cells,T cells
+ATAAACACAGTGCT-1,B cells,B cells,B cells
+ATAAACACCACCAA-1,T cells,T cells,T cells
+ATAACAACATGCTG-1,Mono,Mono,Mono
+ATAACAACGTCTAG-1,T cells,T cells,T cells
+ATAACAACTTTGTC-1,T cells,T cells,T cells
+ATAACATGTACTCT-1,T cells,T cells,T cells
+ATAACCCTGTTGGT-1,T cells,T cells,T cells
+ATAACCCTTGGTAC-1,T cells,T cells,T cells
+ATAAGTACGAATGA-1,B cells,B cells,B cells
+ATAAGTTGGTACGT-1,Mono,Mono,Mono
+ATAAGTTGTCTAGG-1,T cells,T cells,T cells
+ATAATCGAGCTGAT-1,B cells,B cells,B cells
+ATAATCGATGGTTG-1,T cells,T cells,T cells
+ATAATGACCTACTT-1,T cells,T cells,T cells
+ATAATGACTCGTGA-1,Mono,Mono,Mono
+ATACAATGTTAGGC-1,T cells,T cells,T cells
+ATACCACTCGTACA-1,Mono,Mono,Mono
+ATACCACTCTAAGC-1,Mono,DC,DC
+ATACCACTGCCAAT-1,NK,T cells,T cells
+ATACCGGAATGCTG-1,Mono,DC,DC
+ATACCGGACATTTC-1,Mono,Mono,Mono
+ATACCGGACTTCGC-1,T cells,T cells,T cells
+ATACCGGAGGTGTT-1,Mono,Mono,Mono
+ATACCGGATCTCGC-1,T cells,T cells,T cells
+ATACCTACGCATCA-1,T cells,T cells,T cells
+ATACCTTGGGGCAA-1,T cells,T cells,T cells
+ATACGGACAGACTC-1,Mono,Mono,Mono
+ATACGGACCTACTT-1,Mono,Mono,Mono
+ATACGGACGAGGTG-1,B cells,B cells,B cells
+ATACGGACTATGCG-1,B cells,B cells,B cells
+ATACGGACTCTGGA-1,Mono,Mono,Mono
+ATACGTCTTAACGC-1,Mono,Mono,Mono
+ATACTCTGCTTCGC-1,Mono,Mono,Mono
+ATACTCTGGTATGC-1,NK,NK,NK
+ATAGATACCATGGT-1,T cells,T cells,T cells
+ATAGATACGACGAG-1,T cells,T cells,T cells
+ATAGATTGGTGTAC-1,B cells,B cells,B cells
+ATAGCCGAACGGAG-1,T cells,T cells,T cells
+ATAGCGTGCAGATC-1,T cells,T cells,T cells
+ATAGCGTGCCCTTG-1,Mono,Mono,Mono
+ATAGCGTGGTATCG-1,Mono,Mono,Mono
+ATAGCGTGTCTCTA-1,T cells,T cells,T cells
+ATAGCTCTCTGATG-1,T cells,T cells,T cells
+ATAGCTCTGAGGTG-1,T cells,T cells,T cells
+ATAGGAGAAACAGA-1,Mono,Mono,Mono
+ATAGGCTGTCAGAC-1,T cells,T cells,T cells
+ATAGTCCTAGTGTC-1,Mono,Mono,Mono
+ATAGTCCTTGCATG-1,T cells,T cells,T cells
+ATAGTCCTTGTCGA-1,T cells,T cells,T cells
+ATAGTTGACAACTG-1,T cells,T cells,T cells
+ATAGTTGACCCTCA-1,Mono,Mono,Mono
+ATAGTTGAGACGTT-1,T cells,T cells,T cells
+ATAGTTGATAAGCC-1,T cells,T cells,T cells
+ATATACGAAGCCAT-1,T cells,T cells,T cells
+ATATACGAATTGGC-1,T cells,T cells,T cells
+ATATAGTGGAATGA-1,Mono,Mono,Mono
+ATATGCCTAGATCC-1,Mono,Mono,Mono
+ATATGCCTGGACAG-1,T cells,T cells,T cells
+ATATGCCTTCTCTA-1,T cells,T cells,T cells
+ATATGCCTTGGTAC-1,T cells,T cells,T cells
+ATCAAATGAGCCTA-1,Mono,Mono,Mono
+ATCAAATGGGTAAA-1,Mono,Mono,Mono
+ATCAACCTAAACGA-1,T cells,T cells,T cells
+ATCAACCTGAGGAC-1,T cells,T cells,T cells
+ATCAACCTTCTCTA-1,T cells,T cells,T cells
+ATCAACCTTTGTCT-1,T cells,T cells,T cells
+ATCACACTTTGTCT-1,T cells,T cells,T cells
+ATCACGGATTTCGT-1,B cells,B cells,B cells
+ATCATCTGACACCA-1,T cells,Platelet,Platelet
+ATCATGCTAGAGTA-1,NK,T cells,T cells
+ATCATGCTGAACCT-1,B cells,B cells,B cells
+ATCCAGGACGCTAA-1,Mono,Mono,Mono
+ATCCAGGATGGAAA-1,T cells,T cells,T cells
+ATCCATACTCCTTA-1,Mono,Mono,Mono
+ATCCATACTTCATC-1,Mono,Mono,Mono
+ATCCCGTGCAGTCA-1,NK,NK,NK
+ATCCCGTGCATGCA-1,B cells,B cells,B cells
+ATCCCGTGGCTGAT-1,B cells,B cells,B cells
+ATCCGCACGCATCA-1,B cells,B cells,B cells
+ATCCTAACGACGGA-1,B cells,B cells,B cells
+ATCCTAACGCTACA-1,T cells,T cells,T cells
+ATCGACGAAACTGC-1,Mono,Mono,Mono
+ATCGACGAATGACC-1,T cells,T cells,T cells
+ATCGAGTGGACGTT-1,T cells,T cells,T cells
+ATCGCAGAATCTCT-1,Mono,Mono,Mono
+ATCGCAGAGTGTCA-1,B cells,B cells,B cells
+ATCGCCACTGAGGG-1,T cells,T cells,T cells
+ATCGCCTGGGTCAT-1,T cells,T cells,T cells
+ATCGCCTGTGGCAT-1,B cells,B cells,B cells
+ATCGCGCTCAGAGG-1,Mono,Mono,Mono
+ATCGCGCTGGGATG-1,T cells,T cells,T cells
+ATCGCGCTTTTCGT-1,B cells,B cells,B cells
+ATCGGAACCAGTCA-1,T cells,T cells,T cells
+ATCGGTGAGTCAAC-1,T cells,T cells,T cells
+ATCGGTGATTGCAG-1,T cells,T cells,T cells
+ATCGTTTGCCTACC-1,Mono,Mono,Mono
+ATCGTTTGGGTACT-1,Mono,Mono,Mono
+ATCGTTTGTGCCAA-1,Mono,Mono,Mono
+ATCTACACCCGCTT-1,Mono,Mono,Mono
+ATCTACACCGGGAA-1,T cells,T cells,T cells
+ATCTCAACAGGAGC-1,B cells,B cells,B cells
+ATCTCAACCTCGAA-1,T cells,T cells,T cells
+ATCTCAACCTTGTT-1,Mono,Mono,Mono
+ATCTGGGAAACCAC-1,Mono,Mono,Mono
+ATCTGGGAAGTGTC-1,Mono,Mono,Mono
+ATCTGGGATTCCGC-1,T cells,T cells,T cells
+ATCTGTTGAACGGG-1,T cells,T cells,T cells
+ATCTGTTGACCTCC-1,T cells,T cells,T cells
+ATCTGTTGCCTTCG-1,Mono,Mono,Mono
+ATCTGTTGGTTGCA-1,T cells,T cells,T cells
+ATCTTGACACCAAC-1,T cells,T cells,T cells
+ATCTTGACCTCCCA-1,Mono,Mono,Mono
+ATCTTTCTGCATCA-1,T cells,T cells,T cells
+ATCTTTCTGTTTCT-1,T cells,T cells,T cells
+ATCTTTCTTGTCCC-1,NK,NK,NK
+ATGAAACTCTGTGA-1,T cells,T cells,T cells
+ATGAAACTGAGGCA-1,T cells,T cells,T cells
+ATGAAGGAACAGCT-1,NK,T cells,T cells
+ATGAAGGACCTGTC-1,B cells,B cells,B cells
+ATGAAGGACCTTAT-1,B cells,B cells,B cells
+ATGAAGGACTAGTG-1,B cells,B cells,B cells
+ATGAAGGACTTGCC-1,NK,NK,NK
+ATGACGTGACGACT-1,B cells,B cells,B cells
+ATGACGTGATCGGT-1,Mono,Mono,Mono
+ATGAGAGAAAGTGA-1,T cells,T cells,T cells
+ATGAGAGAACGCAT-1,T cells,T cells,T cells
+ATGAGAGAAGTAGA-1,B cells,B cells,B cells
+ATGAGCACACAGCT-1,T cells,T cells,T cells
+ATGAGCACATCTTC-1,T cells,T cells,T cells
+ATGATAACTTCACT-1,NK,NK,NK
+ATGATATGAAACAG-1,T cells,T cells,T cells
+ATGATATGACTGGT-1,T cells,T cells,T cells
+ATGATATGAGCACT-1,T cells,T cells,T cells
+ATGATATGGTCATG-1,T cells,T cells,T cells
+ATGATATGGTGCTA-1,NK,NK,NK
+ATGATATGTTGTCT-1,Mono,Mono,Mono
+ATGCACGAATGTCG-1,B cells,B cells,B cells
+ATGCACGACTGTAG-1,T cells,T cells,T cells
+ATGCACGAGAACCT-1,B cells,B cells,B cells
+ATGCACGAGTTCGA-1,T cells,T cells,T cells
+ATGCACGATTGGTG-1,Mono,Mono,Mono
+ATGCAGTGTTACCT-1,B cells,B cells,B cells
+ATGCAGTGTTCTAC-1,T cells,T cells,T cells
+ATGCCAGAACGACT-1,T cells,T cells,T cells
+ATGCCAGACAGTCA-1,Mono,Mono,Mono
+ATGCCGCTTGAACC-1,Mono,Mono,Mono
+ATGCGATGCTATGG-1,Mono,Mono,Mono
+ATGCGATGCTGAGT-1,T cells,T cells,T cells
+ATGCGATGGTTACG-1,B cells,B cells,B cells
+ATGCGCCTTCATTC-1,T cells,T cells,T cells
+ATGCTTTGCGAATC-1,T cells,T cells,T cells
+ATGCTTTGGGCGAA-1,T cells,T cells,T cells
+ATGCTTTGTAGTCG-1,B cells,B cells,B cells
+ATGGACACATCGGT-1,T cells,T cells,T cells
+ATGGACACGCATCA-1,NK,NK,NK
+ATGGGTACAACCTG-1,B cells,B cells,B cells
+ATGGGTACATCGGT-1,NK,NK,NK
+ATGGGTACTATTCC-1,T cells,T cells,T cells
+ATGGGTACTGGGAG-1,T cells,T cells,T cells
+ATGTAAACACCTCC-1,T cells,T cells,T cells
+ATGTAAACCCGCTT-1,T cells,T cells,T cells
+ATGTAAACGGGATG-1,Mono,DC,DC
+ATGTAAACTCTCCG-1,T cells,T cells,T cells
+ATGTAAACTTCACT-1,Mono,Mono,Mono
+ATGTACCTCAGTCA-1,T cells,T cells,T cells
+ATGTACCTTAGTCG-1,T cells,T cells,T cells
+ATGTACCTTTATCC-1,Mono,Mono,Mono
+ATGTACCTTTCACT-1,T cells,T cells,T cells
+ATGTCACTAATGCC-1,Mono,Mono,Mono
+ATGTCACTCTGCTC-1,T cells,T cells,T cells
+ATGTCGGAGGTGAG-1,T cells,T cells,T cells
+ATGTTCACAGTCTG-1,Mono,Mono,Mono
+ATGTTCACCGTAGT-1,T cells,T cells,T cells
+ATGTTGCTTTCAGG-1,T cells,T cells,T cells
+ATTAACGATGAGAA-1,NK,NK,NK
+ATTAACGATGCAAC-1,T cells,T cells,T cells
+ATTAAGACTGCAGT-1,T cells,T cells,T cells
+ATTACCTGCCTTAT-1,Mono,Mono,Mono
+ATTACCTGGAGGAC-1,Mono,Mono,Mono
+ATTAGATGTTTCAC-1,T cells,T cells,T cells
+ATTATGGAATCTCT-1,T cells,T cells,T cells
+ATTCAAGAACGGGA-1,T cells,T cells,T cells
+ATTCAAGACCTTTA-1,T cells,T cells,T cells
+ATTCAGCTCATTGG-1,T cells,Platelet,Platelet
+ATTCCAACCATTGG-1,Mono,Mono,Mono
+ATTCCAACTTAGGC-1,NK,NK,NK
+ATTCGACTCACTAG-1,T cells,T cells,T cells
+ATTCGACTGAATAG-1,Mono,Mono,Mono
+ATTCGACTTTTGTC-1,Mono,Mono,Mono
+ATTCGGGAAAGGCG-1,Mono,Mono,Mono
+ATTCGGGATTAGGC-1,T cells,T cells,T cells
+ATTCTTCTGATACC-1,T cells,T cells,T cells
+ATTGAATGGACGGA-1,T cells,T cells,T cells
+ATTGATGAAGGTTC-1,T cells,T cells,T cells
+ATTGATGACTGAGT-1,T cells,T cells,T cells
+ATTGATGAGCGAAG-1,T cells,T cells,T cells
+ATTGATGATCTATC-1,T cells,T cells,T cells
+ATTGCACTGACGGA-1,T cells,T cells,T cells
+ATTGCACTGAGAGC-1,Mono,Mono,Mono
+ATTGCACTGGAGCA-1,Mono,Mono,Mono
+ATTGCACTTAGCCA-1,T cells,T cells,T cells
+ATTGCACTTGCTTT-1,Mono,Mono,Mono
+ATTGCTTGTTACTC-1,B cells,B cells,B cells
+ATTGGTCTGACTAC-1,B cells,B cells,B cells
+ATTGGTCTTGTCTT-1,B cells,B cells,B cells
+ATTGTAGATTCCCG-1,Mono,DC,DC
+ATTGTAGATTGCAG-1,T cells,T cells,T cells
+ATTGTCTGCGTACA-1,T cells,T cells,T cells
+ATTTAGGAACCATG-1,Mono,Mono,Mono
+ATTTAGGACAGAGG-1,T cells,T cells,T cells
+ATTTCCGAGATGAA-1,T cells,T cells,T cells
+ATTTCCGAGTGCTA-1,T cells,T cells,T cells
+ATTTCGTGTATGGC-1,NK,NK,NK
+ATTTCTCTACTTTC-1,Mono,Mono,Mono
+ATTTCTCTAGCAAA-1,T cells,T cells,T cells
+ATTTCTCTCACTTT-1,Mono,Mono,Mono
+ATTTCTCTTCCCAC-1,T cells,T cells,T cells
+ATTTGCACAAGATG-1,Mono,Mono,Mono
+CAAAGCACAGCTCA-1,T cells,T cells,T cells
+CAAAGCACCGTAAC-1,B cells,B cells,B cells
+CAAAGCACGGTAAA-1,T cells,NK,NK
+CAAAGCTGAAAGTG-1,T cells,T cells,T cells
+CAAAGCTGTTGCTT-1,Mono,Mono,Mono
+CAAATATGTGACAC-1,T cells,T cells,T cells
+CAAATTGAGGGCAA-1,T cells,T cells,T cells
+CAAATTGATGGAGG-1,Mono,Mono,Mono
+CAACCAGAAAAGTG-1,T cells,T cells,T cells
+CAACCAGAAGTGCT-1,T cells,T cells,T cells
+CAACCAGAGTTCAG-1,Mono,Mono,Mono
+CAACCAGATAGAAG-1,Mono,Mono,Mono
+CAACCGCTGTTCAG-1,T cells,T cells,T cells
+CAACCGCTTTGAGC-1,T cells,T cells,T cells
+CAACGATGCGCAAT-1,Mono,Mono,Mono
+CAACGTGACTCCAC-1,Mono,Mono,Mono
+CAACGTGAGCCATA-1,T cells,T cells,T cells
+CAACGTGATCAAGC-1,Mono,Mono,Mono
+CAAGAAGACCACAA-1,NK,T cells,T cells
+CAAGAAGACGTCTC-1,Mono,Mono,Mono
+CAAGAAGATTCTAC-1,T cells,T cells,T cells
+CAAGACTGACCTGA-1,B cells,B cells,B cells
+CAAGACTGAGTAGA-1,B cells,B cells,B cells
+CAAGCTGACCATAG-1,Mono,Mono,Mono
+CAAGCTGATCTATC-1,NK,T cells,T cells
+CAAGGACTGTTCAG-1,T cells,T cells,T cells
+CAAGGACTTCTTTG-1,T cells,T cells,T cells
+CAAGGTTGCTCCAC-1,T cells,T cells,T cells
+CAAGGTTGTCATTC-1,B cells,B cells,B cells
+CAAGGTTGTCTGGA-1,NK,NK,NK
+CAAGTCGAAACAGA-1,B cells,B cells,B cells
+CAAGTCGATAGCGT-1,Mono,Mono,Mono
+CAATAAACGCCATA-1,Mono,Mono,Mono
+CAATAATGAACTGC-1,Mono,Mono,Mono
+CAATATGACATGGT-1,T cells,T cells,T cells
+CAATATGACCTTCG-1,NK,NK,NK
+CAATATGACGTTAG-1,T cells,T cells,T cells
+CAATATGAGGAGCA-1,T cells,T cells,T cells
+CAATCGGAGAAACA-1,T cells,T cells,T cells
+CAATCTACTGACTG-1,T cells,NK,NK
+CAATTCACCCAACA-1,T cells,T cells,T cells
+CAATTCACGATAGA-1,T cells,T cells,T cells
+CAATTCACTTGTGG-1,T cells,T cells,T cells
+CAATTCTGCTTGTT-1,Mono,Mono,Mono
+CAATTCTGGCGTAT-1,Mono,Mono,Mono
+CACAACGATACGAC-1,T cells,T cells,T cells
+CACAATCTTGTTCT-1,T cells,T cells,T cells
+CACAATCTTTCCAT-1,T cells,T cells,T cells
+CACACCTGCTTGAG-1,T cells,T cells,T cells
+CACACCTGTATGGC-1,T cells,T cells,T cells
+CACAGAACCCTTGC-1,NK,T cells,T cells
+CACAGAACCTGATG-1,T cells,T cells,T cells
+CACAGATGGGATTC-1,T cells,T cells,T cells
+CACAGATGGTTTCT-1,Mono,Mono,Mono
+CACAGCCTGATACC-1,T cells,T cells,T cells
+CACAGCCTTGCCAA-1,Mono,Mono,Mono
+CACAGCCTTGTAGC-1,T cells,T cells,T cells
+CACAGTGATGAAGA-1,Mono,Mono,Mono
+CACATACTACAGCT-1,T cells,T cells,T cells
+CACATGGAACACGT-1,T cells,T cells,T cells
+CACATGGAAGTCGT-1,T cells,T cells,T cells
+CACCACTGCCAACA-1,T cells,T cells,T cells
+CACCACTGGCGAAG-1,NK,NK,NK
+CACCCATGTTCTGT-1,NK,T cells,T cells
+CACCGGGAATCGAC-1,T cells,T cells,T cells
+CACCGGGACGAGAG-1,NK,T cells,T cells
+CACCGGGACGTGTA-1,T cells,T cells,T cells
+CACCGGGACTTCTA-1,T cells,T cells,T cells
+CACCGGGACTTGCC-1,T cells,T cells,T cells
+CACCGGGATTCGGA-1,T cells,T cells,T cells
+CACCGTACTAAGGA-1,B cells,B cells,B cells
+CACCGTACTAGCGT-1,T cells,T cells,T cells
+CACCTGACACCCAA-1,T cells,T cells,T cells
+CACCTGACCAGAAA-1,T cells,T cells,T cells
+CACCTGACCTCAAG-1,NK,T cells,T cells
+CACCTGACGAAAGT-1,B cells,B cells,B cells
+CACCTGACTCGTAG-1,T cells,T cells,T cells
+CACGAAACTTCCGC-1,B cells,B cells,B cells
+CACGACCTCGATAC-1,B cells,B cells,B cells
+CACGCTACAGAAGT-1,T cells,T cells,T cells
+CACGCTACTGTTCT-1,B cells,B cells,B cells
+CACGGGACAGAGTA-1,T cells,T cells,T cells
+CACGGGACATAAGG-1,T cells,T cells,T cells
+CACGGGACGTAGGG-1,T cells,T cells,T cells
+CACGGGTGCTTCGC-1,T cells,T cells,T cells
+CACGGGTGGAGGAC-1,NK,T cells,T cells
+CACGGGTGTGTTTC-1,T cells,T cells,T cells
+CACTAACTCCTAAG-1,B cells,B cells,B cells
+CACTAACTGAAAGT-1,T cells,T cells,T cells
+CACTAGGATGATGC-1,B cells,B cells,B cells
+CACTATACCCCGTT-1,B cells,B cells,B cells
+CACTATACGTTTGG-1,T cells,T cells,T cells
+CACTGAGACAGTCA-1,Mono,Mono,Mono
+CACTGCACTTCATC-1,T cells,T cells,T cells
+CACTGCTGAGACTC-1,Mono,Mono,Mono
+CACTGCTGGAAAGT-1,T cells,T cells,T cells
+CACTTAACCGAATC-1,T cells,T cells,T cells
+CACTTAACCGTACA-1,B cells,B cells,B cells
+CACTTTGACTCTAT-1,T cells,T cells,T cells
+CACTTTGAGCTGTA-1,T cells,T cells,T cells
+CAGAAGCTCTCAAG-1,T cells,T cells,T cells
+CAGACATGAACGGG-1,T cells,T cells,T cells
+CAGACATGTCGACA-1,T cells,T cells,T cells
+CAGACCCTAAGGTA-1,Mono,Mono,Mono
+CAGACCCTAATGCC-1,T cells,T cells,T cells
+CAGACCCTAGGAGC-1,T cells,T cells,T cells
+CAGACTGAGTATGC-1,T cells,T cells,T cells
+CAGATCGAATGTCG-1,B cells,B cells,B cells
+CAGATCGACCTGAA-1,T cells,T cells,T cells
+CAGATCGATATGGC-1,T cells,T cells,T cells
+CAGATGACATTCTC-1,NK,NK,NK
+CAGCAATGCCTTCG-1,T cells,T cells,T cells
+CAGCAATGGAGGGT-1,NK,NK,NK
+CAGCAATGGTGCTA-1,T cells,T cells,T cells
+CAGCAATGTCTACT-1,Mono,Mono,Mono
+CAGCAATGTGACCA-1,T cells,T cells,T cells
+CAGCAATGTGAGGG-1,Mono,Mono,Mono
+CAGCACCTAAGCCT-1,T cells,T cells,T cells
+CAGCACCTAGGCGA-1,T cells,T cells,T cells
+CAGCACCTGTAGGG-1,Mono,Mono,Mono
+CAGCATGACAACCA-1,Mono,Mono,Mono
+CAGCATGAGACGTT-1,T cells,T cells,T cells
+CAGCCTACCCAACA-1,T cells,T cells,T cells
+CAGCCTTGCTACCC-1,Mono,Mono,Mono
+CAGCCTTGGGGACA-1,T cells,T cells,T cells
+CAGCGGACACCCTC-1,T cells,T cells,T cells
+CAGCGGACCTTTAC-1,NK,NK,NK
+CAGCGTCTAAAGCA-1,T cells,T cells,T cells
+CAGCGTCTTATCGG-1,T cells,T cells,T cells
+CAGCTAGATGTGAC-1,Mono,Mono,Mono
+CAGCTCTGAGGCGA-1,T cells,T cells,T cells
+CAGCTCTGCAAGCT-1,NK,T cells,T cells
+CAGCTCTGTCGTAG-1,Mono,Mono,Mono
+CAGCTCTGTGTGGT-1,NK,NK,NK
+CAGGAACTAACTGC-1,T cells,T cells,T cells
+CAGGAACTCTCAGA-1,Mono,Mono,Mono
+CAGGCCGAACACCA-1,T cells,T cells,T cells
+CAGGCCGAACACGT-1,T cells,T cells,T cells
+CAGGCCGAACGACT-1,T cells,T cells,T cells
+CAGGCCGAATCTCT-1,Mono,Mono,Mono
+CAGGCCGACTAGCA-1,B cells,B cells,B cells
+CAGGGCACCATACG-1,B cells,B cells,B cells
+CAGGGCACCCAACA-1,T cells,T cells,T cells
+CAGGGCACTCCCGT-1,T cells,T cells,T cells
+CAGGTAACAGACTC-1,Mono,Mono,Mono
+CAGGTATGAGTCGT-1,T cells,T cells,T cells
+CAGGTATGTGCTTT-1,T cells,T cells,T cells
+CAGGTTGAGGATCT-1,B cells,B cells,B cells
+CAGTGATGGACGGA-1,B cells,B cells,B cells
+CAGTGATGGCTAAC-1,NK,T cells,T cells
+CAGTGATGGGACAG-1,T cells,T cells,T cells
+CAGTGATGTAAGGA-1,B cells,B cells,B cells
+CAGTGATGTACGCA-1,B cells,T cells,T cells
+CAGTGTGATGTCAG-1,T cells,T cells,T cells
+CAGTTACTAAGGTA-1,B cells,B cells,B cells
+CAGTTACTGATAGA-1,T cells,T cells,T cells
+CAGTTGGAAAGAGT-1,Mono,Mono,Mono
+CAGTTGGACATACG-1,T cells,T cells,T cells
+CAGTTTACACACGT-1,T cells,NK,NK
+CAGTTTACCCCAAA-1,T cells,T cells,T cells
+CATAAAACGGAGCA-1,Mono,Mono,Mono
+CATAAATGAACTGC-1,T cells,T cells,T cells
+CATAACCTTCTCCG-1,T cells,T cells,T cells
+CATACTACCTCGAA-1,T cells,T cells,T cells
+CATACTACCTGAAC-1,T cells,T cells,T cells
+CATACTACGTACCA-1,Mono,Mono,Mono
+CATACTTGGGTTAC-1,Mono,T cells,T cells
+CATAGTCTAATCGC-1,T cells,T cells,T cells
+CATAGTCTCACTTT-1,T cells,T cells,T cells
+CATATAGACTAAGC-1,Mono,DC,DC
+CATATAGATCAGGT-1,B cells,B cells,B cells
+CATCAACTAGAAGT-1,T cells,T cells,T cells
+CATCAACTCCCTCA-1,T cells,T cells,T cells
+CATCAGGACTTCCG-1,NK,NK,NK
+CATCAGGATAGCCA-1,NK,NK,NK
+CATCAGGATCCTAT-1,Mono,Mono,Mono
+CATCAGGATGCACA-1,Mono,Mono,Mono
+CATCAGGATTTCGT-1,Mono,Mono,Mono
+CATCATACCGCATA-1,Mono,Mono,Mono
+CATCATACGGAGCA-1,B cells,B cells,B cells
+CATCATACTCAAGC-1,T cells,T cells,T cells
+CATCGCTGGGATCT-1,T cells,T cells,T cells
+CATCGCTGTGGCAT-1,B cells,B cells,B cells
+CATCGGCTATGCTG-1,T cells,T cells,T cells
+CATCGGCTTTGGCA-1,T cells,T cells,T cells
+CATCTCCTATGTGC-1,B cells,B cells,B cells
+CATCTCCTCGAACT-1,Mono,Mono,Mono
+CATGAGACACGGGA-1,B cells,B cells,B cells
+CATGAGACGTTGAC-1,NK,NK,NK
+CATGAGACTCGCCT-1,T cells,T cells,T cells
+CATGCCACGGGTGA-1,T cells,T cells,T cells
+CATGCCACTGCCAA-1,T cells,T cells,T cells
+CATGCGCTAGTCAC-1,Mono,Mono,Mono
+CATGCGCTCAGATC-1,Mono,Mono,Mono
+CATGCGCTTTGCAG-1,Mono,Mono,Mono
+CATGGCCTAGGGTG-1,Mono,Mono,Mono
+CATGGCCTGTGCAT-1,T cells,T cells,T cells
+CATGTACTATCGTG-1,NK,T cells,T cells
+CATGTTACAGTCGT-1,NK,T cells,T cells
+CATGTTACCTGAGT-1,T cells,T cells,T cells
+CATGTTTGGGGATG-1,Mono,Mono,Mono
+CATTACACACGGAG-1,B cells,B cells,B cells
+CATTACACCAACTG-1,NK,NK,NK
+CATTACACGGAGTG-1,T cells,T cells,T cells
+CATTACACTACTCT-1,T cells,T cells,T cells
+CATTAGCTCCACAA-1,Mono,Mono,Mono
+CATTGACTAGCGGA-1,Mono,Mono,Mono
+CATTGGGACTCGAA-1,T cells,T cells,T cells
+CATTGTACAGCGTT-1,T cells,T cells,T cells
+CATTGTACTCGATG-1,B cells,B cells,B cells
+CATTGTACTTATCC-1,T cells,T cells,T cells
+CATTGTACTTTGCT-1,Mono,Mono,Mono
+CATTGTTGCTAGTG-1,T cells,T cells,T cells
+CATTTCGACTCTAT-1,T cells,T cells,T cells
+CATTTCGAGATACC-1,NK,NK,NK
+CATTTGACCACACA-1,NK,T cells,T cells
+CATTTGACCCTGAA-1,NK,T cells,T cells
+CATTTGTGACGACT-1,B cells,B cells,B cells
+CATTTGTGCATTGG-1,T cells,T cells,T cells
+CATTTGTGCGGAGA-1,T cells,T cells,T cells
+CATTTGTGGGATCT-1,B cells,B cells,B cells
+CCAAAGTGCTACGA-1,Mono,Mono,Mono
+CCAAAGTGTGAGAA-1,Mono,Mono,Mono
+CCAACCTGAAGTAG-1,T cells,T cells,T cells
+CCAACCTGACGTAC-1,Mono,Mono,Mono
+CCAACCTGTTCGCC-1,Mono,Mono,Mono
+CCAAGAACCCAATG-1,T cells,T cells,T cells
+CCAAGAACGTAGCT-1,T cells,T cells,T cells
+CCAAGAACGTGTCA-1,T cells,T cells,T cells
+CCAAGAACTACTGG-1,T cells,T cells,T cells
+CCAAGAACTCCTAT-1,B cells,B cells,B cells
+CCAAGATGTCATTC-1,T cells,T cells,T cells
+CCAAGATGTTTCAC-1,T cells,T cells,T cells
+CCAAGTGAGGAACG-1,T cells,T cells,T cells
+CCAAGTGATCAAGC-1,T cells,T cells,T cells
+CCAATTTGAACGTC-1,Mono,Mono,Mono
+CCACCATGAACGTC-1,T cells,T cells,T cells
+CCACCATGATCGGT-1,T cells,T cells,T cells
+CCACCATGGACGAG-1,Mono,Mono,Mono
+CCACCATGGGGAGT-1,T cells,T cells,T cells
+CCACCATGTCCTGC-1,T cells,T cells,T cells
+CCACTGACCCGCTT-1,Mono,Mono,Mono
+CCACTGTGGGAAGC-1,Mono,Mono,Mono
+CCACTGTGTGTAGC-1,T cells,T cells,T cells
+CCACTTCTCGGGAA-1,Mono,Mono,Mono
+CCAGAAACCCTGTC-1,B cells,B cells,B cells
+CCAGAAACGAACTC-1,T cells,T cells,T cells
+CCAGAAACGGTCTA-1,T cells,T cells,T cells
+CCAGACCTCTGAGT-1,Mono,Mono,Mono
+CCAGACCTTGTGGT-1,T cells,T cells,T cells
+CCAGCACTGCGATT-1,Mono,Mono,Mono
+CCAGCGGAAAGGCG-1,Mono,Mono,Mono
+CCAGCGGACGACTA-1,Mono,Mono,Mono
+CCAGCGGATGGGAG-1,T cells,T cells,T cells
+CCAGCTACACAGTC-1,T cells,T cells,T cells
+CCAGCTACCAGCTA-1,B cells,B cells,B cells
+CCAGGTCTACACCA-1,B cells,B cells,B cells
+CCAGGTCTAGCATC-1,Mono,Mono,Mono
+CCAGGTCTATGGTC-1,T cells,T cells,T cells
+CCAGTCACACTGGT-1,Mono,Mono,Mono
+CCAGTCACACTGTG-1,B cells,B cells,B cells
+CCAGTCACGTTGTG-1,T cells,T cells,T cells
+CCAGTGCTAACCAC-1,T cells,T cells,T cells
+CCAGTGCTCGTAGT-1,T cells,T cells,T cells
+CCATCCGAAAGCAA-1,T cells,T cells,T cells
+CCATCCGAACGACT-1,T cells,T cells,T cells
+CCATCCGAAGGTTC-1,B cells,B cells,B cells
+CCATCCGATTCGCC-1,Mono,Mono,Mono
+CCATCGTGAACGGG-1,T cells,T cells,T cells
+CCATCGTGCTAGAC-1,Mono,Mono,Mono
+CCCAACACCTCGCT-1,B cells,B cells,B cells
+CCCAACACGCATCA-1,T cells,T cells,T cells
+CCCAACACTTTGTC-1,Mono,Mono,Mono
+CCCAACTGCAATCG-1,Mono,Mono,Mono
+CCCAGACTGCCTTC-1,Mono,Mono,Mono
+CCCAGACTGGTTTG-1,B cells,B cells,B cells
+CCCAGACTTTCGCC-1,Mono,Mono,Mono
+CCCAGTTGCAGTTG-1,Mono,Mono,Mono
+CCCAGTTGGGTACT-1,T cells,T cells,T cells
+CCCAGTTGTCTATC-1,B cells,B cells,B cells
+CCCGATTGTGTTTC-1,T cells,T cells,T cells
+CCCGGAGAAGGGTG-1,Mono,Mono,Mono
+CCCTACGAATTGGC-1,Mono,Mono,Mono
+CCCTAGTGCAAAGA-1,T cells,T cells,T cells
+CCCTCAGACACTTT-1,B cells,B cells,B cells
+CCCTCAGACGAGAG-1,T cells,T cells,T cells
+CCCTCAGAGGTCAT-1,T cells,T cells,T cells
+CCCTGAACTAAAGG-1,B cells,B cells,B cells
+CCCTGATGCAACCA-1,T cells,T cells,T cells
+CCCTGATGCAAGCT-1,B cells,B cells,B cells
+CCCTTACTAACCAC-1,Mono,Mono,Mono
+CCCTTACTGCAGTT-1,T cells,T cells,T cells
+CCGAAAACCTTGTT-1,Mono,Mono,Mono
+CCGACACTGGTTTG-1,T cells,T cells,T cells
+CCGACTACCCAGTA-1,Mono,Mono,Mono
+CCGACTACCGTGTA-1,T cells,T cells,T cells
+CCGACTACTGAGGG-1,T cells,T cells,T cells
+CCGATAGACCTAAG-1,T cells,T cells,T cells
+CCGATAGAGTTGGT-1,Mono,Mono,Mono
+CCGCGAGACACACA-1,Mono,Mono,Mono
+CCGCGAGAGGTTCA-1,T cells,T cells,T cells
+CCGCTATGGGACGA-1,B cells,B cells,B cells
+CCGCTATGTGCAAC-1,Mono,Mono,Mono
+CCGCTATGTGCACA-1,Mono,Mono,Mono
+CCGGTACTGTCCTC-1,T cells,T cells,T cells
+CCGTACACAAGCAA-1,T cells,T cells,T cells
+CCGTACACAGCGTT-1,B cells,B cells,B cells
+CCGTACACGTCATG-1,T cells,T cells,T cells
+CCGTACACGTTGGT-1,Mono,Mono,Mono
+CCGTACACTAACGC-1,T cells,T cells,T cells
+CCTAAACTTTCGTT-1,T cells,T cells,T cells
+CCTAAGGACCCAAA-1,T cells,T cells,T cells
+CCTAAGGACTAGCA-1,Mono,Mono,Mono
+CCTAAGGAGGGCAA-1,T cells,T cells,T cells
+CCTAAGGATGATGC-1,T cells,T cells,T cells
+CCTAAGGATGTCAG-1,T cells,T cells,T cells
+CCTACCGACTCTTA-1,T cells,T cells,T cells
+CCTACCGAGGGATG-1,B cells,B cells,B cells
+CCTAGAGAGGTGAG-1,B cells,B cells,B cells
+CCTATAACCAAAGA-1,T cells,T cells,T cells
+CCTATAACGAGACG-1,Mono,Mono,Mono
+CCTATAACTCAGAC-1,T cells,T cells,T cells
+CCTATAACTGCATG-1,Mono,Mono,Mono
+CCTCGAACACTTTC-1,NK,NK,NK
+CCTCGAACCCGTAA-1,Mono,Mono,Mono
+CCTCGAACGTATCG-1,T cells,T cells,T cells
+CCTCGAACTTACTC-1,T cells,T cells,T cells
+CCTCTACTCTTCGC-1,Mono,Mono,Mono
+CCTCTACTGGCATT-1,T cells,T cells,T cells
+CCTGACTGAAGTAG-1,T cells,T cells,T cells
+CCTGACTGGGGAGT-1,T cells,T cells,T cells
+CCTGACTGTGTCTT-1,B cells,B cells,B cells
+CCTGCAACACGTTG-1,Mono,Mono,Mono
+CCTGGACTCGTGAT-1,T cells,T cells,T cells
+CCTTAATGCCCAAA-1,B cells,B cells,B cells
+CCTTAATGTTCTAC-1,Mono,Mono,Mono
+CCTTCACTACGACT-1,T cells,T cells,T cells
+CCTTCACTCAGTCA-1,B cells,B cells,B cells
+CCTTCACTGGAGTG-1,Mono,Mono,Mono
+CCTTTAGATTCATC-1,Mono,Mono,Mono
+CGAACATGCCCTAC-1,Mono,Mono,Mono
+CGAACATGTCAGAC-1,T cells,T cells,T cells
+CGAAGACTGGAACG-1,T cells,T cells,T cells
+CGAAGACTGTTACG-1,T cells,T cells,T cells
+CGAAGGGAAACCTG-1,T cells,T cells,T cells
+CGAAGGGATCCGAA-1,B cells,B cells,B cells
+CGAAGTACCAACTG-1,B cells,B cells,B cells
+CGAATCGAGGAGCA-1,Mono,Mono,Mono
+CGAATCGAGGAGGT-1,T cells,T cells,T cells
+CGACAAACCCATAG-1,T cells,T cells,T cells
+CGACAAACCGACAT-1,B cells,B cells,B cells
+CGACCACTAAAGTG-1,NK,NK,NK
+CGACCACTGCCAAT-1,NK,NK,NK
+CGACCGGAAGGTCT-1,T cells,T cells,T cells
+CGACCGGATGGAAA-1,T cells,T cells,T cells
+CGACCTTGCTAGTG-1,T cells,T cells,T cells
+CGACGTCTATCGTG-1,T cells,T cells,T cells
+CGACGTCTCGTGTA-1,T cells,T cells,T cells
+CGACGTCTGAGGCA-1,T cells,T cells,T cells
+CGACTCACGTCGTA-1,T cells,T cells,T cells
+CGACTCACGTTGCA-1,T cells,T cells,T cells
+CGACTCTGTGTGAC-1,T cells,T cells,T cells
+CGACTGCTTCCTCG-1,Mono,Mono,Mono
+CGAGAACTAAGGCG-1,NK,T cells,T cells
+CGAGAACTACGTTG-1,T cells,T cells,T cells
+CGAGAACTTGTTCT-1,Mono,Mono,Mono
+CGAGATTGGACACT-1,NK,T cells,T cells
+CGAGATTGGCCATA-1,NK,T cells,T cells
+CGAGCCGAACACCA-1,T cells,T cells,T cells
+CGAGCCGAGGCGAA-1,T cells,T cells,T cells
+CGAGCGTGCTCCAC-1,T cells,T cells,T cells
+CGAGCGTGGATACC-1,T cells,T cells,T cells
+CGAGCGTGTATGCG-1,Mono,Mono,Mono
+CGAGGAGACCTCCA-1,B cells,B cells,B cells
+CGAGGAGATGTCGA-1,T cells,T cells,T cells
+CGAGGCACCTATGG-1,T cells,T cells,T cells
+CGAGGCACTATGCG-1,Mono,Mono,Mono
+CGAGGCACTCTTCA-1,T cells,T cells,T cells
+CGAGGCTGACGCTA-1,NK,NK,NK
+CGAGGCTGGCAGTT-1,Mono,Mono,Mono
+CGAGGGCTACGACT-1,B cells,B cells,B cells
+CGAGGGCTCGAATC-1,T cells,T cells,T cells
+CGAGTATGTCACCC-1,Mono,Mono,Mono
+CGATACGAACAGTC-1,Mono,Mono,Mono
+CGATACGACAGGAG-1,T cells,T cells,T cells
+CGATACGATTCACT-1,B cells,B cells,B cells
+CGATAGACCCGTAA-1,Mono,Mono,Mono
+CGATAGACCGTACA-1,T cells,T cells,T cells
+CGATAGACGTAGGG-1,Mono,Mono,Mono
+CGATAGACTGTTCT-1,T cells,T cells,T cells
+CGATCAGAAGAACA-1,T cells,T cells,T cells
+CGATCAGAGAGGGT-1,T cells,T cells,T cells
+CGATCAGAGGTACT-1,T cells,T cells,T cells
+CGATCAGATGTGAC-1,T cells,DC,DC
+CGATCCACCGGGAA-1,T cells,T cells,T cells
+CGATCCACTTCCAT-1,B cells,B cells,B cells
+CGCAAATGCTCGAA-1,T cells,T cells,T cells
+CGCAACCTCCTTGC-1,T cells,T cells,T cells
+CGCAACCTGGACGA-1,T cells,T cells,T cells
+CGCACGGAGGACGA-1,B cells,B cells,B cells
+CGCACGGATCTTTG-1,T cells,T cells,T cells
+CGCACTACAGAATG-1,T cells,T cells,T cells
+CGCACTACAGCCAT-1,T cells,T cells,T cells
+CGCACTACATTGGC-1,T cells,T cells,T cells
+CGCACTACTCGCCT-1,B cells,B cells,B cells
+CGCACTACTCGTGA-1,T cells,T cells,T cells
+CGCACTTGTCACGA-1,Mono,Mono,Mono
+CGCAGGACAGATCC-1,NK,T cells,T cells
+CGCAGGACCTACTT-1,T cells,T cells,T cells
+CGCAGGACTTGTCT-1,Mono,Mono,Mono
+CGCAGGTGCACTGA-1,T cells,T cells,T cells
+CGCAGGTGCCATAG-1,Mono,Mono,Mono
+CGCAGGTGGGAACG-1,T cells,T cells,T cells
+CGCATAGATCACGA-1,Mono,Mono,Mono
+CGCCATACTGCAAC-1,T cells,T cells,T cells
+CGCCATTGAGAGGC-1,T cells,T cells,T cells
+CGCCATTGCTATGG-1,T cells,T cells,T cells
+CGCCATTGGAGACG-1,T cells,T cells,T cells
+CGCCATTGGAGCAG-1,B cells,B cells,B cells
+CGCCATTGTACTGG-1,B cells,B cells,B cells
+CGCCGAGAGCTTAG-1,NK,NK,NK
+CGCCTAACGAATGA-1,Mono,DC,DC
+CGCCTAACTGCTCC-1,T cells,T cells,T cells
+CGCGAGACACAGCT-1,T cells,T cells,T cells
+CGCGAGACAGGTCT-1,B cells,B cells,B cells
+CGCGAGACGCTACA-1,T cells,T cells,T cells
+CGCGATCTCAGTCA-1,Mono,Mono,Mono
+CGCGATCTGTTGAC-1,Mono,Mono,Mono
+CGCGATCTTTCTTG-1,B cells,B cells,B cells
+CGCGGATGGCCAAT-1,T cells,T cells,T cells
+CGCTAAGAATGTCG-1,T cells,T cells,T cells
+CGCTAAGACAACTG-1,T cells,T cells,T cells
+CGCTAAGACCCTTG-1,T cells,T cells,T cells
+CGCTACTGAACAGA-1,Mono,Mono,Mono
+CGCTACTGAGAACA-1,T cells,T cells,T cells
+CGCTACTGTGAGCT-1,T cells,T cells,T cells
+CGCTACTGTTCCCG-1,T cells,T cells,T cells
+CGCTCATGCATTTC-1,Mono,Mono,Mono
+CGGAATTGGTTTGG-1,T cells,T cells,T cells
+CGGAATTGTGGAGG-1,T cells,T cells,T cells
+CGGACCGATGCGTA-1,T cells,T cells,T cells
+CGGACCGATGGGAG-1,T cells,T cells,T cells
+CGGACTCTAAACAG-1,B cells,B cells,B cells
+CGGACTCTCCAATG-1,T cells,T cells,T cells
+CGGACTCTCCTCGT-1,T cells,T cells,T cells
+CGGAGGCTATTCCT-1,T cells,T cells,T cells
+CGGAGGCTTGGATC-1,T cells,T cells,T cells
+CGGATAACAACGAA-1,Mono,Mono,Mono
+CGGATAACAGCTCA-1,T cells,T cells,T cells
+CGGATAACTCAGTG-1,Mono,Mono,Mono
+CGGCACGAACTCAG-1,T cells,T cells,T cells
+CGGCACGAAGGGTG-1,T cells,T cells,T cells
+CGGCACGACTACGA-1,Mono,Mono,Mono
+CGGCATCTTAGAAG-1,T cells,T cells,T cells
+CGGCATCTTCGTAG-1,Mono,Mono,Mono
+CGGCCAGAAAGGTA-1,T cells,T cells,T cells
+CGGCCAGAGAGGCA-1,T cells,T cells,T cells
+CGGCGAACCAGTCA-1,Mono,Mono,Mono
+CGGCGAACGACAAA-1,NK,NK,NK
+CGGCGAACGGTCTA-1,T cells,T cells,T cells
+CGGCGAACTACTTC-1,NK,NK,NK
+CGGGACTGCGTGTA-1,T cells,T cells,T cells
+CGGGACTGGAATAG-1,T cells,T cells,T cells
+CGGGCATGACCCAA-1,NK,Platelet,Platelet
+CGGGCATGTCTCTA-1,NK,NK,NK
+CGGGCATGTTGTGG-1,T cells,T cells,T cells
+CGGTAAACTCGCAA-1,T cells,T cells,T cells
+CGGTCACTGTTTGG-1,T cells,T cells,T cells
+CGGTCACTTACTTC-1,T cells,T cells,T cells
+CGTAACGATCGCCT-1,T cells,T cells,T cells
+CGTACCACACACAC-1,T cells,T cells,T cells
+CGTACCACACGTTG-1,T cells,T cells,T cells
+CGTACCACCTCATT-1,T cells,T cells,T cells
+CGTACCACGGAGCA-1,T cells,T cells,T cells
+CGTACCTGGCATCA-1,NK,NK,NK
+CGTAGCCTCTCTCG-1,Mono,Mono,Mono
+CGTAGCCTGCGAAG-1,T cells,T cells,T cells
+CGTAGCCTGTATGC-1,Mono,Mono,Mono
+CGTCAAGAAAGGTA-1,Mono,Mono,Mono
+CGTCAAGAACGTGT-1,T cells,T cells,T cells
+CGTCAAGACAGAGG-1,T cells,T cells,T cells
+CGTCAAGACAGGAG-1,T cells,T cells,T cells
+CGTCCATGCTCTTA-1,T cells,T cells,T cells
+CGTCGACTTTCCGC-1,NK,T cells,T cells
+CGTGATGACGCTAA-1,T cells,T cells,T cells
+CGTGATGAGGTTCA-1,T cells,T cells,T cells
+CGTGCACTTATGGC-1,Mono,Mono,Mono
+CGTGTAGAAAAACG-1,T cells,T cells,T cells
+CGTGTAGACGATAC-1,NK,T cells,T cells
+CGTGTAGAGTTACG-1,NK,NK,NK
+CGTGTAGAGTTCAG-1,Mono,Mono,Mono
+CGTGTAGATTCGGA-1,NK,NK,NK
+CGTTAGGAAACCAC-1,T cells,T cells,T cells
+CGTTAGGATCATTC-1,Mono,Mono,Mono
+CGTTATACCCTGAA-1,T cells,T cells,T cells
+CGTTTAACTGGTCA-1,T cells,T cells,T cells
+CTAAACCTCTGACA-1,NK,NK,NK
+CTAAACCTGTGCAT-1,B cells,B cells,B cells
+CTAACACTAACGTC-1,T cells,T cells,T cells
+CTAACACTAGTGCT-1,Mono,Mono,Mono
+CTAACGGAACCGAT-1,NK,NK,NK
+CTAACGGATTTCTG-1,T cells,T cells,T cells
+CTAACTACGGCAAG-1,T cells,T cells,T cells
+CTAAGGACACCATG-1,T cells,T cells,T cells
+CTAAGGACCGTTAG-1,T cells,T cells,T cells
+CTAAGGACGCCATA-1,Mono,Mono,Mono
+CTAAGGTGCCTAAG-1,B cells,B cells,B cells
+CTAAGGTGTTGCAG-1,T cells,T cells,T cells
+CTAAGGTGTTTCTG-1,T cells,T cells,T cells
+CTAATAGAGCTATG-1,T cells,T cells,T cells
+CTAATGCTTGTGGT-1,Mono,Mono,Mono
+CTACAACTCCCGTT-1,T cells,T cells,T cells
+CTACCTCTCAACCA-1,T cells,T cells,T cells
+CTACGCACACCTAG-1,Mono,Mono,Mono
+CTACGCACTCTCCG-1,T cells,T cells,T cells
+CTACGCACTGGTCA-1,T cells,NK,NK
+CTACGGCTTTCTTG-1,Mono,Mono,Mono
+CTACTATGAACCAC-1,Mono,Mono,Mono
+CTACTATGATGTGC-1,Mono,Mono,Mono
+CTACTATGCTAAGC-1,T cells,T cells,T cells
+CTACTATGTAAAGG-1,B cells,B cells,B cells
+CTACTCCTATGTCG-1,NK,NK,NK
+CTACTCCTGCCATA-1,Mono,Mono,Mono
+CTAGAGACACTTTC-1,T cells,T cells,T cells
+CTAGAGACAGCATC-1,T cells,T cells,T cells
+CTAGAGACTTTGGG-1,Mono,Mono,Mono
+CTAGATCTCTCTAT-1,T cells,T cells,T cells
+CTAGATCTTCGACA-1,T cells,T cells,T cells
+CTAGGATGAGCCTA-1,B cells,B cells,B cells
+CTAGGATGATCGTG-1,B cells,B cells,B cells
+CTAGGCCTCTCAGA-1,T cells,T cells,T cells
+CTAGGTGATGGTTG-1,Mono,Mono,Mono
+CTAGTTACCAGAGG-1,T cells,T cells,T cells
+CTAGTTACCGCATA-1,T cells,T cells,T cells
+CTAGTTACGAAACA-1,NK,NK,NK
+CTATAAGATCGTTT-1,B cells,B cells,B cells
+CTATACTGAGGTTC-1,Mono,Mono,Mono
+CTATACTGCCAGTA-1,T cells,T cells,T cells
+CTATACTGCGCTAA-1,Mono,Mono,Mono
+CTATACTGCTACGA-1,NK,NK,NK
+CTATACTGTCTCAT-1,NK,NK,NK
+CTATACTGTTCGTT-1,B cells,T cells,T cells
+CTATAGCTGTCACA-1,T cells,T cells,T cells
+CTATAGCTTCGCTC-1,Mono,Mono,Mono
+CTATAGCTTGCCTC-1,Mono,Mono,Mono
+CTATCAACGAACTC-1,T cells,T cells,T cells
+CTATCAACGCAGAG-1,T cells,T cells,T cells
+CTATCAACTTTGGG-1,T cells,T cells,T cells
+CTATCCCTCCACCT-1,Mono,Mono,Mono
+CTATGTACGAGAGC-1,T cells,T cells,T cells
+CTATGTACGCTTAG-1,T cells,T cells,T cells
+CTATGTACTGTTTC-1,B cells,B cells,B cells
+CTATGTTGAAAGCA-1,T cells,T cells,T cells
+CTATGTTGTCCTCG-1,T cells,T cells,T cells
+CTATGTTGTCTCGC-1,T cells,T cells,T cells
+CTATTGACAAACGA-1,Mono,Mono,Mono
+CTATTGACACTGGT-1,Mono,Mono,Mono
+CTATTGACGGTGAG-1,Mono,Mono,Mono
+CTATTGTGGCAAGG-1,T cells,T cells,T cells
+CTCAATTGGTTCAG-1,T cells,T cells,T cells
+CTCAATTGGTTGCA-1,Mono,Mono,Mono
+CTCAGAGATAGAAG-1,T cells,T cells,T cells
+CTCAGCACTCTAGG-1,T cells,T cells,T cells
+CTCAGCACTGAACC-1,Mono,Mono,Mono
+CTCAGCACTTGCAG-1,T cells,T cells,T cells
+CTCAGCTGAACCTG-1,Mono,Mono,Mono
+CTCAGCTGCAGTTG-1,T cells,T cells,T cells
+CTCAGGCTCGTTGA-1,Mono,Mono,Mono
+CTCAGGCTGCTAAC-1,T cells,T cells,T cells
+CTCATTGACCTTAT-1,T cells,T cells,T cells
+CTCATTGATGCTTT-1,Mono,Mono,Mono
+CTCCACGAGAGATA-1,Mono,DC,DC
+CTCCATCTCTTAGG-1,T cells,T cells,T cells
+CTCCATCTGACGAG-1,T cells,T cells,T cells
+CTCCGAACAAGTGA-1,Mono,Mono,Mono
+CTCCTACTGCCTTC-1,Mono,Mono,Mono
+CTCGAAGATGTGGT-1,T cells,T cells,T cells
+CTCGAAGATTAGGC-1,Mono,Mono,Mono
+CTCGACTGCTCTAT-1,T cells,T cells,T cells
+CTCGACTGGGTGAG-1,T cells,T cells,T cells
+CTCGACTGGTTGAC-1,NK,NK,NK
+CTCGAGCTCTGGAT-1,T cells,T cells,T cells
+CTCGCATGACTTTC-1,T cells,T cells,T cells
+CTCGCATGCTTAGG-1,T cells,T cells,T cells
+CTCTAAACCTCGAA-1,T cells,T cells,T cells
+CTCTAAACGGCGAA-1,T cells,T cells,T cells
+CTCTAATGTCCAAG-1,Mono,Mono,Mono
+CTGAACGACAGTCA-1,T cells,T cells,T cells
+CTGAACGATGAGGG-1,T cells,T cells,T cells
+CTGAAGACCCAACA-1,T cells,T cells,T cells
+CTGAAGACGTGCAT-1,B cells,B cells,B cells
+CTGAAGTGAAGCCT-1,Mono,Mono,Mono
+CTGAAGTGCAGCTA-1,B cells,B cells,B cells
+CTGAAGTGGCTATG-1,T cells,T cells,T cells
+CTGAAGTGTCCAGA-1,T cells,T cells,T cells
+CTGAATCTGAATAG-1,T cells,T cells,T cells
+CTGACAGAATCGTG-1,T cells,T cells,T cells
+CTGACCACAGCAAA-1,T cells,T cells,T cells
+CTGAGAACCGGGAA-1,T cells,T cells,T cells
+CTGAGAACGTAAAG-1,NK,NK,NK
+CTGATACTAGTAGA-1,T cells,T cells,T cells
+CTGATTTGGTGTTG-1,Mono,Mono,Mono
+CTGCAGCTAACCGT-1,T cells,T cells,T cells
+CTGCAGCTGACACT-1,T cells,T cells,T cells
+CTGCAGCTGGATTC-1,Mono,Mono,Mono
+CTGCAGCTTGGCAT-1,T cells,T cells,T cells
+CTGCCAACAGGAGC-1,T cells,T cells,T cells
+CTGCCAACCAGCTA-1,T cells,T cells,T cells
+CTGCCAACTAACCG-1,Mono,Mono,Mono
+CTGCCAACTGCTCC-1,T cells,T cells,T cells
+CTGCCAACTTGCAG-1,T cells,T cells,T cells
+CTGCCAACTTGCTT-1,T cells,T cells,T cells
+CTGCGACTCCACCT-1,T cells,T cells,T cells
+CTGGAAACAAACGA-1,T cells,T cells,T cells
+CTGGAAACATCGAC-1,T cells,T cells,T cells
+CTGGATGACTGGAT-1,T cells,T cells,T cells
+CTGGATGACTTGTT-1,T cells,T cells,T cells
+CTGGATGATGTGAC-1,B cells,B cells,B cells
+CTGGCACTCAAGCT-1,Mono,Mono,Mono
+CTGTAACTAACCAC-1,T cells,T cells,T cells
+CTGTAACTAGCGTT-1,T cells,T cells,T cells
+CTGTATACGTAAAG-1,T cells,T cells,T cells
+CTGTATACGTACGT-1,Mono,Mono,Mono
+CTGTATACGTTGGT-1,T cells,T cells,T cells
+CTGTGAGACAACCA-1,Mono,Mono,Mono
+CTGTGAGACCTTGC-1,NK,T cells,T cells
+CTGTGAGACGAACT-1,Mono,Mono,Mono
+CTGTGAGACTGTAG-1,Mono,Mono,Mono
+CTTAAAGAACCTGA-1,T cells,T cells,T cells
+CTTAACACCTGTAG-1,T cells,T cells,T cells
+CTTAACACTATCGG-1,B cells,B cells,B cells
+CTTAAGCTACCTAG-1,T cells,T cells,T cells
+CTTAAGCTAGTACC-1,T cells,T cells,T cells
+CTTAAGCTCATCAG-1,T cells,T cells,T cells
+CTTAAGCTCCGCTT-1,B cells,B cells,B cells
+CTTACAACTAACGC-1,T cells,T cells,T cells
+CTTACAACTCCCGT-1,Mono,Mono,Mono
+CTTACTGACGTACA-1,T cells,T cells,T cells
+CTTAGACTAAACGA-1,T cells,T cells,T cells
+CTTAGGGACTTGCC-1,T cells,T cells,T cells
+CTTAGGGAGAATCC-1,T cells,T cells,T cells
+CTTATCGACTCATT-1,T cells,T cells,T cells
+CTTCACCTACCTGA-1,Mono,Mono,Mono
+CTTCATGAAGCATC-1,B cells,B cells,B cells
+CTTCATGAAGTACC-1,T cells,T cells,T cells
+CTTCATGACCGAAT-1,T cells,T cells,T cells
+CTTGAACTACGCAT-1,T cells,T cells,T cells
+CTTGATTGAGGTTC-1,T cells,T cells,T cells
+CTTGATTGATCTTC-1,Mono,Mono,Mono
+CTTGATTGCATTCT-1,T cells,T cells,T cells
+CTTGATTGTTTCGT-1,T cells,T cells,T cells
+CTTGTATGACACCA-1,B cells,B cells,B cells
+CTTGTATGCGCAAT-1,B cells,B cells,B cells
+CTTTACGAGCGAAG-1,T cells,T cells,T cells
+CTTTAGACCGTGAT-1,T cells,T cells,T cells
+CTTTAGACGAGACG-1,T cells,T cells,T cells
+CTTTAGACGATACC-1,T cells,T cells,T cells
+CTTTAGACGTTGGT-1,T cells,T cells,T cells
+CTTTAGACTCATTC-1,T cells,T cells,T cells
+CTTTAGTGACGGGA-1,NK,NK,NK
+CTTTAGTGGGTGGA-1,T cells,T cells,T cells
+CTTTCAGAGAAACA-1,T cells,T cells,T cells
+CTTTGATGAGCACT-1,T cells,T cells,T cells
+CTTTGATGTCTAGG-1,T cells,T cells,T cells
+CTTTGATGTGTCCC-1,T cells,T cells,T cells
+CTTTGATGTGTGGT-1,T cells,T cells,T cells
+GAAACAGAACTACG-1,T cells,T cells,T cells
+GAAACAGAATCACG-1,T cells,T cells,T cells
+GAAACAGACATTCT-1,T cells,T cells,T cells
+GAAACCTGATCGTG-1,T cells,T cells,T cells
+GAAACCTGATGCCA-1,T cells,T cells,T cells
+GAAACCTGCTTATC-1,T cells,T cells,T cells
+GAAACCTGGACTAC-1,Mono,Mono,Mono
+GAAACCTGTGCTAG-1,T cells,T cells,T cells
+GAAAGATGATTTCC-1,T cells,T cells,T cells
+GAAAGATGCTGATG-1,Mono,Mono,Mono
+GAAAGATGCTTCGC-1,Mono,Mono,Mono
+GAAAGATGTAAGGA-1,T cells,T cells,T cells
+GAAAGCCTACGTTG-1,B cells,B cells,B cells
+GAAAGTGAAAGTGA-1,Mono,DC,DC
+GAAAGTGACCACAA-1,Mono,Mono,Mono
+GAAAGTGACTCAAG-1,T cells,T cells,T cells
+GAAATACTACCAAC-1,Mono,Mono,Mono
+GAAATACTCTTAGG-1,B cells,B cells,B cells
+GAAATACTTCCTCG-1,T cells,T cells,T cells
+GAACACACGTGCAT-1,Mono,Mono,Mono
+GAACACACTGCCTC-1,T cells,T cells,T cells
+GAACAGCTAACTGC-1,Mono,Mono,Mono
+GAACAGCTCTCAGA-1,Mono,Mono,Mono
+GAACCAACCACAAC-1,T cells,T cells,T cells
+GAACCAACTTCCGC-1,NK,NK,NK
+GAACCTGAACGTGT-1,T cells,T cells,T cells
+GAACCTGAGAGACG-1,T cells,T cells,T cells
+GAACCTGATGAACC-1,T cells,T cells,T cells
+GAACGGGATACTTC-1,T cells,T cells,T cells
+GAACTGTGACCTGA-1,Mono,Mono,Mono
+GAACTGTGCCAGTA-1,Mono,Mono,Mono
+GAAGAATGCAATCG-1,T cells,T cells,T cells
+GAAGCGGACCTATT-1,Mono,Mono,Mono
+GAAGCTACGAATGA-1,Mono,Mono,Mono
+GAAGCTACGGTTTG-1,T cells,T cells,T cells
+GAAGGGTGAAAGTG-1,T cells,T cells,T cells
+GAAGGGTGCTTAGG-1,Mono,Mono,Mono
+GAAGGTCTGAAAGT-1,T cells,T cells,T cells
+GAAGGTCTGTTGCA-1,T cells,T cells,T cells
+GAAGGTCTTAAAGG-1,Mono,DC,DC
+GAAGTAGACTCCCA-1,T cells,T cells,T cells
+GAAGTAGATCCAAG-1,Mono,Mono,Mono
+GAAGTCACCCTCGT-1,Mono,Mono,Mono
+GAAGTCACCCTGTC-1,B cells,B cells,B cells
+GAAGTCTGTCGCAA-1,B cells,B cells,B cells
+GAAGTCTGTTCTGT-1,T cells,T cells,T cells
+GAAGTGCTAAACGA-1,NK,NK,NK
+GAAGTGCTCCGCTT-1,Mono,Mono,Mono
+GAAGTGCTTAACCG-1,T cells,T cells,T cells
+GAATGCACCCTAAG-1,T cells,T cells,T cells
+GAATGCACCTTCGC-1,NK,NK,NK
+GAATGCTGCGGTAT-1,T cells,T cells,T cells
+GAATTAACGATAAG-1,T cells,T cells,T cells
+GAATTAACGGTCAT-1,T cells,T cells,T cells
+GAATTAACGTCGTA-1,NK,NK,NK
+GAATTAACTGAAGA-1,B cells,B cells,B cells
+GACAACACAGGCGA-1,T cells,T cells,T cells
+GACAACACATCGTG-1,T cells,T cells,T cells
+GACAACACTCGCCT-1,T cells,T cells,T cells
+GACAACTGAGGTTC-1,T cells,T cells,T cells
+GACAGGGAAGAGTA-1,B cells,B cells,B cells
+GACAGGGAATGCCA-1,T cells,T cells,T cells
+GACAGTACGAGCTT-1,Mono,Mono,Mono
+GACAGTACTTCGGA-1,Mono,Mono,Mono
+GACAGTTGAGTAGA-1,B cells,B cells,B cells
+GACATTCTCCACCT-1,Mono,DC,DC
+GACCAAACGACTAC-1,Mono,Mono,Mono
+GACCAAACGTATCG-1,Mono,Mono,Mono
+GACCCTACTAAAGG-1,B cells,B cells,B cells
+GACCTAGACCTCAC-1,T cells,T cells,T cells
+GACCTAGACGAGAG-1,T cells,T cells,T cells
+GACCTCACAAGGTA-1,T cells,T cells,T cells
+GACCTCACGTACGT-1,Mono,Mono,Mono
+GACCTCTGCATCAG-1,T cells,T cells,T cells
+GACGAACTCCCACT-1,T cells,T cells,T cells
+GACGATTGCCAATG-1,B cells,B cells,B cells
+GACGCCGACCTTCG-1,T cells,T cells,T cells
+GACGCTCTCTCTCG-1,T cells,Platelet,Platelet
+GACGGCACACGGGA-1,NK,NK,NK
+GACGGCACGAGATA-1,Mono,Mono,Mono
+GACGTAACCTATGG-1,T cells,T cells,T cells
+GACGTAACCTGTGA-1,T cells,T cells,T cells
+GACGTAACTATGGC-1,T cells,T cells,T cells
+GACGTATGTTGACG-1,T cells,T cells,T cells
+GACGTATGTTTGCT-1,T cells,T cells,T cells
+GACGTCCTACGGAG-1,T cells,T cells,T cells
+GACGTCCTCTCAAG-1,Mono,Mono,Mono
+GACGTCCTGATAAG-1,B cells,B cells,B cells
+GACTACGATGGTCA-1,B cells,B cells,B cells
+GACTCCTGCTCGCT-1,T cells,T cells,T cells
+GACTCCTGGGTTAC-1,T cells,T cells,T cells
+GACTCCTGTTATCC-1,T cells,T cells,T cells
+GACTCCTGTTGGTG-1,Mono,Mono,Mono
+GACTGAACCAATCG-1,Mono,Mono,Mono
+GACTGATGTGATGC-1,T cells,T cells,T cells
+GACTTTACATGCCA-1,T cells,T cells,T cells
+GACTTTACGACAGG-1,B cells,B cells,B cells
+GAGAAATGTTCTCA-1,B cells,B cells,B cells
+GAGATAGAAAAAGC-1,Mono,Mono,Mono
+GAGATCACGACAAA-1,Mono,Mono,Mono
+GAGATGCTCTGGAT-1,NK,T cells,T cells
+GAGATGCTGAATGA-1,T cells,T cells,T cells
+GAGCAGGATTCCCG-1,T cells,T cells,T cells
+GAGCATACTTTGCT-1,Mono,T cells,T cells
+GAGCGCACGCGTAT-1,Mono,Mono,Mono
+GAGCGCACGGTGAG-1,T cells,T cells,T cells
+GAGCGCTGAAGATG-1,NK,NK,NK
+GAGCGCTGTCTTAC-1,Mono,Mono,Mono
+GAGCGGCTGGGAGT-1,B cells,B cells,B cells
+GAGGACGACTCAGA-1,T cells,T cells,T cells
+GAGGATCTGAAAGT-1,B cells,B cells,B cells
+GAGGCAGACTTGCC-1,T cells,T cells,T cells
+GAGGGAACACCAGT-1,T cells,T cells,T cells
+GAGGGAACGAGGGT-1,T cells,T cells,T cells
+GAGGGATGGGAAAT-1,T cells,T cells,T cells
+GAGGGCCTTCACCC-1,T cells,T cells,T cells
+GAGGGTGAAGAGTA-1,T cells,T cells,T cells
+GAGGTACTACGGTT-1,T cells,T cells,T cells
+GAGGTACTACTCAG-1,Mono,Mono,Mono
+GAGGTACTGACACT-1,NK,NK,NK
+GAGGTACTGGGAGT-1,T cells,T cells,T cells
+GAGGTACTTAGCGT-1,Mono,Mono,Mono
+GAGGTGGAGTACGT-1,T cells,T cells,T cells
+GAGGTGGATCCTCG-1,NK,NK,NK
+GAGGTTACTCGTTT-1,Mono,Mono,Mono
+GAGGTTTGTAAGCC-1,Mono,Mono,Mono
+GAGTCAACCATTCT-1,T cells,T cells,T cells
+GAGTCAACGGGAGT-1,T cells,T cells,T cells
+GAGTCTGATCGTGA-1,T cells,T cells,T cells
+GAGTCTGATTTGGG-1,B cells,B cells,B cells
+GAGTGACTCAGCTA-1,T cells,T cells,T cells
+GAGTGACTCGGTAT-1,NK,T cells,T cells
+GAGTGACTCTTGCC-1,B cells,B cells,B cells
+GAGTGACTGACTAC-1,B cells,B cells,B cells
+GAGTGACTGTCTAG-1,T cells,T cells,T cells
+GAGTGGGAGTCTTT-1,B cells,B cells,B cells
+GAGTGGGATGCCCT-1,T cells,T cells,T cells
+GAGTGGGATGCTGA-1,B cells,B cells,B cells
+GAGTGTTGCTGTAG-1,T cells,T cells,T cells
+GAGTGTTGTGGTCA-1,T cells,T cells,T cells
+GAGTTGTGCATGGT-1,Mono,Mono,Mono
+GAGTTGTGCTGAGT-1,T cells,T cells,T cells
+GAGTTGTGGCGAGA-1,Mono,Mono,Mono
+GAGTTGTGGTAGCT-1,T cells,Platelet,Platelet
+GAGTTGTGTATGCG-1,Mono,Mono,Mono
+GATAAGGAGAAACA-1,Mono,Mono,Mono
+GATAAGGATTCACT-1,Mono,Mono,Mono
+GATACTCTATCGGT-1,T cells,T cells,T cells
+GATACTCTTACTTC-1,T cells,T cells,T cells
+GATACTCTTGACTG-1,Mono,Mono,Mono
+GATAGAGAAGGGTG-1,T cells,NK,NK
+GATAGAGACTGTGA-1,T cells,T cells,T cells
+GATAGAGATCACGA-1,Mono,DC,DC
+GATAGCACCCATAG-1,T cells,T cells,T cells
+GATAGCACGAAGGC-1,Mono,Mono,Mono
+GATAGCACTTGTCT-1,T cells,T cells,T cells
+GATATAACAAGGTA-1,T cells,T cells,T cells
+GATATAACACGCAT-1,T cells,T cells,T cells
+GATATATGCTGGAT-1,T cells,T cells,T cells
+GATATATGTCCGTC-1,NK,T cells,T cells
+GATATATGTGGAGG-1,Mono,T cells,T cells
+GATATCCTAGAAGT-1,T cells,T cells,T cells
+GATATCCTCCCGTT-1,Mono,Mono,Mono
+GATATTGACAGGAG-1,T cells,T cells,T cells
+GATATTGACGAGTT-1,Mono,Mono,Mono
+GATATTGAGCCAAT-1,T cells,T cells,T cells
+GATCCCTGACCTTT-1,NK,NK,NK
+GATCCCTGTGTAGC-1,T cells,T cells,T cells
+GATCCGCTGGTCAT-1,Mono,Mono,Mono
+GATCGAACCGAGAG-1,T cells,T cells,T cells
+GATCGATGACTAGC-1,B cells,B cells,B cells
+GATCGATGGTAAAG-1,B cells,B cells,B cells
+GATCGATGTAAGGA-1,Mono,Mono,Mono
+GATCGTGACACTAG-1,T cells,T cells,T cells
+GATCGTGATTCACT-1,T cells,T cells,T cells
+GATCTACTGGTGAG-1,T cells,T cells,T cells
+GATCTACTTTGCAG-1,B cells,B cells,B cells
+GATCTTACACCCAA-1,Mono,Mono,Mono
+GATCTTACCCTACC-1,T cells,T cells,T cells
+GATCTTACGAATAG-1,Mono,Mono,Mono
+GATCTTACGAGATA-1,Mono,Mono,Mono
+GATGCAACTCCAGA-1,T cells,T cells,T cells
+GATGCCCTACGTAC-1,T cells,T cells,T cells
+GATGCCCTCTCATT-1,T cells,T cells,T cells
+GATGCCCTGGCAAG-1,Mono,Mono,Mono
+GATGCCCTTTTGCT-1,T cells,T cells,T cells
+GATTACCTTGTTCT-1,T cells,T cells,T cells
+GATTCGGAACGACT-1,T cells,T cells,T cells
+GATTCGGACAGGAG-1,Mono,Mono,Mono
+GATTCGGAGAAGGC-1,Mono,Mono,Mono
+GATTCTTGATTCGG-1,Mono,Mono,Mono
+GATTCTTGCCGATA-1,T cells,T cells,T cells
+GATTCTTGCGAGTT-1,B cells,B cells,B cells
+GATTGGACCCGTTC-1,B cells,B cells,B cells
+GATTGGACGGTGTT-1,B cells,B cells,B cells
+GATTGGACTTTCGT-1,B cells,B cells,B cells
+GATTGGTGTGTCAG-1,T cells,T cells,T cells
+GATTTAGACACTCC-1,Mono,Mono,Mono
+GATTTAGACTAAGC-1,B cells,B cells,B cells
+GATTTAGATTCGTT-1,Mono,Mono,Mono
+GATTTGCTAACGAA-1,T cells,T cells,T cells
+GATTTGCTAACGGG-1,Mono,Mono,Mono
+GCAACCCTCCTCGT-1,Mono,Mono,Mono
+GCAACTGATTGCGA-1,T cells,T cells,T cells
+GCAAGACTACTGGT-1,T cells,T cells,T cells
+GCAAGACTAGGTCT-1,T cells,T cells,T cells
+GCAAGACTCCCTTG-1,T cells,T cells,T cells
+GCAATCGACTGCAA-1,T cells,T cells,T cells
+GCAATCGAGACGTT-1,Mono,Mono,Mono
+GCAATCGATCCTTA-1,Mono,Mono,Mono
+GCAATTCTCGTGTA-1,T cells,T cells,T cells
+GCAATTCTTCTCCG-1,T cells,T cells,T cells
+GCACAAACAATGCC-1,NK,T cells,T cells
+GCACAAACGGTACT-1,T cells,T cells,T cells
+GCACAATGGTGCAT-1,Mono,DC,DC
+GCACACCTGTGCTA-1,NK,NK,NK
+GCACCACTCATGAC-1,Mono,Mono,Mono
+GCACCACTGTTTGG-1,Mono,Mono,Mono
+GCACCACTTCCTTA-1,NK,NK,NK
+GCACCACTTTCGGA-1,Mono,Mono,Mono
+GCACCTACGCGATT-1,T cells,T cells,T cells
+GCACCTTGGCTGTA-1,T cells,T cells,T cells
+GCACCTTGGGGAGT-1,Mono,Mono,Mono
+GCACGGACCAGCTA-1,T cells,T cells,T cells
+GCACGGTGACCTCC-1,T cells,T cells,T cells
+GCACGGTGCTATGG-1,Mono,Mono,Mono
+GCACTAGAACGGGA-1,T cells,T cells,T cells
+GCACTAGAAGATGA-1,B cells,B cells,B cells
+GCACTAGACCTTTA-1,Mono,Mono,Mono
+GCACTAGACGTAAC-1,B cells,B cells,B cells
+GCACTAGAGTCGTA-1,NK,NK,NK
+GCACTAGATGCAAC-1,T cells,T cells,T cells
+GCACTGCTGAGGCA-1,T cells,T cells,T cells
+GCAGATACAGCGTT-1,NK,T cells,T cells
+GCAGATACGACGGA-1,T cells,T cells,T cells
+GCAGATACGCAGAG-1,T cells,T cells,T cells
+GCAGCCGACAGTCA-1,T cells,T cells,T cells
+GCAGCGTGCACTCC-1,T cells,T cells,T cells
+GCAGCTCTCAATCG-1,T cells,T cells,T cells
+GCAGCTCTGTTTCT-1,T cells,T cells,T cells
+GCAGGGCTAAGAAC-1,T cells,T cells,T cells
+GCAGGGCTAAGGGC-1,T cells,T cells,T cells
+GCAGGGCTATCGAC-1,NK,NK,NK
+GCAGGGCTTGGGAG-1,T cells,T cells,T cells
+GCAGTCCTAACTGC-1,T cells,T cells,T cells
+GCAGTCCTCTCTTA-1,T cells,T cells,T cells
+GCATCAGATGCGTA-1,T cells,T cells,T cells
+GCATGTGACAAGCT-1,T cells,T cells,T cells
+GCATTGGAGAAGGC-1,T cells,T cells,T cells
+GCCAAAACGAGGCA-1,T cells,T cells,T cells
+GCCAAATGATCGAC-1,T cells,T cells,T cells
+GCCAACCTACGGTT-1,T cells,T cells,T cells
+GCCAACCTCGCCTT-1,T cells,T cells,T cells
+GCCACGGAGGCGAA-1,Mono,Mono,Mono
+GCCACGGATACTGG-1,T cells,T cells,T cells
+GCCACTACGTCTTT-1,T cells,T cells,T cells
+GCCCAACTACCGAT-1,T cells,T cells,T cells
+GCCCAACTATGGTC-1,NK,T cells,T cells
+GCCCATACAGCGTT-1,T cells,T cells,T cells
+GCCGACGAACTCTT-1,Mono,Mono,Mono
+GCCGAGTGCGTTGA-1,T cells,T cells,T cells
+GCCGGAACGAACTC-1,T cells,T cells,T cells
+GCCGGAACGTTCTT-1,NK,NK,NK
+GCCGGAACTGCACA-1,NK,T cells,T cells
+GCCGGAACTTACTC-1,T cells,T cells,T cells
+GCCGTACTACCTGA-1,T cells,T cells,T cells
+GCCGTACTGGCAAG-1,Mono,Mono,Mono
+GCCTACACAGTTCG-1,NK,NK,NK
+GCCTACACCACTGA-1,Mono,Mono,Mono
+GCCTACACCTTGAG-1,T cells,T cells,T cells
+GCCTAGCTACGGAG-1,B cells,B cells,B cells
+GCCTAGCTCTATTC-1,T cells,T cells,T cells
+GCCTAGCTTCTCAT-1,T cells,T cells,T cells
+GCCTAGCTTCTCTA-1,Mono,Mono,Mono
+GCCTCAACCATGGT-1,T cells,T cells,T cells
+GCCTCAACTCTTTG-1,T cells,T cells,T cells
+GCCTCATGTCTTAC-1,T cells,T cells,T cells
+GCCTGACTCTCAAG-1,Mono,Mono,Mono
+GCGAAGGAACTCTT-1,T cells,T cells,T cells
+GCGAAGGATGCCAA-1,T cells,T cells,T cells
+GCGAGAGAGGGACA-1,T cells,T cells,T cells
+GCGAGCACTGTCGA-1,B cells,B cells,B cells
+GCGAGCACTTGACG-1,T cells,T cells,T cells
+GCGAGCACTTGCTT-1,Mono,Mono,Mono
+GCGATATGGTACGT-1,T cells,T cells,T cells
+GCGATATGGTGTTG-1,T cells,T cells,T cells
+GCGCACGAAGTCGT-1,T cells,T cells,T cells
+GCGCACGACTTTAC-1,Mono,Mono,Mono
+GCGCATCTAGGTCT-1,T cells,T cells,T cells
+GCGCATCTGGTTAC-1,B cells,Platelet,Platelet
+GCGCATCTTCGATG-1,T cells,T cells,T cells
+GCGCATCTTGCTCC-1,NK,NK,NK
+GCGCATCTTTCTAC-1,T cells,T cells,T cells
+GCGCGAACGTTCTT-1,B cells,B cells,B cells
+GCGCGATGAACGGG-1,T cells,T cells,T cells
+GCGCGATGGTGCAT-1,NK,NK,NK
+GCGGAGCTCCTGAA-1,T cells,T cells,T cells
+GCGGCAACCCGATA-1,T cells,T cells,T cells
+GCGGCAACGGAGGT-1,B cells,B cells,B cells
+GCGGCAACTGTCGA-1,Mono,Mono,Mono
+GCGTAAACACGGTT-1,Mono,DC,DC
+GCGTAATGCACCAA-1,Mono,Mono,Mono
+GCGTATGAACACCA-1,T cells,T cells,T cells
+GCGTATGATGAGAA-1,Mono,Mono,Mono
+GCTACAGAAAGGTA-1,T cells,T cells,T cells
+GCTACAGAATCTTC-1,B cells,B cells,B cells
+GCTACCTGAGAAGT-1,Mono,Mono,Mono
+GCTACCTGATCACG-1,T cells,T cells,T cells
+GCTACGCTAGAATG-1,T cells,T cells,T cells
+GCTACGCTAGCTAC-1,T cells,T cells,T cells
+GCTACGCTCCCTAC-1,T cells,T cells,T cells
+GCTAGAACAGAGGC-1,B cells,B cells,B cells
+GCTAGAACGGATCT-1,T cells,T cells,T cells
+GCTAGAACTCCCGT-1,T cells,T cells,T cells
+GCTAGATGAGCTCA-1,Mono,Mono,Mono
+GCTAGATGGCGATT-1,T cells,T cells,T cells
+GCTATACTAAGGCG-1,T cells,T cells,T cells
+GCTATACTAGCGTT-1,T cells,T cells,T cells
+GCTATACTCTCTTA-1,T cells,T cells,T cells
+GCTATACTGGACGA-1,T cells,T cells,T cells
+GCTCAAGAACCATG-1,Mono,B cells,B cells
+GCTCAAGAAGTCAC-1,Mono,Mono,Mono
+GCTCAGCTGTCTAG-1,T cells,T cells,T cells
+GCTCCATGAGAAGT-1,T cells,T cells,T cells
+GCTCCATGCCGAAT-1,T cells,T cells,T cells
+GCTCGACTCTAGTG-1,Mono,Mono,Mono
+GCTGATGAGGTATC-1,Mono,Mono,Mono
+GCTTAACTACAGTC-1,Mono,Mono,Mono
+GCTTAACTACTGGT-1,T cells,T cells,T cells
+GCTTAACTGCTGAT-1,T cells,T cells,T cells
+GCTTAACTTAGACC-1,Mono,Mono,Mono
+GCTTAACTTCAGTG-1,T cells,T cells,T cells
+GGAACACTCACTTT-1,Mono,Mono,Mono
+GGAACACTTCAGAC-1,T cells,Platelet,Platelet
+GGAACTACTACTTC-1,T cells,T cells,T cells
+GGAACTTGAAGGTA-1,Mono,Mono,Mono
+GGAACTTGAGAATG-1,T cells,T cells,T cells
+GGAACTTGCTCCAC-1,Mono,Mono,Mono
+GGAACTTGGGTAGG-1,B cells,B cells,B cells
+GGAAGGACATCGGT-1,Mono,Mono,Mono
+GGAAGGACCACTAG-1,T cells,T cells,T cells
+GGAAGGACGAGGGT-1,T cells,T cells,T cells
+GGAAGGACGCGAAG-1,T cells,T cells,T cells
+GGAAGGTGGCGAGA-1,NK,NK,NK
+GGAATCTGAAGGGC-1,T cells,T cells,T cells
+GGAATCTGAGGAGC-1,T cells,T cells,T cells
+GGAATCTGCTTAGG-1,B cells,B cells,B cells
+GGAATCTGCTTGTT-1,Mono,Mono,Mono
+GGAATCTGGGAGGT-1,T cells,T cells,T cells
+GGAATGCTTTCTAC-1,T cells,T cells,T cells
+GGACAGGAAAGGGC-1,T cells,T cells,T cells
+GGACAGGAGTGCTA-1,B cells,B cells,B cells
+GGACAGGATCTCGC-1,T cells,T cells,T cells
+GGACCCGAAGCTAC-1,Mono,Mono,Mono
+GGACCGTGCTTACT-1,Mono,Mono,Mono
+GGACCGTGGGAACG-1,Mono,DC,DC
+GGACCGTGTAACGC-1,T cells,T cells,T cells
+GGACCTCTGTAAGA-1,Mono,Mono,Mono
+GGACCTCTTTTCTG-1,NK,T cells,T cells
+GGACGAGAGTGTCA-1,Mono,Mono,Mono
+GGACGCTGACGCAT-1,T cells,T cells,T cells
+GGACGCTGCTAGCA-1,T cells,T cells,T cells
+GGACGCTGTCCTCG-1,NK,NK,NK
+GGAGAGACGTGAGG-1,B cells,B cells,B cells
+GGAGCAGATTCAGG-1,B cells,B cells,B cells
+GGAGCCACCTTCTA-1,B cells,B cells,B cells
+GGAGCGCTACGCAT-1,Mono,Mono,Mono
+GGAGCGCTCCGAAT-1,T cells,T cells,T cells
+GGAGGATGCCACCT-1,T cells,T cells,T cells
+GGAGGATGGTTGAC-1,Mono,Mono,Mono
+GGAGGATGTCAGTG-1,Mono,Mono,Mono
+GGAGGCCTCGTTGA-1,NK,NK,NK
+GGAGGCCTTTCTTG-1,T cells,T cells,T cells
+GGAGGTGATACGCA-1,T cells,T cells,T cells
+GGAGGTGATCGCTC-1,T cells,T cells,T cells
+GGATACTGCAGCTA-1,T cells,T cells,T cells
+GGATACTGTCTAGG-1,T cells,T cells,T cells
+GGATAGCTCGTCTC-1,T cells,T cells,T cells
+GGATAGCTCTGAAC-1,NK,T cells,T cells
+GGATGTACCAAAGA-1,B cells,B cells,B cells
+GGATGTACGCGAAG-1,T cells,T cells,T cells
+GGATGTACGTCTTT-1,Mono,Mono,Mono
+GGATGTACGTGTCA-1,T cells,T cells,T cells
+GGATTTCTAGGTTC-1,T cells,T cells,T cells
+GGATTTCTTTGTCT-1,Mono,Mono,Mono
+GGCAAGGAAAAAGC-1,NK,NK,NK
+GGCAAGGAAGAAGT-1,T cells,T cells,T cells
+GGCAAGGACTTGGA-1,Mono,DC,DC
+GGCAAGGAGGACTT-1,T cells,T cells,T cells
+GGCAATACGCTAAC-1,B cells,B cells,B cells
+GGCAATACGGCATT-1,NK,T cells,T cells
+GGCAATACGTTTCT-1,B cells,B cells,B cells
+GGCACGTGGCTTAG-1,Mono,Mono,Mono
+GGCACTCTTTTGTC-1,T cells,T cells,T cells
+GGCATATGCTTATC-1,NK,NK,NK
+GGCATATGGGGAGT-1,T cells,Platelet,Platelet
+GGCATATGTGTGAC-1,T cells,T cells,T cells
+GGCCACGACAGAGG-1,T cells,T cells,T cells
+GGCCAGACTGGTTG-1,T cells,T cells,T cells
+GGCCCAGAAAGTAG-1,Mono,Mono,Mono
+GGCCGAACAACGAA-1,T cells,T cells,T cells
+GGCCGAACGCAGAG-1,T cells,T cells,T cells
+GGCCGAACGTAGGG-1,T cells,T cells,T cells
+GGCCGAACTCTAGG-1,NK,NK,NK
+GGCCGATGCAGGAG-1,T cells,T cells,T cells
+GGCCGATGCCGAAT-1,T cells,T cells,T cells
+GGCCGATGTACTCT-1,NK,T cells,T cells
+GGCGACACTGCCCT-1,T cells,T cells,T cells
+GGCGACTGCGTAAC-1,T cells,T cells,T cells
+GGCGCATGCCTAAG-1,Mono,Mono,Mono
+GGCGCATGCTCCAC-1,T cells,T cells,T cells
+GGCGCATGTGGAAA-1,T cells,T cells,T cells
+GGCGGACTAGAGGC-1,T cells,T cells,T cells
+GGCGGACTAGGAGC-1,T cells,T cells,T cells
+GGCGGACTCTGACA-1,T cells,T cells,T cells
+GGCGGACTCTTGGA-1,NK,T cells,T cells
+GGCGGACTTACTGG-1,T cells,T cells,T cells
+GGCGGACTTGAACC-1,T cells,T cells,T cells
+GGCTAAACACCTGA-1,NK,NK,NK
+GGCTAAACTCTTAC-1,T cells,T cells,T cells
+GGCTAATGAGCACT-1,NK,T cells,T cells
+GGCTAATGGTCTAG-1,T cells,T cells,T cells
+GGCTCACTACTCAG-1,Mono,Mono,Mono
+GGGAACGAAGCTCA-1,Mono,Mono,Mono
+GGGAACGACACAAC-1,B cells,B cells,B cells
+GGGAACGAGTGTCA-1,Mono,Mono,Mono
+GGGAAGTGTTGAGC-1,Mono,Mono,Mono
+GGGACCACACGTTG-1,NK,T cells,T cells
+GGGACCACAGAACA-1,T cells,T cells,T cells
+GGGACCACGAATAG-1,T cells,T cells,T cells
+GGGACCACGTCATG-1,T cells,T cells,T cells
+GGGACCACTCAAGC-1,T cells,T cells,T cells
+GGGACCACTCGTGA-1,T cells,T cells,T cells
+GGGACCACTGCATG-1,T cells,T cells,T cells
+GGGACCTGACCCTC-1,Mono,Mono,Mono
+GGGACCTGCTTGCC-1,T cells,T cells,T cells
+GGGACCTGTGGAGG-1,B cells,B cells,B cells
+GGGATGGACGACAT-1,B cells,B cells,B cells
+GGGATGGATACTTC-1,T cells,T cells,T cells
+GGGATGGATGGTTG-1,Mono,Mono,Mono
+GGGATTACGTCTAG-1,T cells,T cells,T cells
+GGGCAAGATGCATG-1,Mono,Mono,Mono
+GGGCACACGGTGAG-1,Mono,T cells,T cells
+GGGCACACGTTGCA-1,T cells,T cells,T cells
+GGGCAGCTTGGGAG-1,T cells,T cells,T cells
+GGGCAGCTTTTCTG-1,T cells,T cells,T cells
+GGGCCAACCTTGGA-1,Mono,DC,DC
+GGGCCAACGCGTTA-1,B cells,B cells,B cells
+GGGCCAACTACGCA-1,Mono,Mono,Mono
+GGGCCAACTCCAAG-1,B cells,B cells,B cells
+GGGCCATGATGGTC-1,T cells,T cells,T cells
+GGGCCATGTTGACG-1,T cells,T cells,T cells
+GGGTAACTCAGCTA-1,T cells,T cells,T cells
+GGGTAACTCTAGTG-1,B cells,B cells,B cells
+GGGTAACTCTGGAT-1,T cells,T cells,T cells
+GGGTTAACGTGCAT-1,NK,NK,NK
+GGTAAAGAGCTAAC-1,NK,NK,NK
+GGTACAACTGCAAC-1,T cells,T cells,T cells
+GGTACATGAAAGCA-1,B cells,B cells,B cells
+GGTACATGAGCTCA-1,T cells,T cells,T cells
+GGTACATGCGGTAT-1,T cells,T cells,T cells
+GGTACATGGTTACG-1,T cells,T cells,T cells
+GGTACATGTGGGAG-1,T cells,T cells,T cells
+GGTACTGAACTCTT-1,Mono,Mono,Mono
+GGTAGTACACCACA-1,T cells,T cells,T cells
+GGTAGTACACTAGC-1,Mono,Mono,Mono
+GGTAGTACCCTGTC-1,T cells,T cells,T cells
+GGTAGTACGCCATA-1,Mono,Mono,Mono
+GGTAGTACTGTCTT-1,T cells,T cells,T cells
+GGTATCGAGACAAA-1,Mono,Mono,Mono
+GGTATCGATGAACC-1,B cells,B cells,B cells
+GGTCAAACCAAAGA-1,T cells,T cells,T cells
+GGTCTAGAGAAACA-1,Mono,Mono,Mono
+GGTCTAGATAGCGT-1,Mono,Mono,Mono
+GGTGATACCGACTA-1,B cells,B cells,B cells
+GGTGATACGACTAC-1,Mono,Mono,Mono
+GGTGATACTGTTTC-1,T cells,T cells,T cells
+GGTGGAGAAACGGG-1,NK,NK,NK
+GGTGGAGAAGTAGA-1,T cells,T cells,T cells
+GGTGGAGACAGATC-1,NK,T cells,T cells
+GGTGGAGATCGATG-1,T cells,T cells,T cells
+GGTGGAGATCTCTA-1,Mono,Mono,Mono
+GGTGGAGATTACTC-1,T cells,T cells,T cells
+GGTTTACTACGCAT-1,NK,T cells,T cells
+GTAACGTGACCTCC-1,Mono,Mono,Mono
+GTAACGTGATCGGT-1,B cells,B cells,B cells
+GTAACGTGCAGCTA-1,B cells,B cells,B cells
+GTAACGTGGTTGAC-1,B cells,B cells,B cells
+GTAAGCACAACGGG-1,T cells,T cells,T cells
+GTAAGCACTCATTC-1,B cells,B cells,B cells
+GTAAGCTGGTACCA-1,Mono,Mono,Mono
+GTAATAACCTTCTA-1,Mono,Mono,Mono
+GTAATAACGTTGTG-1,T cells,T cells,T cells
+GTACCCTGACAGTC-1,Mono,Mono,Mono
+GTACCCTGGAGCTT-1,T cells,T cells,T cells
+GTACCCTGTCCTTA-1,T cells,T cells,T cells
+GTACCCTGTGAACC-1,T cells,T cells,T cells
+GTACGTGAACGTTG-1,NK,T cells,T cells
+GTACTTTGTCGACA-1,T cells,T cells,T cells
+GTAGACTGAGATGA-1,Mono,Mono,Mono
+GTAGACTGTATTCC-1,T cells,T cells,T cells
+GTAGCAACAGTCGT-1,Mono,Mono,Mono
+GTAGCAACCATTTC-1,B cells,B cells,B cells
+GTAGCAACGGTAGG-1,Mono,Mono,Mono
+GTAGCATGCACTCC-1,B cells,B cells,B cells
+GTAGCATGTAAGCC-1,Mono,Mono,Mono
+GTAGCCCTGACGTT-1,T cells,T cells,T cells
+GTAGCTGAAGCTAC-1,Mono,Mono,Mono
+GTAGCTGAATTCGG-1,T cells,T cells,T cells
+GTAGGTACACGGGA-1,Mono,Mono,Mono
+GTAGTGACCTCATT-1,T cells,T cells,T cells
+GTAGTGTGAGCGGA-1,NK,NK,NK
+GTAGTGTGAGGCGA-1,Mono,Mono,Mono
+GTAGTGTGTGGTTG-1,T cells,T cells,T cells
+GTATCACTGGTAGG-1,Mono,Mono,Mono
+GTATCTACAGAAGT-1,T cells,T cells,T cells
+GTATCTACGACGAG-1,T cells,T cells,T cells
+GTATCTACGTTACG-1,T cells,T cells,T cells
+GTATTAGAAACAGA-1,T cells,T cells,T cells
+GTATTAGAGGTCTA-1,T cells,T cells,T cells
+GTATTCACACAGCT-1,T cells,T cells,T cells
+GTATTCACGGGTGA-1,T cells,T cells,T cells
+GTCAACGACACTGA-1,T cells,T cells,T cells
+GTCAACGAGTGTAC-1,Mono,Mono,Mono
+GTCAATCTACACCA-1,NK,T cells,T cells
+GTCAATCTGTAGCT-1,T cells,T cells,T cells
+GTCAATCTTGTGGT-1,T cells,T cells,T cells
+GTCACCTGCCTCCA-1,T cells,T cells,T cells
+GTCACCTGTCCCGT-1,T cells,T cells,T cells
+GTCATACTAATCGC-1,B cells,B cells,B cells
+GTCATACTGCGATT-1,T cells,T cells,T cells
+GTCATACTTCGCCT-1,T cells,Platelet,Platelet
+GTCATACTTTACCT-1,T cells,T cells,T cells
+GTCATACTTTGACG-1,T cells,T cells,T cells
+GTCCAAGAAAAACG-1,T cells,T cells,T cells
+GTCCACTGACCTCC-1,T cells,T cells,T cells
+GTCCACTGGGTACT-1,Mono,Mono,Mono
+GTCCAGCTACGGGA-1,T cells,T cells,T cells
+GTCCCATGTGGTGT-1,Mono,Mono,Mono
+GTCGAATGAAGGCG-1,Mono,Mono,Mono
+GTCGACCTGAATGA-1,NK,NK,NK
+GTCGACCTGTTCAG-1,T cells,T cells,T cells
+GTCGCACTTGAGAA-1,B cells,B cells,B cells
+GTCTAACTGGTCTA-1,Mono,Mono,Mono
+GTCTAGGAGCTTCC-1,Mono,Mono,Mono
+GTGAACACACTCTT-1,T cells,T cells,T cells
+GTGAACACTCAGGT-1,T cells,T cells,T cells
+GTGACCCTTAAGCC-1,T cells,T cells,T cells
+GTGATGACAAGTGA-1,T cells,T cells,T cells
+GTGATGACCTGAGT-1,B cells,B cells,B cells
+GTGATGACGGTTTG-1,T cells,T cells,T cells
+GTGATTCTCATTTC-1,T cells,T cells,T cells
+GTGATTCTCTCTCG-1,Mono,Mono,Mono
+GTGATTCTGGTTCA-1,NK,NK,NK
+GTGATTCTGTCGAT-1,T cells,T cells,T cells
+GTGATTCTTAGCGT-1,B cells,B cells,B cells
+GTGCCACTCAGGAG-1,T cells,T cells,T cells
+GTGGATTGCACTAG-1,Mono,Mono,Mono
+GTGGATTGCGGAGA-1,T cells,T cells,T cells
+GTGGATTGTAACGC-1,T cells,T cells,T cells
+GTGTACGATCAGTG-1,T cells,T cells,T cells
+GTGTAGTGGGTACT-1,T cells,T cells,T cells
+GTGTATCTAGCCTA-1,B cells,B cells,B cells
+GTGTATCTAGTAGA-1,T cells,T cells,T cells
+GTGTATCTGTTACG-1,B cells,B cells,B cells
+GTGTCAGAAGCGTT-1,NK,T cells,T cells
+GTTAAAACCGAGAG-1,NK,NK,NK
+GTTAAATGCTCGAA-1,T cells,T cells,T cells
+GTTAAATGTCGACA-1,B cells,B cells,B cells
+GTTAACCTAGCTAC-1,T cells,T cells,T cells
+GTTAACCTTGCTTT-1,Mono,DC,DC
+GTTAGGTGCACTCC-1,T cells,T cells,T cells
+GTTAGGTGCCAGTA-1,Mono,Mono,Mono
+GTTAGGTGCCCAAA-1,Mono,Mono,Mono
+GTTAGGTGGAACTC-1,B cells,B cells,B cells
+GTTAGTCTAAGAAC-1,T cells,T cells,T cells
+GTTATAGAGGACAG-1,T cells,T cells,T cells
+GTTATGCTTTCATC-1,T cells,T cells,T cells
+GTTCAACTGGGACA-1,NK,NK,NK
+GTTCAACTTATGCG-1,T cells,T cells,T cells
+GTTGACGAGCCCTT-1,NK,NK,NK
+GTTGACGATATCGG-1,NK,NK,NK
+GTTGAGTGGTCTTT-1,Mono,Mono,Mono
+GTTGAGTGTGCTTT-1,T cells,T cells,T cells
+GTTGATCTGGGACA-1,T cells,T cells,T cells
+GTTGATCTTTTCAC-1,T cells,T cells,T cells
+GTTGGATGTTTACC-1,Mono,Mono,Mono
+GTTGTACTATTCCT-1,Mono,Mono,Mono
+GTTGTACTTTTGGG-1,T cells,T cells,T cells
+GTTTAAGACCATGA-1,Mono,Mono,Mono
+GTTTAAGACTGTCC-1,T cells,T cells,T cells
+TAAACAACCAACCA-1,T cells,T cells,T cells
+TAAACAACGAATCC-1,B cells,B cells,B cells
+TAAAGACTCAGGAG-1,T cells,T cells,T cells
+TAAATCGATGAGGG-1,T cells,T cells,T cells
+TAACAATGTGCCCT-1,B cells,B cells,B cells
+TAACACCTTCGCTC-1,Mono,Mono,Mono
+TAACACCTTCGTAG-1,Mono,Mono,Mono
+TAACACCTTGTTTC-1,T cells,Platelet,Platelet
+TAACATGACACTAG-1,B cells,B cells,B cells
+TAACCGGACTTACT-1,T cells,T cells,T cells
+TAACGTCTCAACCA-1,Mono,Mono,Mono
+TAACGTCTCATTGG-1,T cells,T cells,T cells
+TAACTAGAATTTCC-1,T cells,T cells,T cells
+TAACTAGACTTAGG-1,T cells,T cells,T cells
+TAACTAGATCTGGA-1,T cells,T cells,T cells
+TAACTCACGAGGAC-1,Mono,Mono,Mono
+TAACTCACGTACAC-1,B cells,B cells,B cells
+TAACTCACGTATCG-1,Mono,Mono,Mono
+TAACTCACTCTACT-1,NK,NK,NK
+TAAGAACTGTGTCA-1,Mono,Mono,Mono
+TAAGAGGACTAAGC-1,B cells,B cells,B cells
+TAAGAGGACTTGTT-1,NK,NK,NK
+TAAGATACGGTTCA-1,Mono,Mono,Mono
+TAAGATTGCGTAGT-1,T cells,T cells,T cells
+TAAGATTGTTGCTT-1,T cells,T cells,T cells
+TAAGCGTGAGGTTC-1,Mono,Mono,Mono
+TAAGCGTGGACAAA-1,Mono,Mono,Mono
+TAAGCGTGGGAAAT-1,T cells,T cells,T cells
+TAAGCGTGTGCTCC-1,Mono,Mono,Mono
+TAAGGCTGCCATGA-1,T cells,T cells,T cells
+TAAGGCTGCTGCTC-1,T cells,T cells,T cells
+TAAGGCTGTCTCGC-1,Mono,Mono,Mono
+TAAGGGCTGCTGTA-1,T cells,T cells,T cells
+TAAGGGCTTTACTC-1,T cells,T cells,T cells
+TAAGTAACCGAGAG-1,B cells,B cells,B cells
+TAAGTAACCTCCAC-1,B cells,B cells,B cells
+TAAGTAACCTGTAG-1,T cells,T cells,T cells
+TAAGTAACTTGTCT-1,T cells,T cells,T cells
+TAATGATGAGCGGA-1,T cells,T cells,T cells
+TAATGCCTCATGAC-1,T cells,T cells,T cells
+TAATGCCTCGTCTC-1,NK,NK,NK
+TAATGTGAAGATGA-1,T cells,T cells,T cells
+TAATGTGACTGCAA-1,Mono,Mono,Mono
+TAATGTGATTACTC-1,T cells,T cells,T cells
+TACAAATGGGTACT-1,T cells,T cells,T cells
+TACAATGAAAACAG-1,Mono,Mono,Mono
+TACAATGACTTAGG-1,T cells,T cells,T cells
+TACAATGATGCTAG-1,T cells,T cells,T cells
+TACACACTCACACA-1,T cells,T cells,T cells
+TACACACTCTTACT-1,T cells,T cells,T cells
+TACATAGAACGCAT-1,NK,T cells,T cells
+TACATCACACGGGA-1,T cells,T cells,T cells
+TACATCACCTGTTT-1,Mono,Mono,Mono
+TACATCACGCTAAC-1,B cells,B cells,B cells
+TACATCACTGAACC-1,Mono,Mono,Mono
+TACCATTGAGGTTC-1,T cells,T cells,T cells
+TACCATTGCGGGAA-1,Mono,Mono,Mono
+TACCATTGGGGATG-1,Mono,Mono,Mono
+TACCATTGTGAGGG-1,Mono,Mono,Mono
+TACCGGCTGTTGGT-1,T cells,T cells,T cells
+TACGAGTGATCTCT-1,T cells,T cells,T cells
+TACGAGTGATGCTG-1,Mono,Mono,Mono
+TACGAGTGCGGAGA-1,T cells,T cells,T cells
+TACGAGTGGTTGGT-1,T cells,T cells,T cells
+TACGATCTAGTGTC-1,T cells,T cells,T cells
+TACGATCTCACTGA-1,Mono,Mono,Mono
+TACGATCTTACGAC-1,T cells,T cells,T cells
+TACGCAGAGAATCC-1,NK,T cells,T cells
+TACGCCACATTCCT-1,T cells,T cells,T cells
+TACGCCACTCCCAC-1,Mono,Mono,Mono
+TACGCCACTCCGAA-1,B cells,B cells,B cells
+TACGGAACGCGTTA-1,B cells,B cells,B cells
+TACGGCCTGGGACA-1,NK,NK,NK
+TACGTACTACGGAG-1,T cells,T cells,T cells
+TACGTACTCAGTTG-1,T cells,T cells,T cells
+TACGTACTCCCGTT-1,B cells,B cells,B cells
+TACGTTACAGAAGT-1,T cells,T cells,T cells
+TACGTTACCAAGCT-1,Mono,Mono,Mono
+TACTAAGAAAGGTA-1,B cells,B cells,B cells
+TACTAAGAATCACG-1,T cells,T cells,T cells
+TACTAAGATGATGC-1,Mono,Mono,Mono
+TACTAAGATTGCGA-1,T cells,T cells,T cells
+TACTACACGAGAGC-1,T cells,T cells,T cells
+TACTACACTTACCT-1,B cells,T cells,T cells
+TACTACTGAACCTG-1,Mono,Mono,Mono
+TACTACTGATGTCG-1,T cells,T cells,T cells
+TACTACTGATTCTC-1,T cells,T cells,T cells
+TACTACTGTATGGC-1,T cells,T cells,T cells
+TACTCAACGGTCTA-1,Mono,Mono,Mono
+TACTCAACTGCTAG-1,B cells,B cells,B cells
+TACTCCCTCAGTTG-1,T cells,T cells,T cells
+TACTCTGAATCGAC-1,NK,NK,NK
+TACTCTGACGAGTT-1,T cells,T cells,T cells
+TACTCTGATTGACG-1,B cells,B cells,B cells
+TACTGGGATCGATG-1,T cells,T cells,T cells
+TACTGTTGAAAGCA-1,T cells,T cells,T cells
+TACTGTTGAGGCGA-1,NK,NK,NK
+TACTGTTGCTGAAC-1,B cells,B cells,B cells
+TACTTGACTCCTCG-1,T cells,T cells,T cells
+TACTTGACTGGTGT-1,B cells,B cells,B cells
+TACTTTCTTTTGGG-1,T cells,T cells,T cells
+TAGAAACTAATCGC-1,T cells,T cells,T cells
+TAGAAACTGCTTCC-1,Mono,Mono,Mono
+TAGAAACTGGGATG-1,T cells,T cells,T cells
+TAGAATTGCGACAT-1,T cells,T cells,T cells
+TAGAATTGTATCGG-1,T cells,T cells,T cells
+TAGACGTGCTTGAG-1,T cells,T cells,T cells
+TAGACGTGTCGCTC-1,T cells,T cells,T cells
+TAGAGCACCTTACT-1,B cells,B cells,B cells
+TAGATTGACTTGTT-1,B cells,B cells,B cells
+TAGATTGAGGCATT-1,NK,T cells,T cells
+TAGCATCTCAGCTA-1,NK,NK,NK
+TAGCATCTCCCTCA-1,T cells,T cells,T cells
+TAGCATCTGCTGTA-1,Mono,Mono,Mono
+TAGCATCTGGGACA-1,T cells,T cells,T cells
+TAGCATCTTGTCGA-1,T cells,T cells,T cells
+TAGCCCACAAAAGC-1,T cells,T cells,T cells
+TAGCCCACAGCCAT-1,T cells,T cells,T cells
+TAGCCCACAGCTAC-1,NK,NK,NK
+TAGCCCACCCACAA-1,T cells,T cells,T cells
+TAGCCCTGCGGAGA-1,T cells,T cells,T cells
+TAGCCGCTTACGAC-1,T cells,T cells,T cells
+TAGCCGCTTACTTC-1,T cells,T cells,T cells
+TAGCCGCTTTCCAT-1,Mono,Mono,Mono
+TAGCTACTGAATAG-1,B cells,B cells,B cells
+TAGCTACTGTAGCT-1,T cells,T cells,T cells
+TAGCTACTTTTGCT-1,T cells,T cells,T cells
+TAGGACTGTGCTGA-1,T cells,T cells,T cells
+TAGGAGCTAAGGCG-1,B cells,B cells,B cells
+TAGGAGCTGAGGGT-1,T cells,T cells,T cells
+TAGGAGCTTGCATG-1,B cells,B cells,B cells
+TAGGCAACCGTCTC-1,B cells,B cells,B cells
+TAGGCATGCTCTCG-1,T cells,DC,DC
+TAGGCATGGCGAGA-1,NK,T cells,T cells
+TAGGCTGATGCCTC-1,Mono,Mono,Mono
+TAGGGACTGAACTC-1,T cells,T cells,T cells
+TAGGTCGACACTGA-1,T cells,T cells,T cells
+TAGGTCGAGGATCT-1,B cells,B cells,B cells
+TAGGTGACACACTG-1,T cells,T cells,T cells
+TAGGTGACACGTTG-1,B cells,B cells,B cells
+TAGGTGTGTTCTGT-1,T cells,T cells,T cells
+TAGGTTCTGAAGGC-1,T cells,T cells,T cells
+TAGGTTCTTCTTAC-1,Mono,Mono,Mono
+TAGGTTCTTGCTGA-1,Mono,Mono,Mono
+TAGTAAACCTCGCT-1,T cells,T cells,T cells
+TAGTAAACGTCACA-1,T cells,T cells,T cells
+TAGTAATGAGATCC-1,T cells,T cells,T cells
+TAGTACCTAAGAAC-1,Mono,Mono,Mono
+TAGTATGATCTTAC-1,B cells,B cells,B cells
+TAGTATGATTCTCA-1,T cells,T cells,T cells
+TAGTCTTGGCTGTA-1,T cells,T cells,T cells
+TAGTCTTGGGACTT-1,NK,T cells,T cells
+TAGTCTTGTGGAAA-1,NK,T cells,T cells
+TAGTGGTGAAGTGA-1,NK,NK,NK
+TAGTTAGAACCACA-1,NK,NK,NK
+TAGTTAGATGAACC-1,T cells,T cells,T cells
+TATAAGACAACAGA-1,T cells,T cells,T cells
+TATAAGACAGCTCA-1,Mono,Mono,Mono
+TATAAGTGACACCA-1,Mono,Mono,Mono
+TATAAGTGTATCGG-1,Mono,Mono,Mono
+TATAAGTGTGGTGT-1,Mono,Mono,Mono
+TATACAGAACCCTC-1,NK,T cells,T cells
+TATACAGAAGAACA-1,T cells,T cells,T cells
+TATACAGATCCAGA-1,T cells,T cells,T cells
+TATACCACCTGATG-1,B cells,B cells,B cells
+TATACGCTACCAAC-1,T cells,T cells,T cells
+TATAGATGGACGGA-1,T cells,T cells,T cells
+TATAGATGTTCCGC-1,Mono,Mono,Mono
+TATCCAACCAGCTA-1,Mono,Mono,Mono
+TATCCAACTCTCTA-1,T cells,T cells,T cells
+TATCGACTACTAGC-1,NK,NK,NK
+TATCGACTCGATAC-1,Mono,Mono,Mono
+TATCGTACAGATGA-1,NK,T cells,T cells
+TATCGTACATTCCT-1,Mono,Mono,Mono
+TATCTCGAGAGATA-1,T cells,T cells,T cells
+TATCTGACAGGTTC-1,NK,T cells,T cells
+TATCTGACTGTTTC-1,T cells,T cells,T cells
+TATCTTCTAAACAG-1,T cells,T cells,T cells
+TATGAATGGAGGAC-1,T cells,NK,NK
+TATGAATGTTTGCT-1,Mono,Mono,Mono
+TATGCGGATAACCG-1,T cells,T cells,T cells
+TATGGGTGCATCAG-1,NK,NK,NK
+TATGGGTGCTAGCA-1,B cells,B cells,B cells
+TATGGTCTCTACCC-1,T cells,T cells,T cells
+TATGTCACGGAACG-1,B cells,B cells,B cells
+TATGTCACTAACCG-1,Mono,Mono,Mono
+TATGTCACTTCTCA-1,B cells,B cells,B cells
+TATGTGCTCCGATA-1,Mono,Mono,Mono
+TATGTGCTGGATTC-1,T cells,T cells,T cells
+TATTGCTGAAGAAC-1,Mono,Mono,Mono
+TATTGCTGCCGTTC-1,B cells,T cells,T cells
+TATTGCTGTCTGGA-1,T cells,T cells,T cells
+TATTGCTGTGCACA-1,NK,T cells,T cells
+TATTTCCTATTGGC-1,Mono,Mono,Mono
+TATTTCCTGGAGGT-1,T cells,NK,NK
+TATTTCCTGGTGTT-1,T cells,T cells,T cells
+TCAACACTGTTTGG-1,NK,NK,NK
+TCAAGGACAGCGTT-1,T cells,T cells,T cells
+TCAAGGACATTCTC-1,NK,T cells,T cells
+TCAAGGACGGTGTT-1,Mono,Mono,Mono
+TCAATCACACTCTT-1,NK,T cells,T cells
+TCAATCACAGTCGT-1,Mono,Mono,Mono
+TCACAACTATGTGC-1,T cells,T cells,T cells
+TCACAACTTTGCTT-1,Mono,Mono,Mono
+TCACATACACTTTC-1,T cells,T cells,T cells
+TCACATACAGGGTG-1,T cells,T cells,T cells
+TCACCCGAGACGGA-1,Mono,Mono,Mono
+TCACCGTGCTCGCT-1,Mono,Mono,Mono
+TCACCTCTACGACT-1,T cells,T cells,T cells
+TCACCTCTTCCAAG-1,Mono,Mono,Mono
+TCACGAGAGGAGGT-1,B cells,B cells,B cells
+TCACTATGGGGCAA-1,NK,T cells,T cells
+TCACTATGGTTGTG-1,B cells,B cells,B cells
+TCAGACGACGCTAA-1,T cells,T cells,T cells
+TCAGACGACGTTAG-1,NK,NK,NK
+TCAGAGACTCCAGA-1,T cells,T cells,T cells
+TCAGCAGACTCCAC-1,T cells,T cells,T cells
+TCAGCGCTCTAGTG-1,T cells,T cells,T cells
+TCAGCGCTGGATCT-1,B cells,B cells,B cells
+TCAGCGCTGGTATC-1,T cells,T cells,T cells
+TCAGGATGAAGTAG-1,T cells,T cells,T cells
+TCAGGATGCCTTTA-1,Mono,Mono,Mono
+TCAGTGGAAGATCC-1,NK,NK,NK
+TCAGTTACCTACGA-1,Mono,Mono,Mono
+TCAGTTACTAGAAG-1,T cells,T cells,T cells
+TCATCAACCCGATA-1,T cells,T cells,T cells
+TCATCAACTGTTCT-1,Mono,Mono,Mono
+TCATCATGCAGTTG-1,T cells,T cells,T cells
+TCATCCCTTACTGG-1,T cells,T cells,T cells
+TCATTCGATACAGC-1,Mono,Mono,Mono
+TCCACGTGGAAACA-1,T cells,T cells,T cells
+TCCACTCTACACTG-1,T cells,T cells,T cells
+TCCACTCTGAGCTT-1,Mono,Mono,Mono
+TCCACTCTTACTTC-1,B cells,B cells,B cells
+TCCATAACAAAGTG-1,T cells,T cells,T cells
+TCCATAACCGTAGT-1,B cells,B cells,B cells
+TCCATAACGATGAA-1,T cells,T cells,T cells
+TCCATAACTACGCA-1,T cells,T cells,T cells
+TCCATCCTCCCTAC-1,T cells,T cells,T cells
+TCCCACGATCATTC-1,T cells,T cells,T cells
+TCCCATCTCAAAGA-1,Mono,Mono,Mono
+TCCCGAACACAGTC-1,NK,NK,NK
+TCCCGAACTTCGCC-1,Mono,Mono,Mono
+TCCCGATGAGATCC-1,T cells,T cells,T cells
+TCCCGATGCCTGAA-1,Mono,Mono,Mono
+TCCCTACTCAACTG-1,B cells,B cells,B cells
+TCCGAAGACAATCG-1,Mono,Mono,Mono
+TCCGAAGACGTTAG-1,T cells,T cells,T cells
+TCCGGACTGAGGTG-1,T cells,T cells,T cells
+TCCGGACTGTACGT-1,NK,T cells,T cells
+TCCTAAACATCGAC-1,NK,T cells,T cells
+TCCTAAACCGAGAG-1,T cells,T cells,T cells
+TCCTAAACCGCATA-1,NK,NK,NK
+TCCTAATGGTTTGG-1,T cells,T cells,T cells
+TCCTACCTGTCGTA-1,T cells,T cells,T cells
+TCCTATGAAAAGCA-1,T cells,T cells,T cells
+TCGAATCTCTGGTA-1,NK,T cells,T cells
+TCGACCTGCCGATA-1,Mono,Mono,Mono
+TCGACGCTTCTATC-1,Mono,Mono,Mono
+TCGACGCTTTGACG-1,T cells,T cells,T cells
+TCGAGAACGACAGG-1,T cells,T cells,T cells
+TCGAGAACGTTAGC-1,T cells,T cells,T cells
+TCGAGCCTATCAGC-1,B cells,B cells,B cells
+TCGAGCCTGCGAGA-1,T cells,T cells,T cells
+TCGAGCCTTGTGAC-1,T cells,T cells,T cells
+TCGATACTATTCCT-1,T cells,T cells,T cells
+TCGATACTTGCACA-1,T cells,T cells,T cells
+TCGATTTGATGCCA-1,Mono,Mono,Mono
+TCGATTTGCACTCC-1,T cells,T cells,T cells
+TCGATTTGCAGCTA-1,NK,NK,NK
+TCGATTTGCCTACC-1,Mono,Mono,Mono
+TCGATTTGTCGTGA-1,B cells,B cells,B cells
+TCGCAGCTAGATCC-1,T cells,T cells,T cells
+TCGCCATGAGACTC-1,T cells,T cells,T cells
+TCGCCATGTGGTCA-1,B cells,B cells,B cells
+TCGGACCTAACAGA-1,T cells,T cells,T cells
+TCGGACCTATAAGG-1,B cells,B cells,B cells
+TCGGACCTGTACAC-1,T cells,T cells,T cells
+TCGGTAGAGTAGGG-1,T cells,T cells,T cells
+TCGGTAGATCCCAC-1,B cells,B cells,B cells
+TCGTAGGATCGACA-1,T cells,T cells,T cells
+TCGTTATGGACAAA-1,T cells,T cells,T cells
+TCTAACACCAGTTG-1,NK,NK,NK
+TCTAACACGAGCAG-1,Mono,DC,DC
+TCTAACTGAACCAC-1,T cells,T cells,T cells
+TCTAAGCTAATGCC-1,T cells,T cells,T cells
+TCTAAGCTTAGTCG-1,NK,T cells,T cells
+TCTAAGCTTCTAGG-1,Mono,Mono,Mono
+TCTAAGCTTGTTCT-1,Mono,Mono,Mono
+TCTAAGCTTTCGCC-1,B cells,B cells,B cells
+TCTACAACGACTAC-1,Mono,Mono,Mono
+TCTAGACTTAGAAG-1,Mono,Mono,Mono
+TCTAGTTGCACCAA-1,Mono,Mono,Mono
+TCTATGTGAAGAGT-1,Mono,Mono,Mono
+TCTATGTGAGTCTG-1,T cells,T cells,T cells
+TCTCAAACCTAAGC-1,B cells,B cells,B cells
+TCTCTAGAATTTCC-1,T cells,T cells,T cells
+TCTGATACACGTGT-1,T cells,T cells,T cells
+TCTGATACTCGCCT-1,T cells,T cells,T cells
+TCTTACGAACCTGA-1,Mono,Mono,Mono
+TCTTCAGAGCTACA-1,Mono,Mono,Mono
+TCTTGATGCGGAGA-1,T cells,T cells,T cells
+TGAAATTGGTGAGG-1,Mono,Mono,Mono
+TGAACCGAAAACGA-1,T cells,T cells,T cells
+TGAACCGACTACTT-1,Mono,Mono,Mono
+TGAACCGATTCGGA-1,Mono,Mono,Mono
+TGAAGCACTCACGA-1,T cells,T cells,T cells
+TGAAGCTGAACGAA-1,T cells,T cells,T cells
+TGAAGCTGCATGGT-1,B cells,B cells,B cells
+TGAAGCTGCGTAAC-1,T cells,T cells,T cells
+TGAATAACCACTTT-1,T cells,T cells,T cells
+TGAATAACTCCCAC-1,NK,T cells,T cells
+TGACACGACCTTAT-1,B cells,B cells,B cells
+TGACCAGACAACCA-1,T cells,T cells,T cells
+TGACCAGAGGATTC-1,T cells,T cells,T cells
+TGACCGCTAAAAGC-1,T cells,T cells,T cells
+TGACCGCTCTGCAA-1,T cells,T cells,T cells
+TGACGATGCAAAGA-1,Mono,Mono,Mono
+TGACGCCTGTACCA-1,T cells,T cells,T cells
+TGACGCCTTTACTC-1,T cells,T cells,T cells
+TGACTGGAAGAGAT-1,Mono,Mono,Mono
+TGACTGGACCGTAA-1,T cells,T cells,T cells
+TGACTGGACGCAAT-1,T cells,T cells,T cells
+TGACTGGAGGACAG-1,B cells,B cells,B cells
+TGACTGGATTCTCA-1,T cells,T cells,T cells
+TGACTTACACACCA-1,T cells,T cells,T cells
+TGACTTACAGTCTG-1,Mono,Mono,Mono
+TGACTTTGCGCATA-1,T cells,T cells,T cells
+TGACTTTGTTTGTC-1,T cells,T cells,T cells
+TGAGACACAAGGTA-1,T cells,T cells,T cells
+TGAGACACTCAAGC-1,NK,T cells,T cells
+TGAGCTGAATGCTG-1,Mono,Mono,Mono
+TGAGCTGACTGGAT-1,Mono,Mono,Mono
+TGAGCTGATGCTAG-1,Mono,Mono,Mono
+TGAGGACTCTCATT-1,Mono,Mono,Mono
+TGAGGACTTCATTC-1,T cells,T cells,T cells
+TGAGGTACGAACCT-1,Mono,Mono,Mono
+TGAGTCGAGTTACG-1,B cells,B cells,B cells
+TGAGTGACTGAGCT-1,T cells,T cells,T cells
+TGATAAACGAATCC-1,T cells,T cells,T cells
+TGATAAACTCCGTC-1,NK,NK,NK
+TGATAAACTTTCAC-1,T cells,T cells,T cells
+TGATACCTCACTAG-1,Mono,Mono,Mono
+TGATACCTGTTGGT-1,T cells,T cells,T cells
+TGATACCTTATGCG-1,T cells,T cells,T cells
+TGATACCTTGAAGA-1,T cells,T cells,T cells
+TGATATGAACCTTT-1,T cells,T cells,T cells
+TGATCACTAGCATC-1,T cells,T cells,T cells
+TGATCACTCTCGCT-1,T cells,T cells,T cells
+TGATCACTTCTACT-1,B cells,B cells,B cells
+TGATCGGACTGACA-1,Mono,Mono,Mono
+TGATCGGAGGAGCA-1,B cells,B cells,B cells
+TGATCGGATATGCG-1,Mono,Mono,Mono
+TGATTAGACATTGG-1,T cells,T cells,T cells
+TGATTAGATGACTG-1,B cells,B cells,B cells
+TGATTAGATGCTAG-1,T cells,T cells,T cells
+TGATTCACTATGCG-1,T cells,T cells,T cells
+TGATTCACTGTCAG-1,B cells,B cells,B cells
+TGATTCTGCCGAAT-1,T cells,T cells,T cells
+TGATTCTGCTCTTA-1,T cells,T cells,T cells
+TGCAAGTGAGAACA-1,T cells,T cells,T cells
+TGCAAGTGGGTAGG-1,Mono,Mono,Mono
+TGCAATCTTCAGGT-1,Mono,B cells,B cells
+TGCACAGACGACAT-1,NK,NK,NK
+TGCCAAGAGCAGTT-1,Mono,Mono,Mono
+TGCCAAGATCTCTA-1,T cells,T cells,T cells
+TGCCACTGAACGTC-1,T cells,T cells,T cells
+TGCCACTGCGATAC-1,NK,NK,NK
+TGCCAGCTTGGCAT-1,T cells,T cells,T cells
+TGCCCAACAGCAAA-1,T cells,T cells,T cells
+TGCCCAACCGCATA-1,Mono,Mono,Mono
+TGCCGACTCTCCCA-1,B cells,B cells,B cells
+TGCGAAACAGTCAC-1,B cells,B cells,B cells
+TGCGAAACGTTGCA-1,B cells,B cells,B cells
+TGCGATGAACGGTT-1,T cells,T cells,T cells
+TGCGATGACCTCGT-1,T cells,T cells,T cells
+TGCGATGACTAGTG-1,B cells,B cells,B cells
+TGCGATGACTGCTC-1,B cells,B cells,B cells
+TGCGATGACTTGCC-1,B cells,B cells,B cells
+TGCGATGAGTGCTA-1,Mono,Mono,Mono
+TGCGCACTCTTGAG-1,Mono,Mono,Mono
+TGCGTAGAATAAGG-1,Mono,Mono,Mono
+TGCGTAGACGGGAA-1,B cells,B cells,B cells
+TGCGTAGATGGTCA-1,Mono,Mono,Mono
+TGCTAGGAAACCGT-1,T cells,T cells,T cells
+TGCTAGGATAGTCG-1,T cells,T cells,T cells
+TGCTATACGGTTCA-1,Mono,Mono,Mono
+TGCTATACTGCTGA-1,NK,T cells,T cells
+TGCTGAGAGAGCAG-1,NK,NK,NK
+TGCTGAGATTATCC-1,T cells,T cells,T cells
+TGGAAAGACTCTCG-1,B cells,B cells,B cells
+TGGAAAGAGCGATT-1,T cells,T cells,T cells
+TGGAAAGAGGTCAT-1,Mono,Mono,Mono
+TGGAAAGATATGGC-1,T cells,T cells,T cells
+TGGAACACAAACAG-1,NK,NK,NK
+TGGAACACGCTAAC-1,T cells,T cells,T cells
+TGGAAGCTCAGATC-1,T cells,T cells,T cells
+TGGACCCTACACTG-1,Mono,Mono,Mono
+TGGACCCTCATGGT-1,T cells,T cells,T cells
+TGGACCCTGGTACT-1,Mono,Mono,Mono
+TGGACTGAGTATGC-1,T cells,T cells,T cells
+TGGAGACTATCAGC-1,Mono,Mono,Mono
+TGGAGACTTCAAGC-1,T cells,T cells,T cells
+TGGAGACTTGACCA-1,T cells,T cells,T cells
+TGGAGGGACGGAGA-1,Mono,Mono,Mono
+TGGAGGGAGCTATG-1,T cells,T cells,T cells
+TGGATCGATAAAGG-1,T cells,T cells,T cells
+TGGATGTGACCTAG-1,B cells,B cells,B cells
+TGGATGTGTGAAGA-1,B cells,B cells,B cells
+TGGATTCTCATACG-1,T cells,T cells,T cells
+TGGCAATGCTTGTT-1,B cells,B cells,B cells
+TGGCACCTTCACGA-1,T cells,T cells,T cells
+TGGCACCTTCAGTG-1,Mono,Mono,Mono
+TGGGTATGAAGAGT-1,T cells,T cells,T cells
+TGGGTATGCACAAC-1,T cells,T cells,T cells
+TGGGTATGGTACGT-1,B cells,B cells,B cells
+TGGGTATGTTTGGG-1,Mono,Mono,Mono
+TGGTAGACATGCCA-1,T cells,T cells,T cells
+TGGTAGACCCTCAC-1,NK,NK,NK
+TGGTAGACCTGATG-1,T cells,T cells,T cells
+TGGTAGTGCACTGA-1,Mono,Mono,Mono
+TGGTATCTAAACAG-1,T cells,T cells,T cells
+TGGTATCTCTTCCG-1,T cells,T cells,T cells
+TGGTCAGACCCAAA-1,B cells,T cells,T cells
+TGGTTACTGACGTT-1,Mono,Mono,Mono
+TGGTTACTGTTCTT-1,T cells,T cells,T cells
+TGTAACCTAGAGGC-1,T cells,T cells,T cells
+TGTAACCTTGCCTC-1,Mono,Mono,Mono
+TGTAATGACACAAC-1,NK,NK,NK
+TGTAATGAGGTAAA-1,NK,NK,NK
+TGTACTTGCTCTAT-1,Mono,Mono,Mono
+TGTAGGTGCGAGAG-1,B cells,B cells,B cells
+TGTAGGTGCTATGG-1,T cells,T cells,T cells
+TGTAGGTGCTCTAT-1,Mono,DC,DC
+TGTAGGTGTGCTGA-1,T cells,T cells,T cells
+TGTAGTCTTCCAGA-1,B cells,T cells,T cells
+TGTAGTCTTGCACA-1,T cells,T cells,T cells
+TGTATCTGTTAGGC-1,T cells,T cells,T cells
+TGTATGCTCATGGT-1,B cells,B cells,B cells
+TGTATGCTGTAGGG-1,T cells,T cells,T cells
+TGTATGCTTTCATC-1,T cells,T cells,T cells
+TGTCAGGAATACCG-1,T cells,T cells,T cells
+TGTCAGGAGATGAA-1,Mono,Mono,Mono
+TGTCTAACCCCTTG-1,T cells,T cells,T cells
+TGTGACGATTCTCA-1,T cells,T cells,T cells
+TGTGAGACTGTCAG-1,Mono,Mono,Mono
+TGTGAGACTTGAGC-1,T cells,T cells,T cells
+TGTGAGTGACCACA-1,T cells,T cells,T cells
+TGTGAGTGAGTGCT-1,Mono,Mono,Mono
+TGTGAGTGGAGATA-1,NK,T cells,T cells
+TGTGATCTCTCTAT-1,B cells,B cells,B cells
+TGTGATCTGACACT-1,T cells,T cells,T cells
+TGTGGATGGCCAAT-1,B cells,B cells,B cells
+TGTTAAGACAAAGA-1,Mono,Mono,Mono
+TGTTAAGATAAGGA-1,Mono,Mono,Mono
+TGTTACACCGCATA-1,Mono,Mono,Mono
+TGTTACACGACTAC-1,Mono,Mono,Mono
+TGTTACTGGCTACA-1,T cells,T cells,T cells
+TGTTACTGTAGTCG-1,T cells,T cells,T cells
+TTAACCACCGTAAC-1,T cells,T cells,T cells
+TTAACCACTAAGGA-1,NK,T cells,T cells
+TTAACCACTCAGAC-1,T cells,T cells,T cells
+TTACACACGTGTTG-1,T cells,T cells,T cells
+TTACACACTCCTAT-1,T cells,T cells,T cells
+TTACCATGAATCGC-1,Mono,Mono,Mono
+TTACCATGGTTGAC-1,T cells,T cells,T cells
+TTACCATGTGTCTT-1,NK,T cells,T cells
+TTACCATGTTGTGG-1,B cells,B cells,B cells
+TTACGACTGAGAGC-1,T cells,T cells,T cells
+TTACGACTTGACAC-1,Mono,Mono,Mono
+TTACGTACGTTCAG-1,T cells,Platelet,Platelet
+TTACTCGAAGAATG-1,Mono,Mono,Mono
+TTACTCGACGCAAT-1,Mono,DC,DC
+TTACTCGAGGGTGA-1,T cells,T cells,T cells
+TTACTCGATCTACT-1,NK,NK,NK
+TTAGAATGTGGTGT-1,T cells,T cells,T cells
+TTAGAATGTGTAGC-1,T cells,T cells,T cells
+TTAGACCTCCTACC-1,T cells,T cells,T cells
+TTAGACCTCCTTTA-1,Mono,Mono,Mono
+TTAGCTACAACCGT-1,T cells,T cells,T cells
+TTAGCTACTGTCCC-1,Mono,Mono,Mono
+TTAGCTACTTTCGT-1,T cells,T cells,T cells
+TTAGGGACGCGAAG-1,T cells,T cells,T cells
+TTAGGGTGCTGGAT-1,B cells,B cells,B cells
+TTAGGGTGTCCTGC-1,Mono,Mono,Mono
+TTAGGTCTACTTTC-1,Mono,Mono,Mono
+TTAGTCACCAGTTG-1,T cells,T cells,T cells
+TTAGTCTGAAAGCA-1,B cells,B cells,B cells
+TTAGTCTGCCAACA-1,NK,NK,NK
+TTAGTCTGTGCACA-1,T cells,T cells,T cells
+TTATCCGACTAGTG-1,B cells,B cells,B cells
+TTATCCGAGAAAGT-1,Mono,Mono,Mono
+TTATGAGAGATAAG-1,T cells,T cells,T cells
+TTATGCACGTCACA-1,B cells,B cells,B cells
+TTATGGCTTATGGC-1,Mono,DC,DC
+TTATTCCTATGCTG-1,Mono,Mono,Mono
+TTATTCCTGGACAG-1,B cells,B cells,B cells
+TTATTCCTGGTACT-1,B cells,B cells,B cells
+TTATTCCTTCGTGA-1,T cells,T cells,T cells
+TTCAAAGATAAAGG-1,T cells,T cells,T cells
+TTCAACACAACAGA-1,T cells,T cells,T cells
+TTCAACACCCCAAA-1,Mono,Mono,Mono
+TTCAACACGGACGA-1,Mono,Mono,Mono
+TTCAAGCTAAGAAC-1,Mono,Mono,Mono
+TTCAAGCTAGATGA-1,T cells,T cells,T cells
+TTCAAGCTGTTGAC-1,T cells,T cells,T cells
+TTCAAGCTTGATGC-1,T cells,T cells,T cells
+TTCAAGCTTTCGCC-1,T cells,T cells,T cells
+TTCACAACCCGTTC-1,Mono,Mono,Mono
+TTCACAACGTCTGA-1,Mono,Mono,Mono
+TTCAGACTACCCAA-1,T cells,T cells,T cells
+TTCAGACTCTCGAA-1,T cells,T cells,T cells
+TTCAGTACCGACTA-1,T cells,T cells,T cells
+TTCAGTACTCAAGC-1,T cells,T cells,T cells
+TTCAGTACTCCTAT-1,Mono,Mono,Mono
+TTCAGTTGCCAAGT-1,T cells,T cells,T cells
+TTCAGTTGTCCTTA-1,Mono,DC,DC
+TTCAGTTGTCTAGG-1,T cells,T cells,T cells
+TTCAGTTGTCTCGC-1,B cells,B cells,B cells
+TTCATCGAGGTGGA-1,Mono,Mono,Mono
+TTCATGTGTGGTGT-1,T cells,T cells,T cells
+TTCATTCTATGTCG-1,Mono,Mono,Mono
+TTCATTCTTCTCTA-1,T cells,T cells,T cells
+TTCCAAACCTATGG-1,Mono,Mono,Mono
+TTCCAAACCTCCCA-1,B cells,B cells,B cells
+TTCCAAACTCCCAC-1,NK,NK,NK
+TTCCAAACTTGACG-1,T cells,T cells,T cells
+TTCCATGACGAGAG-1,Mono,Mono,Mono
+TTCCATGACTGTCC-1,T cells,T cells,T cells
+TTCCCACTTGAGGG-1,NK,NK,NK
+TTCCCACTTGTCTT-1,Mono,Mono,Mono
+TTCCTAGAAAGTGA-1,T cells,T cells,T cells
+TTCCTAGACTAGTG-1,Mono,Mono,Mono
+TTCGAGGACTCTAT-1,T cells,T cells,T cells
+TTCGAGGAGGGCAA-1,T cells,T cells,T cells
+TTCGAGGATAGAAG-1,Mono,Mono,Mono
+TTCGATTGAGCATC-1,T cells,T cells,T cells
+TTCGGAGAATGCCA-1,Mono,Mono,Mono
+TTCGGAGATGTGCA-1,T cells,T cells,T cells
+TTCGTATGAAAAGC-1,NK,T cells,T cells
+TTCGTATGGATAGA-1,T cells,T cells,T cells
+TTCGTATGGTCTGA-1,T cells,T cells,T cells
+TTCGTATGTCCTTA-1,Mono,Mono,Mono
+TTCTACGAACGTAC-1,T cells,T cells,T cells
+TTCTACGAGTTGGT-1,T cells,T cells,T cells
+TTCTAGTGACACGT-1,T cells,T cells,T cells
+TTCTAGTGCATGAC-1,Mono,Mono,Mono
+TTCTAGTGGAGAGC-1,NK,NK,NK
+TTCTAGTGGTCACA-1,Mono,Mono,Mono
+TTCTCAGAAGAGAT-1,T cells,T cells,T cells
+TTCTCAGAAGCATC-1,B cells,B cells,B cells
+TTCTCAGATGGAGG-1,T cells,T cells,T cells
+TTCTGATGGAGACG-1,NK,NK,NK
+TTCTTACTCTGGAT-1,Mono,Mono,Mono
+TTGAACCTCCTTGC-1,B cells,B cells,B cells
+TTGAATGAACTACG-1,Mono,Mono,Mono
+TTGAATGACTTACT-1,T cells,T cells,T cells
+TTGAATGATCTCAT-1,B cells,B cells,B cells
+TTGACACTCTGTAG-1,T cells,T cells,T cells
+TTGACACTGATAAG-1,B cells,B cells,B cells
+TTGAGGACAGAACA-1,Mono,Mono,Mono
+TTGAGGACTACGCA-1,Mono,DC,DC
+TTGAGGTGGACGGA-1,T cells,T cells,T cells
+TTGCATTGAGCTAC-1,NK,T cells,T cells
+TTGCATTGCTAAGC-1,Mono,Mono,Mono
+TTGCATTGTGACTG-1,T cells,T cells,T cells
+TTGCTAACACCAAC-1,T cells,T cells,T cells
+TTGCTAACACGCTA-1,Mono,Mono,Mono
+TTGCTAACCACTCC-1,T cells,T cells,T cells
+TTGCTATGGTACGT-1,Mono,Mono,Mono
+TTGCTATGGTAGGG-1,Mono,Mono,Mono
+TTGGAGACCAATCG-1,T cells,T cells,T cells
+TTGGAGACGCTATG-1,Mono,Mono,Mono
+TTGGAGACTATGGC-1,B cells,B cells,B cells
+TTGGGAACTGAACC-1,T cells,T cells,T cells
+TTGGTACTACTGGT-1,Mono,Mono,Mono
+TTGGTACTCTTAGG-1,T cells,T cells,T cells
+TTGGTACTGAATCC-1,B cells,B cells,B cells
+TTGGTACTGGATTC-1,B cells,B cells,B cells
+TTGTACACGTTGTG-1,B cells,B cells,B cells
+TTGTACACTTGCAG-1,T cells,T cells,T cells
+TTGTAGCTAGCTCA-1,T cells,T cells,T cells
+TTGTAGCTCTCTTA-1,B cells,B cells,B cells
+TTGTCATGGACGGA-1,NK,NK,NK
+TTTAGAGATCCTCG-1,B cells,B cells,B cells
+TTTAGCTGATACCG-1,T cells,T cells,T cells
+TTTAGCTGGATACC-1,Mono,Mono,Mono
+TTTAGCTGTACTCT-1,Mono,DC,DC
+TTTAGGCTCCTTTA-1,Mono,Mono,Mono
+TTTATCCTGTTGTG-1,Mono,Mono,Mono
+TTTCACGAGGTTCA-1,T cells,T cells,T cells
+TTTCAGTGGAAGGC-1,T cells,T cells,T cells
+TTTCAGTGTCACGA-1,B cells,B cells,B cells
+TTTCAGTGTCTATC-1,Mono,Mono,Mono
+TTTCAGTGTGCAGT-1,B cells,B cells,B cells
+TTTCCAGAGGTGAG-1,T cells,T cells,T cells
+TTTCGAACACCTGA-1,T cells,DC,DC
+TTTCGAACTCTCAT-1,Mono,Mono,Mono
+TTTCTACTGAGGCA-1,B cells,B cells,B cells
+TTTCTACTTCCTCG-1,B cells,B cells,B cells
+TTTGCATGAGAGGC-1,B cells,B cells,B cells
+TTTGCATGCCTCAC-1,T cells,T cells,T cells

@@ -1,0 +1,48 @@
+{
+  "tool": "scANVI",
+  "8K": {
+    "n_total": 8371,
+    "n_known": 6534,
+    "n_excluded": 1837,
+    "n_other_predictions": 0,
+    "accuracy": 0.9602081420263239,
+    "macro_f1": 0.735987056377778,
+    "weighted_f1": 0.9623509522053296,
+    "per_class_f1": {
+      "B cells": 0.9818181818181818,
+      "Mono": 0.9918621349928195,
+      "NK": 0.7506561679790026,
+      "Platelet": 0.0,
+      "T cells": 0.9555987970988855
+    }
+  },
+  "3K": {
+    "n_total": 2638,
+    "n_known": 2601,
+    "n_excluded": 37,
+    "n_other_predictions": 0,
+    "accuracy": 0.9496347558631296,
+    "macro_f1": 0.7340609490231433,
+    "weighted_f1": 0.9502068307181339,
+    "per_class_f1": {
+      "B cells": 0.9826589595375722,
+      "Mono": 0.9929078014184397,
+      "NK": 0.7384615384615385,
+      "Platelet": 0.0,
+      "T cells": 0.9562764456981664
+    }
+  },
+  "run_info": [
+    {
+      "tool": "scANVI",
+      "scvi_version": "1.4.2",
+      "n_hvg": 2000,
+      "scvi_epochs": 100,
+      "scanvi_epochs": 50,
+      "scvi_time_min": 11.825712843736012,
+      "scanvi_time_min": 13.758948338031768,
+      "total_time_min": 25.985339415073398,
+      "accelerator": "gpu"
+    }
+  ]
+}
