@@ -76,6 +76,16 @@ def main():
     ap.add_argument("--scvi_epochs",   type=int, default=100)
     ap.add_argument("--scanvi_epochs", type=int, default=50)
     ap.add_argument("--use_gpu",   action="store_true")
+    ap.add_argument("--seed", type=int, default=42,
+                    help="Global scvi-tools seed for reproducibility.")
+    ap.add_argument("--n_samples_per_label", type=int, default=None,
+                    help="If set, SCANVI samples this many cells per class "
+                         "per epoch during fine-tuning. Use to rebalance "
+                         "against class imbalance (e.g. 4000 for near-equal "
+                         "per-class gradient mass on the 68K labels).")
+    ap.add_argument("--run_tag", type=str, default="",
+                    help="Suffix appended to output filenames to separate "
+                         "runs (e.g. 'weighted', 'seed42').")
     args = ap.parse_args()
 
     root = Path(args.root)
@@ -83,8 +93,12 @@ def main():
     outdir.mkdir(parents=True, exist_ok=True)
 
     import scvi
+    scvi.settings.seed = args.seed
     print(f"[scvi-tools version] {scvi.__version__}")
     print(f"[accelerator       ] {'gpu' if args.use_gpu else 'cpu'}")
+    print(f"[seed              ] {args.seed}")
+    print(f"[n_samples_per_label] {args.n_samples_per_label}")
+    print(f"[run_tag           ] {args.run_tag!r}")
 
     t_start = time.time()
 
@@ -173,6 +187,7 @@ def main():
     scanvi_model.train(
         max_epochs=args.scanvi_epochs,
         accelerator="gpu" if args.use_gpu else "cpu",
+        n_samples_per_label=args.n_samples_per_label,
     )
     scanvi_time = (time.time() - t0) / 60
     print(f"  scanvi training: {scanvi_time:.1f} min")
@@ -182,6 +197,7 @@ def main():
     preds = scanvi_model.predict(adata)
     adata.obs["scanvi_pred"] = preds
 
+    tag = f"_{args.run_tag}" if args.run_tag else ""
     for ds in ["8K", "3K"]:
         sub = adata[adata.obs["batch"] == ds]
         # Barcode without the "-{ds}" suffix anndata appended
@@ -193,23 +209,26 @@ def main():
             "true_raw":        sub.obs["label"].astype(str).values,
             "true_coarse":     sub.obs["true_coarse"].astype(str).values,
         })
-        out = outdir / f"scanvi_{ds.lower()}_predictions.csv"
+        out = outdir / f"scanvi{tag}_{ds.lower()}_predictions.csv"
         df.to_csv(out, index=False)
         print(f"  wrote {len(df)} predictions → {out}")
 
     # Run info (metrics computed locally afterwards)
     run_info = pd.DataFrame([{
-        "tool":            "scANVI",
-        "scvi_version":    scvi.__version__,
-        "n_hvg":           adata.shape[1],
-        "scvi_epochs":     args.scvi_epochs,
-        "scanvi_epochs":   args.scanvi_epochs,
-        "scvi_time_min":   float(scvi_time),
-        "scanvi_time_min": float(scanvi_time),
-        "total_time_min":  float((time.time() - t_start) / 60),
-        "accelerator":     "gpu" if args.use_gpu else "cpu",
+        "tool":                "scANVI",
+        "scvi_version":        scvi.__version__,
+        "n_hvg":               adata.shape[1],
+        "scvi_epochs":         args.scvi_epochs,
+        "scanvi_epochs":       args.scanvi_epochs,
+        "seed":                int(args.seed),
+        "n_samples_per_label": args.n_samples_per_label,
+        "run_tag":             args.run_tag,
+        "scvi_time_min":       float(scvi_time),
+        "scanvi_time_min":     float(scanvi_time),
+        "total_time_min":      float((time.time() - t_start) / 60),
+        "accelerator":         "gpu" if args.use_gpu else "cpu",
     }])
-    run_info.to_csv(outdir / "scanvi_run_info.csv", index=False)
+    run_info.to_csv(outdir / f"scanvi{tag}_run_info.csv", index=False)
     print(f"\n✅ Prediction CSVs saved to {outdir}")
     print("   Download them locally into results/comparators/scanvi/ then run:")
     print("   python src/comparator_scanvi_postprocess.py")
