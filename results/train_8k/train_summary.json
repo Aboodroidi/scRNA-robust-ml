@@ -1,0 +1,58 @@
+[
+  {
+    "Model": "LR",
+    "train_time": 0.12417197227478027,
+    "best_C": 5.0,
+    "best_val_f1": 0.9942048644441914
+  },
+  {
+    "Model": "XGB",
+    "train_time": 5.007761240005493,
+    "best_iteration": 230
+  },
+  {
+    "Model": "SANN",
+    "seed": 42,
+    "train_time": 108.18468308448792,
+    "best_val_f1": 0.9866182913303609,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  },
+  {
+    "Model": "SANN",
+    "seed": 43,
+    "train_time": 83.35297393798828,
+    "best_val_f1": 0.9866182913303609,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  },
+  {
+    "Model": "SANN",
+    "seed": 44,
+    "train_time": 105.1741578578949,
+    "best_val_f1": 0.9896757273139498,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  },
+  {
+    "Model": "SANN",
+    "seed": 45,
+    "train_time": 121.01279926300049,
+    "best_val_f1": 0.9873831117757741,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  },
+  {
+    "Model": "SANN",
+    "seed": 46,
+    "train_time": 102.423024892807,
+    "best_val_f1": 0.9836358397161675,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  }
+]

@@ -1,0 +1,17 @@
+SANN on pbmc8k
+Accuracy 0.9432
+Macro-F1 0.7423
+Macro-F1 (known) 0.8908
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      1.00      0.99      1222
+          DC       0.62      0.98      0.76       224
+        Mono       1.00      0.94      0.97      2102
+          NK       0.63      1.00      0.77       313
+    Platelet       0.00      0.00      0.00         0
+     T cells       1.00      0.91      0.95      2897
+
+    accuracy                           0.94      6758
+   macro avg       0.71      0.80      0.74      6758
+weighted avg       0.97      0.94      0.95      6758

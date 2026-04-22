@@ -1,0 +1,30 @@
+{
+  "train_source": "pbmc8k",
+  "gene_intersection_with_3k": true,
+  "coarsen_labels": true,
+  "n_genes_8k_original": 2000,
+  "n_genes_used": 2000,
+  "n_train": 5744,
+  "n_val": 1014,
+  "pca_dim": 100,
+  "mask_pca_dim": 50,
+  "class_names": [
+    "B cells",
+    "DC",
+    "Mono",
+    "NK",
+    "T cells"
+  ],
+  "label_key": "cell_type",
+  "expr_pca_expl_var": 0.2928447723388672,
+  "mask_pca_expl_var": 0.356518417596817,
+  "sann_arch": "small",
+  "sann_n_seeds": 5,
+  "sann_batch_size": 256,
+  "sann_patience": 50,
+  "sann_mixup_alpha": 0.4,
+  "prior_correction": false,
+  "lr_class_weight": "balanced",
+  "xgb_sample_weight": "balanced (1 / class_count)",
+  "sann_sampler": "WeightedRandomSampler (class-balanced)"
+}

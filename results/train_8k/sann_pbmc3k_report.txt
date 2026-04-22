@@ -1,0 +1,16 @@
+SANN on pbmc3k
+Accuracy 0.9790
+Macro-F1 0.9343
+Macro-F1 (known) 0.9343
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      0.99      0.99       342
+          DC       0.76      0.84      0.79        37
+        Mono       0.99      0.99      0.99       630
+          NK       0.89      0.94      0.91       154
+     T cells       0.99      0.98      0.98      1460
+
+    accuracy                           0.98      2623
+   macro avg       0.92      0.95      0.93      2623
+weighted avg       0.98      0.98      0.98      2623

@@ -1,0 +1,16 @@
+LR on pbmc68k
+Accuracy 0.5424
+Macro-F1 0.5241
+Macro-F1 (known) 0.6551
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      0.97      0.98      4021
+          DC       0.00      0.00      0.00         0
+        Mono       1.00      0.62      0.76      4664
+          NK       0.97      0.20      0.33     18887
+     T cells       0.38      1.00      0.55      9690
+
+    accuracy                           0.54     37262
+   macro avg       0.67      0.56      0.52     37262
+weighted avg       0.82      0.54      0.51     37262
