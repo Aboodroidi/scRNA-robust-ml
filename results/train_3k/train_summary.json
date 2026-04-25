@@ -1,0 +1,40 @@
+[
+  {
+    "Model": "LR",
+    "train_time": 0.07020998001098633,
+    "best_C": 5.0,
+    "best_val_f1": 0.9072049689232755
+  },
+  {
+    "Model": "XGB",
+    "train_time": 1.1238501071929932,
+    "best_iteration": 133
+  },
+  {
+    "Model": "SANN",
+    "seed": 42,
+    "train_time": 63.744147062301636,
+    "best_val_f1": 0.9595057554430193,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  },
+  {
+    "Model": "SANN",
+    "seed": 43,
+    "train_time": 57.238649129867554,
+    "best_val_f1": 0.9558576592132934,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  },
+  {
+    "Model": "SANN",
+    "seed": 44,
+    "train_time": 55.61730909347534,
+    "best_val_f1": 0.9558576592132934,
+    "arch": "small",
+    "branch_hidden": 256,
+    "branch_out": 128
+  }
+]

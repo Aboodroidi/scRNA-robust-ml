@@ -1,0 +1,16 @@
+XGB_PCA — External Validation (PBMC 3K)
+Accuracy: 0.9827
+Macro-F1: 0.9542
+Macro-F1 (known): 0.9542
+
+              precision    recall  f1-score   support
+
+     B cells       0.98      0.99      0.99       342
+        Mono       0.99      1.00      0.99       630
+          NK       0.91      0.90      0.91       154
+    Platelet       0.93      0.87      0.90        15
+     T cells       0.99      0.98      0.99      1460
+
+    accuracy                           0.98      2601
+   macro avg       0.96      0.95      0.95      2601
+weighted avg       0.98      0.98      0.98      2601

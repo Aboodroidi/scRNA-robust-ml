@@ -1,0 +1,50 @@
+{
+  "tool": "ACTINN_pytorch_reimpl",
+  "8K": {
+    "n_total": 8371,
+    "n_known": 6534,
+    "n_excluded": 1837,
+    "n_other_predictions": 0,
+    "accuracy": 0.9797979797979798,
+    "macro_f1": 0.7665598955112168,
+    "weighted_f1": 0.9816386183615068,
+    "per_class_f1": {
+      "B cells": 0.9947089947089947,
+      "Mono": 0.9909047391096218,
+      "NK": 0.8652037617554859,
+      "Platelet": 0.0,
+      "T cells": 0.9819819819819819
+    }
+  },
+  "3K": {
+    "n_total": 2638,
+    "n_known": 2601,
+    "n_excluded": 37,
+    "n_other_predictions": 0,
+    "accuracy": 0.9719338715878508,
+    "macro_f1": 0.9427662352945052,
+    "weighted_f1": 0.9724567270812416,
+    "per_class_f1": {
+      "B cells": 0.9826589595375722,
+      "Mono": 0.9936908517350158,
+      "NK": 0.8328267477203647,
+      "Platelet": 0.9285714285714286,
+      "T cells": 0.9760831889081456
+    }
+  },
+  "run_info": [
+    {
+      "tool": "ACTINN_pytorch_reimpl",
+      "n_train_cells": 68512,
+      "n_genes": 19224,
+      "n_epochs": 20,
+      "batch_size": 512,
+      "lr": 0.0001,
+      "hidden": "100-50-25",
+      "training_min": 1440.682446149985,
+      "torch_version": "2.2.2",
+      "device": "cpu",
+      "seed": 42
+    }
+  ]
+}

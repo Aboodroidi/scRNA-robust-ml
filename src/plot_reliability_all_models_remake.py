@@ -153,44 +153,84 @@ def compute_reliability(probs: np.ndarray, y_true: np.ndarray, n_bins: int = 10,
     return x, y, counts, float(ece), bin_edges
 
 
-def plot_reliability(ax, probs, y_true, title, n_bins=10, binning="quantile"):
-    x, y, counts, ece, bin_edges = compute_reliability(probs, y_true, n_bins=n_bins, binning=binning)
+MODEL_COLORS = {
+    "LR":   "#1b9e77",
+    "XGB":  "#d95f02",
+    "SANN": "#7570b3",
+}
 
-    # Reference line
-    ax.plot([0, 1], [0, 1], linestyle="--", linewidth=1)
 
-    # Plot ONLY real computed bins (counts>0)
-    mask = counts > 0
-    ax.plot(x[mask], y[mask], marker="o", linewidth=1.5)
+COLOR_UNDERCONF = "#FFB6C1"   # pink — accuracy > confidence
+COLOR_OVERCONF  = "#B0B0FF"   # light purple/blue — confidence > accuracy
 
-    # Cosmetic + ECE
-    ax.set_title(title)
-    ax.set_xlim(0, 1)
-    ax.set_ylim(0, 1)
-    ax.set_xlabel("Mean predicted confidence")
-    ax.set_ylabel("Observed accuracy")
 
-    ax.text(
-        0.05, 0.08,
-        f"ECE = {ece:.3f}",
-        transform=ax.transAxes,
-        fontsize=10,
-        va="bottom",
+def _shade_calibration_gap(ax, x_pts, y_pts):
+    """Shade underconfidence pink, overconfidence purple between curve and diagonal."""
+    x_pts = np.asarray(x_pts)
+    y_pts = np.asarray(y_pts)
+
+    # Underconfidence: observed accuracy > predicted confidence
+    ax.fill_between(
+        x_pts, x_pts, y_pts,
+        where=(y_pts >= x_pts),
+        interpolate=True,
+        color=COLOR_UNDERCONF, alpha=0.45,
+        label="Underconfidence",
+    )
+    # Overconfidence: predicted confidence > observed accuracy
+    ax.fill_between(
+        x_pts, x_pts, y_pts,
+        where=(y_pts < x_pts),
+        interpolate=True,
+        color=COLOR_OVERCONF, alpha=0.45,
+        label="Overconfidence",
     )
 
-    # Debug info (optional print)
-    n_empty = int((counts == 0).sum())
-    if n_empty > 0 and binning == "uniform":
-        ax.text(
-            0.05, 0.02,
-            f"{n_empty} empty bins",
-            transform=ax.transAxes,
-            fontsize=9,
-            va="bottom",
-            alpha=0.85,
-        )
+
+def plot_reliability_single(ax, probs, y_true, title, color, n_bins=10, binning="quantile"):
+    """Single-model reliability diagram with under/overconfidence shading."""
+    x, y, counts, ece, bin_edges = compute_reliability(probs, y_true, n_bins=n_bins, binning=binning)
+    mask = counts > 0
+    xm, ym = x[mask], y[mask]
+
+    # Shaded gap regions
+    _shade_calibration_gap(ax, xm, ym)
+
+    # Perfect calibration line
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1.5, label="Perfect Calibration")
+
+    # Calibration curve
+    ax.plot(xm, ym, "o-", color="black", linewidth=2, markersize=7,
+            label=f"Calibration Line (ECE={ece:.3f})")
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_aspect("equal")
 
     return ece
+
+
+def plot_reliability_overlay(ax, model_data, n_bins=10, binning="quantile"):
+    """Overlay all models on one reliability diagram."""
+    # Perfect calibration line
+    ax.plot([0, 1], [0, 1], "k--", linewidth=1.5, label="Perfect Calibration")
+
+    for name, probs, y_true in model_data:
+        color = MODEL_COLORS.get(name, "grey")
+        x, y, counts, ece, _ = compute_reliability(probs, y_true, n_bins=n_bins, binning=binning)
+        mask = counts > 0
+        ax.plot(x[mask], y[mask], "o-", color=color, linewidth=2, markersize=6,
+                label=f"{name} (ECE={ece:.3f})")
+        # Shaded gap
+        ax.fill_between(x[mask], x[mask], y[mask], color=color, alpha=0.12)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_aspect("equal")
+    ax.set_xlabel("Predicted Probability", fontsize=11)
+    ax.set_ylabel("Accuracy", fontsize=11)
+    ax.legend(loc="upper left", fontsize=10, frameon=True, framealpha=0.9)
+    ax.grid(True, alpha=0.2)
 
 
 def main():
@@ -269,19 +309,48 @@ def main():
     print(f"[Sanity] XGB acc={accuracy_score(y_test, xgb_probs.argmax(1)):.4f} macroF1={f1_score(y_test, xgb_probs.argmax(1), average='macro'):.4f}")
     print(f"[Sanity] SANN acc={accuracy_score(sann_true, sann_probs.argmax(1)):.4f} macroF1={f1_score(sann_true, sann_probs.argmax(1), average='macro'):.4f}")
 
-    # Plot (1x3)
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.8), sharex=True, sharey=True)
+    # ================================================================
+    # PRIMARY FIGURE: all three models overlaid on one reliability diagram
+    # ================================================================
+    fig_overlay, ax_overlay = plt.subplots(figsize=(7, 7))
 
-    plot_reliability(axes[0], lr_probs, y_test, "Logistic Regression", n_bins=args.bins, binning=args.binning)
-    plot_reliability(axes[1], xgb_probs, y_test, "XGBoost", n_bins=args.bins, binning=args.binning)
-    plot_reliability(axes[2], sann_probs, sann_true, "SANN", n_bins=args.bins, binning=args.binning)
+    model_data = [
+        ("LR",   lr_probs,   y_test),
+        ("XGB",  xgb_probs,  y_test),
+        ("SANN", sann_probs, sann_true),
+    ]
+    plot_reliability_overlay(ax_overlay, model_data, n_bins=args.bins, binning=args.binning)
+    ax_overlay.set_title(f"Reliability Diagram — All Models\n({args.bins} {args.binning} bins, test set)",
+                         fontsize=13, fontweight="bold")
 
-    fig.suptitle(f"Reliability Diagrams (Test Set, {args.bins} bins, {args.binning} binning)", y=1.02)
+    fig_overlay.tight_layout()
+    out_overlay = args.out
+    fig_overlay.savefig(out_overlay, dpi=args.dpi, bbox_inches="tight")
+    plt.close(fig_overlay)
+    print(f"[Saved] {out_overlay}")
+
+    # ================================================================
+    # SECONDARY FIGURE: per-model subplots with under/overconfidence shading
+    # ================================================================
+    fig, axes = plt.subplots(1, 3, figsize=(18, 5.5))
+
+    for ax_i, (name, probs, y_true_i) in zip(axes, model_data):
+        color = MODEL_COLORS[name]
+        plot_reliability_single(ax_i, probs, y_true_i, name, color,
+                                n_bins=args.bins, binning=args.binning)
+        ax_i.set_title(name, fontsize=13, fontweight="bold")
+        ax_i.set_xlabel("Predicted Probability", fontsize=10)
+        ax_i.set_ylabel("Accuracy", fontsize=10)
+        ax_i.legend(loc="upper left", fontsize=9, frameon=True, framealpha=0.9)
+        ax_i.grid(True, alpha=0.2)
+
+    fig.suptitle(f"Reliability Diagrams ({args.bins} {args.binning} bins)",
+                 fontsize=14, fontweight="bold", y=1.02)
     fig.tight_layout()
-    fig.savefig(args.out, dpi=args.dpi, bbox_inches="tight")
+    out_per_model = args.out.replace(".png", "_per_model.png")
+    fig.savefig(out_per_model, dpi=args.dpi, bbox_inches="tight")
     plt.close(fig)
-
-    print(f"[Saved] {args.out}")
+    print(f"[Saved] {out_per_model}")
 
 
 if __name__ == "__main__":

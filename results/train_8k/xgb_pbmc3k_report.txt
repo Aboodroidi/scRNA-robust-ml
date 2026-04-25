@@ -1,0 +1,16 @@
+XGB on pbmc3k
+Accuracy 0.9779
+Macro-F1 0.9395
+Macro-F1 (known) 0.9395
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      0.99      0.99       342
+          DC       0.82      0.84      0.83        37
+        Mono       0.99      0.98      0.98       630
+          NK       0.92      0.90      0.91       154
+     T cells       0.98      0.98      0.98      1460
+
+    accuracy                           0.98      2623
+   macro avg       0.94      0.94      0.94      2623
+weighted avg       0.98      0.98      0.98      2623

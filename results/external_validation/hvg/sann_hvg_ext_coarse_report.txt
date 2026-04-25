@@ -1,0 +1,16 @@
+SANN_HVG — Coarse External Validation (PBMC 8K)
+Classes evaluated: ['B cells', 'Mono', 'NK', 'T cells']
+Accuracy: 0.7821
+Macro-F1: 0.7417
+Weighted-F1: 0.8056
+
+              precision    recall  f1-score   support
+
+     B cells       0.98      1.00      0.99      1222
+        Mono       0.88      0.98      0.93      2102
+          NK       0.22      0.98      0.36       313
+     T cells       0.99      0.53      0.69      2897
+
+   micro avg       0.79      0.78      0.78      6534
+   macro avg       0.77      0.87      0.74      6534
+weighted avg       0.92      0.78      0.81      6534

@@ -1,0 +1,12 @@
+Prediction recorded 2026-04-21, before seeing weighted results.
+
+I predict Platelet F1 on 3K will be approximately 0.35.
+I predict Platelet F1 on 8K will be approximately 0.55.
+I predict macro-F1 on 3K will be approximately 0.83.
+I predict NK F1 will move by less than 0.05 in either direction.
+
+Reasoning: n_samples_per_label=4000 gives the classification head
+balanced gradient mass per class per epoch, but does NOT reweight the
+generative ELBO term. Rare classes get stronger classifier signal but
+still map into an imbalance-shaped latent space. I expect partial, not
+full, recovery.

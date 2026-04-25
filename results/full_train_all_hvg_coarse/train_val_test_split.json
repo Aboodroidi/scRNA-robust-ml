@@ -1,0 +1,11 @@
+{
+  "train_full_size": 47957,
+  "train_size": 43161,
+  "val_size": 4796,
+  "test_size": 13703,
+  "val_frac": 0.1,
+  "expression_features": 2000,
+  "sann_total_input_dim": 4000,
+  "l1_lambda": 5e-08,
+  "temperature_scaling_used": false
+}

@@ -1,0 +1,7 @@
+,avg_rank
+SANN_PCA,1.0
+XGB_PCA,2.0
+XGB_HVG,3.0
+SANN_HVG,4.0
+LR_HVG,5.0
+LR_PCA,6.0

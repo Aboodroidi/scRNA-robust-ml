@@ -1,0 +1,2 @@
+tool,scvi_version,n_hvg,scvi_epochs,scanvi_epochs,seed,n_samples_per_label,run_tag,scvi_time_min,scanvi_time_min,total_time_min,accelerator
+scANVI,1.4.2,2000,100,50,43,4000,weighted_seed43,12.461954188346862,14.099817462762196,26.95345902442932,gpu

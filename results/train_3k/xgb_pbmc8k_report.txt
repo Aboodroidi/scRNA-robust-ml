@@ -1,0 +1,17 @@
+XGB on pbmc8k
+Accuracy 0.9632
+Macro-F1 0.7656
+Macro-F1 (known) 0.9187
+
+              precision    recall  f1-score   support
+
+     B cells       0.99      0.99      0.99      1222
+          DC       0.73      0.86      0.79       224
+        Mono       0.99      0.98      0.98      2102
+          NK       0.82      0.91      0.87       313
+    Platelet       0.00      0.00      0.00         0
+     T cells       0.98      0.96      0.97      2897
+
+    accuracy                           0.96      6758
+   macro avg       0.75      0.78      0.77      6758
+weighted avg       0.97      0.96      0.97      6758

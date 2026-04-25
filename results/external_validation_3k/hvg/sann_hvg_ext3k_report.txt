@@ -1,0 +1,16 @@
+SANN_HVG — External Validation (PBMC 3K)
+Accuracy: 0.9350
+Macro-F1: 0.9010
+Macro-F1 (known): 0.9010
+
+              precision    recall  f1-score   support
+
+     B cells       0.97      0.99      0.98       342
+        Mono       0.95      1.00      0.98       630
+          NK       0.55      0.97      0.71       154
+    Platelet       0.88      0.93      0.90        15
+     T cells       1.00      0.89      0.94      1460
+
+    accuracy                           0.94      2601
+   macro avg       0.87      0.96      0.90      2601
+weighted avg       0.96      0.94      0.94      2601

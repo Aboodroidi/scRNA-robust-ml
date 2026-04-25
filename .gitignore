@@ -4,4 +4,6 @@ data/
 __pycache__/
 .ipynb_checkpoints/
 .DS_Store
-EOF
+EOFresults/comparators/seurat/pbmc68k_seurat_reference.rds
+results/comparators/**/*.pt
+results/comparators/seurat/*.rds

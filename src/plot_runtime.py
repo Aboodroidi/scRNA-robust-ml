@@ -104,14 +104,13 @@ ax.set_xticklabels(models)
 
 ax.set_title("Training Runtime Comparison (PCA vs HVG)")
 ax.set_xlabel("Model")
-ax.set_ylabel("Training Time (seconds, log scale)")
+ax.set_ylabel("Training Time (seconds)")
 
-ax.set_yscale("log")
-ax.grid(False)
+ax.grid(True, axis="y", alpha=0.3)
 ax.legend()
 
 # optional: make top a bit looser so labels fit
-ax.set_ylim(min(all_vals) * 0.7, max(all_vals) * 1.6)
+ax.set_ylim(0, max(all_vals) * 1.25)
 
 
 # =========================

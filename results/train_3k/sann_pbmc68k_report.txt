@@ -1,0 +1,17 @@
+SANN on pbmc68k
+Accuracy 0.7675
+Macro-F1 0.7166
+Macro-F1 (known) 0.8599
+
+              precision    recall  f1-score   support
+
+     B cells       1.00      0.95      0.97      4021
+          DC       0.00      0.00      0.00         0
+        Mono       1.00      0.67      0.80      4664
+          NK       0.98      0.68      0.81     18887
+    Platelet       0.89      1.00      0.94       236
+     T cells       0.69      0.90      0.78      9690
+
+    accuracy                           0.77     37498
+   macro avg       0.76      0.70      0.72     37498
+weighted avg       0.91      0.77      0.82     37498

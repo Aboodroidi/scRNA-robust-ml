@@ -1,0 +1,4 @@
+Model,Accuracy,Macro-F1,TrainTimeSeconds,Notes
+LR,0.9778814123917388,0.9759705674554386,55.8764111995697,"input=HVG_expression; best_C=0.1; solver=lbfgs; grid=[0.1, 1.0, 5.0]"
+XGB,0.9836109260493004,0.9712445792073328,4965.233448028564,input=HVG_expression; best_iter=1272
+SANN,0.9781479013990673,0.9691814174019043,400.6177878379822,input=dual_encoder(expr_branch+mask_branch); branch=512→256; fusion=256→5; dropout=0.05; bn=True; class_weighted=True; lr=8e-4; l1_lambda=5e-08; temp_scaling=off

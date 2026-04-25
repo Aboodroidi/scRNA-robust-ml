@@ -1,0 +1,2 @@
+tool,scvi_version,n_hvg,scvi_epochs,scanvi_epochs,scvi_time_min,scanvi_time_min,total_time_min,accelerator
+scANVI,1.4.2,2000,100,50,11.825712843736012,13.758948338031768,25.985339415073394,gpu

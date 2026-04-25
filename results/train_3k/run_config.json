@@ -1,0 +1,30 @@
+{
+  "train_source": "pbmc3k",
+  "gene_intersection_with_68k": true,
+  "n_genes_3k_original": 32738,
+  "n_genes_used": 2000,
+  "n_train": 2242,
+  "n_val": 396,
+  "pca_dim": 50,
+  "mask_pca_dim": 50,
+  "class_names": [
+    "B cells",
+    "DC",
+    "Mono",
+    "NK",
+    "Platelet",
+    "T cells"
+  ],
+  "label_key": "cell_type_coarse",
+  "expr_pca_expl_var": 0.24284249544143677,
+  "mask_pca_expl_var": 0.41467511653900146,
+  "sann_arch": "small",
+  "sann_n_seeds": 3,
+  "sann_batch_size": 128,
+  "sann_patience": 50,
+  "sann_mixup_alpha": 0.4,
+  "prior_correction": false,
+  "lr_class_weight": "balanced",
+  "xgb_sample_weight": "balanced (1 / class_count)",
+  "sann_sampler": "WeightedRandomSampler (class-balanced)"
+}
