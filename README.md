@@ -2,6 +2,12 @@
 
 Robustness benchmarking of machine learning models for cell type classification on single-cell RNA-seq data. Compares Logistic Regression, XGBoost, and a custom Sparse-Aware Neural Network (SANN) across two feature representations (HVG and PCA) using the PBMC68K dataset.
 
+<p align="center">
+  <img src="results/figures/umap_3d_sann_pred_full.gif" alt="Rotating 3D UMAP of PBMC68K coloured by SANN predicted cell type" width="720"/>
+  <br/>
+  <em>3D UMAP of PBMC68K coloured by SANN_PCA predicted cell type.</em>
+</p>
+
 ## Dataset
 
 **PBMC68K** — ~68,000 peripheral blood mononuclear cells (10x Genomics). Cell types are annotated via Leiden clustering with canonical PBMC marker genes (T cells, CD8 T, NK, B cells, Plasma, Monocytes, Dendritic cells, Platelets).
