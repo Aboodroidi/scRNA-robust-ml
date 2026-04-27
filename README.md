@@ -2,9 +2,15 @@
 
 Robustness benchmarking of machine learning models for cell type classification on single-cell RNA-seq data. Compares Logistic Regression, XGBoost, and a custom Sparse-Aware Neural Network (SANN) across two feature representations (HVG and PCA) using the PBMC68K dataset.
 
+<p align="center">
+  <img src="results/figures/umap_3d_sann_pred_full.gif" alt="Rotating 3D UMAP of PBMC68K coloured by SANN predicted cell type" width="720"/>
+  <br/>
+  <em>3D UMAP of PBMC68K, coloured by SANN_PCA predictions.</em>
+</p>
+
 ## Dataset
 
-**PBMC68K** — ~68,000 peripheral blood mononuclear cells (10x Genomics). Cell types are annotated via Leiden clustering with canonical PBMC marker genes (T cells, CD8 T, NK, B cells, Plasma, Monocytes, Dendritic cells, Platelets).
+**PBMC68K**: ~68,000 peripheral blood mononuclear cells (10x Genomics). Cell types annotated via Leiden clustering with canonical PBMC marker genes (T cells, CD8 T, NK, B cells, Plasma, Monocytes, Dendritic cells, Platelets).
 
 ## Models
 
@@ -12,12 +18,12 @@ Robustness benchmarking of machine learning models for cell type classification 
 |---|---|
 | **Logistic Regression** | L2-regularised, grid search over C values, LBFGS solver |
 | **XGBoost** | Multi-class softmax, histogram-based tree method, early stopping |
-| **SANN** | Sparse-Aware Neural Network — concatenates scaled expression with a binary sparsity mask as input; 2-layer MLP with BatchNorm, ReLU/GELU, Dropout |
+| **SANN** | Sparse-Aware Neural Network. Concatenates scaled expression with a binary sparsity mask. 2-layer MLP, BatchNorm, GELU, Dropout |
 
 ## Feature Representations
 
-- **HVG** — Top 2,000 highly variable genes selected via scanpy, standardised per-split using training statistics only
-- **PCA** — First 50 principal components from the preprocessed expression matrix
+- **HVG**: top 2,000 highly variable genes from scanpy, standardised per-split using training statistics only
+- **PCA**: first 50 principal components from the preprocessed expression matrix
 
 ## Project Structure
 
@@ -85,12 +91,18 @@ python src/calibrate.py
 
 ## Evaluation
 
-- **Accuracy** and **Macro-F1** across 5 stratified splits
-- **Robustness** — variance of metrics across splits for HVG vs PCA
-- **Confidence calibration** — Expected Calibration Error (ECE) and reliability diagrams
-- **Error analysis** — confusion matrices, misclassified cell UMAP projections
-- **Ablation studies** — SANN architecture choices (hidden size, dropout, batchnorm, sparsity mask)
+- **Accuracy** and **macro-F1** across 5 stratified splits
+- **Robustness**: variance of metrics across splits for HVG vs PCA
+- **Confidence calibration**: Expected Calibration Error (ECE) and reliability diagrams
+- **Error analysis**: confusion matrices, misclassified cell UMAP projections
+- **Ablation studies**: SANN architecture choices (hidden size, dropout, batchnorm, sparsity mask)
 - **Runtime** comparison across models and feature types
+
+<p align="center">
+  <img src="results/figures/transfer_bar.gif" alt="Cross-donor macro-F1 bar chart, animated" width="720"/>
+  <br/>
+  <em>Cross-donor macro-F1 across the 6 train/test rotations of the 3K, 8K, and 68K donors.</em>
+</p>
 
 ## Testing
 

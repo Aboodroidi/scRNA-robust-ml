@@ -49,9 +49,7 @@ import torch.nn as nn
 from torch.utils.data import DataLoader, TensorDataset, WeightedRandomSampler
 
 
-# ============================================================
 # SANN architecture (identical to train_all_pca_models.py)
-# ============================================================
 def _make_norm_pca(dim, use_batchnorm):
     return nn.BatchNorm1d(dim) if use_batchnorm else nn.LayerNorm(dim)
 
@@ -164,9 +162,7 @@ def compute_class_weights(y, num_classes):
     return w.astype(np.float32)
 
 
-# ============================================================
 # Training
-# ============================================================
 def train_lr(X_tr, y_tr, X_val, y_val, outdir, c_grid=(0.1, 1.0, 5.0)):
     print("\nTraining Logistic Regression (PCA, class_weight=balanced)...")
     t0 = time.time()
@@ -377,9 +373,7 @@ def train_sann(X_tr, y_tr, X_val, y_val, num_classes, outdir,
             "arch": arch, "branch_hidden": bh, "branch_out": bo}
 
 
-# ============================================================
 # Evaluation helpers
-# ============================================================
 def to_dense_f32(x):
     if sp.issparse(x):
         return x.toarray().astype(np.float32)
@@ -472,9 +466,7 @@ def evaluate_external(name, y_true, y_pred, y_probs, class_names,
     }
 
 
-# ============================================================
 # Data alignment helpers
-# ============================================================
 def align_and_zscore(X_lognorm_src, genes_src, genes_ref, mean_ref, std_ref):
     """Align log-normalized expression to ref gene set, zero-fill missing,
     then z-score with ref stats (clipped to ±10)."""
@@ -537,13 +529,11 @@ def reconstruct_68k_lognorm(adata_68k):
     s = adata_68k.var["std"].values.astype(np.float32)
     s = np.where(s == 0, 1.0, s)
     X_lognorm = X * s + m
-    # clipping-introduced approximation — fine for the vast majority of values
+    # clipping-introduced approximation, fine for the vast majority of values
     return X_lognorm, list(adata_68k.var_names)
 
 
-# ============================================================
 # Main
-# ============================================================
 def main():
     ap = argparse.ArgumentParser(
         description="Train on PBMC 3K, eval externally on 8K + 68K"
@@ -582,9 +572,7 @@ def main():
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    # ------------------------------------------------------------------
     # 1. Load 3K
-    # ------------------------------------------------------------------
     print(f"Loading 3K: {args.data_3k}")
     ad3 = sc.read_h5ad(args.data_3k)
     print(f"  3K shape: {ad3.shape}")
@@ -608,9 +596,7 @@ def main():
         X_3k_log_full = X_3k_z_full * ref_std_safe_full + ref_mean_full
         print("  WARNING: layers['log_norm'] missing — reconstructing from z-scored X.")
 
-    # ------------------------------------------------------------------
     # 1b. (Option A) Intersect 3K genes with 68K gene set
-    # ------------------------------------------------------------------
     if use_intersection:
         print(f"\n[Option A] Intersecting 3K genes ({len(genes_3k_full)}) "
               f"with 68K gene set ...")
@@ -651,9 +637,7 @@ def main():
     print(f"  classes ({num_classes}): {class_names}")
     print(f"  class counts: {dict(zip(class_names, np.bincount(y_3k).tolist()))}")
 
-    # ------------------------------------------------------------------
     # 2. Stratified train/val split (within 3K)
-    # ------------------------------------------------------------------
     sss = StratifiedShuffleSplit(n_splits=1, test_size=args.val_frac,
                                  random_state=args.seed)
     tr_idx, val_idx = next(sss.split(np.zeros(len(y_3k)), y_3k))
@@ -666,9 +650,7 @@ def main():
     X_tr_log = X_3k_log[tr_idx]
     X_val_log = X_3k_log[val_idx]
 
-    # ------------------------------------------------------------------
     # 3. Fit expression PCA on train split
-    # ------------------------------------------------------------------
     print("\nFitting expression PCA on train split...")
     expr_pca = PCA(n_components=args.pca_dim, random_state=args.seed)
     X_tr_pca = expr_pca.fit_transform(X_tr_z).astype(np.float32)
@@ -677,9 +659,7 @@ def main():
           f"{expr_pca.explained_variance_ratio_.sum():.4f}")
     joblib.dump(expr_pca, os.path.join(args.outdir, "expr_pca_model.pkl"))
 
-    # ------------------------------------------------------------------
     # 4. Fit mask PCA on train split (mask = (log_norm != 0))
-    # ------------------------------------------------------------------
     print("\nFitting mask PCA on train split...")
     X_tr_mask = (X_tr_log != 0).astype(np.float32)
     X_val_mask = (X_val_log != 0).astype(np.float32)
@@ -720,9 +700,7 @@ def main():
             "sann_sampler": "WeightedRandomSampler (class-balanced)",
         }, f, indent=2)
 
-    # ------------------------------------------------------------------
     # 5. Train models
-    # ------------------------------------------------------------------
     train_summary = []
     if "lr" in args.models:
         train_summary.append(train_lr(X_tr_pca, y_tr, X_val_pca, y_val,
@@ -749,9 +727,7 @@ def main():
     with open(os.path.join(args.outdir, "train_summary.json"), "w") as f:
         json.dump(train_summary, f, indent=2, default=str)
 
-    # ------------------------------------------------------------------
     # 6. Prepare 8K features (aligned to 3K genes, z-scored with 3K stats)
-    # ------------------------------------------------------------------
     print("\n" + "=" * 60)
     print("  Preparing 8K external set")
     print("=" * 60)
@@ -798,9 +774,7 @@ def main():
     X_8k_epca_e = X_8k_epca[eval_rows_8k]
     X_8k_sann_e = X_8k_sann[eval_rows_8k]
 
-    # ------------------------------------------------------------------
     # 7. Prepare 68K features
-    # ------------------------------------------------------------------
     print("\n" + "=" * 60)
     print("  Preparing 68K external set")
     print("=" * 60)
@@ -865,9 +839,7 @@ def main():
     if unknown_68k:
         print(f"  68K types with no 3K counterpart (excluded): {unknown_68k}")
 
-    # ------------------------------------------------------------------
     # 8. Run predictions
-    # ------------------------------------------------------------------
     external_rows = []
 
     # Training class prior for optional label-shift correction
@@ -936,9 +908,7 @@ def main():
         external_rows.append(_run_sann(X_68k_sann, y_68k_mapped,
                                        known_68k, known_cls_68k, "pbmc68k"))
 
-    # ------------------------------------------------------------------
     # 9. Summary
-    # ------------------------------------------------------------------
     summary = pd.DataFrame(external_rows)
     summary_path = os.path.join(args.outdir, "external_eval_summary.csv")
     summary.to_csv(summary_path, index=False)
