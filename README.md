@@ -98,6 +98,12 @@ python src/calibrate.py
 - **Ablation studies**: SANN architecture choices (hidden size, dropout, batchnorm, sparsity mask)
 - **Runtime** comparison across models and feature types
 
+<p align="center">
+  <img src="results/figures/transfer_bar.gif" alt="Cross-donor macro-F1 bar chart, animated" width="720"/>
+  <br/>
+  <em>Cross-donor macro-F1 across the 6 train/test rotations of the 3K, 8K, and 68K donors.</em>
+</p>
+
 ## Testing
 
 ```bash
