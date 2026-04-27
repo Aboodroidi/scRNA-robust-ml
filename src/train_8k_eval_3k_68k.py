@@ -49,9 +49,7 @@ from train_3k_eval_8k_68k import (
 )
 
 
-# ============================================================
 # 8K training-space loader
-# ============================================================
 def load_8k_training_space(raw_8k_dir, data_8k_labeled):
     """
     Load 8K labels + reload raw 8K counts to produce:
@@ -98,9 +96,7 @@ def load_8k_training_space(raw_8k_dir, data_8k_labeled):
     return ad8, X_z, X_log, genes_8k, ref_mean, ref_std
 
 
-# ============================================================
 # Main
-# ============================================================
 def main():
     ap = argparse.ArgumentParser(
         description="Train on PBMC 8K, eval externally on 3K + 68K"
@@ -138,17 +134,13 @@ def main():
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    # ------------------------------------------------------------------
     # 1. Load 8K training data (labels + log-norm + stats)
-    # ------------------------------------------------------------------
     (ad8, X_8k_z_full, X_8k_log_full, genes_8k_full,
      ref_mean_full, ref_std_full) = load_8k_training_space(
         args.raw_8k_dir, args.data_8k
     )
 
-    # ------------------------------------------------------------------
     # 1b. (Option A) Intersect 8K genes with 3K gene set
-    # ------------------------------------------------------------------
     if use_intersection:
         print(f"\n[Option A] Intersecting 8K genes ({len(genes_8k_full)}) "
               f"with 3K gene set ...")
@@ -178,9 +170,7 @@ def main():
         X_8k_log = X_8k_log_full
     ref_std_safe = np.where(ref_std == 0, 1.0, ref_std)
 
-    # ------------------------------------------------------------------
     # 2. Labels + (optional) coarsening + stratified split
-    # ------------------------------------------------------------------
     raw_labels = ad8.obs[args.label_key].astype(str).to_numpy()
     print(f"\n  raw 8K label counts: "
           f"{dict(zip(*np.unique(raw_labels, return_counts=True)))}")
@@ -263,9 +253,7 @@ def main():
     X_tr_log = X_8k_log[tr_idx]
     X_val_log = X_8k_log[val_idx]
 
-    # ------------------------------------------------------------------
     # 3. PCA (expression + mask) on train split only
-    # ------------------------------------------------------------------
     print("\nFitting expression PCA on train split...")
     expr_pca = PCA(n_components=args.pca_dim, random_state=args.seed)
     X_tr_pca = expr_pca.fit_transform(X_tr_z).astype(np.float32)
@@ -315,9 +303,7 @@ def main():
             "sann_sampler": "WeightedRandomSampler (class-balanced)",
         }, f, indent=2)
 
-    # ------------------------------------------------------------------
     # 4. Train
-    # ------------------------------------------------------------------
     train_summary = []
     if "lr" in args.models:
         train_summary.append(train_lr(X_tr_pca, y_tr, X_val_pca, y_val,
@@ -343,9 +329,7 @@ def main():
     with open(os.path.join(args.outdir, "train_summary.json"), "w") as f:
         json.dump(train_summary, f, indent=2, default=str)
 
-    # ------------------------------------------------------------------
     # 5. Prepare 3K external set (align → z-score with 8K stats → project)
-    # ------------------------------------------------------------------
     print("\n" + "=" * 60)
     print("  Preparing 3K external set")
     print("=" * 60)
@@ -402,9 +386,7 @@ def main():
     if unk_3k:
         print(f"  3K types not in 8K class space (excluded): {unk_3k}")
 
-    # ------------------------------------------------------------------
     # 6. Prepare 68K external set
-    # ------------------------------------------------------------------
     print("\n" + "=" * 60)
     print("  Preparing 68K external set")
     print("=" * 60)
@@ -478,9 +460,7 @@ def main():
     if unk_68k:
         print(f"  68K types not in 8K class space (excluded): {unk_68k}")
 
-    # ------------------------------------------------------------------
     # 7. Predict + evaluate
-    # ------------------------------------------------------------------
     external_rows = []
 
     train_prior = np.bincount(y_tr, minlength=num_classes).astype(np.float64)
@@ -548,9 +528,7 @@ def main():
         external_rows.append(_run_sann(X_68k_sann, y_68k_mapped,
                                        known_68k, known_cls_68k, "pbmc68k"))
 
-    # ------------------------------------------------------------------
     # 8. Summary
-    # ------------------------------------------------------------------
     summary = pd.DataFrame(external_rows)
     summary_path = os.path.join(args.outdir, "external_eval_summary.csv")
     summary.to_csv(summary_path, index=False)

@@ -87,7 +87,7 @@ def main():
     ax.set_xlabel("UMAP1", labelpad=10)
     ax.set_ylabel("UMAP2", labelpad=10)
     ax.set_zlabel("PC1", labelpad=10)
-    ax.set_title("PBMC68K — SANN_PCA predicted cell type", pad=14)
+    ax.set_title("PBMC68K: SANN_PCA predicted cell type", pad=14)
     ax.set_xlim(coords[:, 0].min(), coords[:, 0].max())
     ax.set_ylim(coords[:, 1].min(), coords[:, 1].max())
     ax.set_zlim(coords[:, 2].min(), coords[:, 2].max())

@@ -3,19 +3,15 @@
 Build animated GIFs for the README from already-computed results.
 
 Outputs (saved to results/figures/):
-  transfer_heatmap_cycle.gif — 3x3 train/test macro-F1 matrix cycling
-                                LR_PCA → XGB_PCA → SANN_PCA. Reveals
-                                the SANN robustness gain on the
-                                3K→68K cell.
-  sann_training_curves.gif   — val macro-F1 vs epoch, drawing in epoch
-                                by epoch for each saved SANN seed
-                                (8K-trained run by default).
-  bootstrap_delta.gif        — paired bootstrap Δ(SANN_PCA − Seurat)
-                                on the 8K test set, histogram building
-                                up over the 1,000 resamples; 95% CI
-                                band materialising at the end.
+  transfer_heatmap_cycle.gif: 3x3 train/test macro-F1 matrix, cycling
+    LR_PCA -> XGB_PCA -> SANN_PCA.
+  sann_training_curves.gif: val macro-F1 vs epoch, drawn in epoch by
+    epoch for each saved SANN seed (8K-trained run by default).
+  bootstrap_delta.gif: paired bootstrap delta (SANN_PCA - Seurat) on
+    the 8K test set, histogram building up over 1000 resamples with
+    the 95% CI band added at the end.
 
-Dependencies: matplotlib, numpy, pandas, pillow (for GIF writer).
+Deps: matplotlib, numpy, pandas, pillow (for GIF writer).
 """
 import os
 
@@ -39,9 +35,7 @@ DONORS = ["68K", "8K", "3K"]
 MODELS = ["LR_PCA", "XGB_PCA", "SANN_PCA"]
 
 
-# ============================================================
-# GIF 1 — cycling 3x3 transfer heatmap
-# ============================================================
+# GIF 1: cycling 3x3 transfer heatmap
 def gif_transfer_cycle(out_path, fps=1.4):
     df = pd.read_csv(os.path.join(OUT_DIR, "transfer_matrix.csv"))
     mats = {}
@@ -109,9 +103,7 @@ def gif_transfer_cycle(out_path, fps=1.4):
     print(f"Saved: {out_path}")
 
 
-# ============================================================
-# GIF 2 — SANN training curves drawing in
-# ============================================================
+# GIF 2: SANN training curves drawing in
 def gif_training_curves(out_path, train_dir=None, fps=20):
     if train_dir is None:
         train_dir = os.path.join(ROOT, "results/train_8k")
@@ -189,9 +181,7 @@ def gif_training_curves(out_path, train_dir=None, fps=20):
     print(f"Saved: {out_path}")
 
 
-# ============================================================
-# GIF 3 — paired bootstrap Δ(SANN − Seurat) histogram building up
-# ============================================================
+# GIF 3: paired bootstrap delta (SANN - Seurat), histogram building up
 def gif_bootstrap_delta(out_path, n_boot=1000, fps=30):
     """
     Build a histogram of bootstrap Δ macro-F1 (SANN − Seurat) on 8K,
@@ -330,7 +320,6 @@ def gif_bootstrap_delta(out_path, n_boot=1000, fps=30):
     print(f"Saved: {out_path}")
 
 
-# ============================================================
 def main():
     gif_transfer_cycle(os.path.join(OUT_DIR, "transfer_heatmap_cycle.gif"))
     gif_training_curves(os.path.join(OUT_DIR, "sann_training_curves.gif"))
